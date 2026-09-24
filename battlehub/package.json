@@ -1,0 +1,21 @@
+{
+  "name": "battlehub",
+  "version": "1.0.0",
+  "private": true,
+  "description": "BattleHub: torneios, ranking, guildas e painel administrativo para jogadores de Free Fire",
+  "scripts": {
+    "web": "npx http-server www -p 8080 -c-1",
+    "sync": "npx cap sync android",
+    "apk": "npx cap sync android && cd android && ./gradlew assembleDebug",
+    "aab": "npx cap sync android && cd android && ./gradlew bundleRelease",
+    "icons": "npx capacitor-assets generate --android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/core": "^8.5.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.2"
+  }
+}

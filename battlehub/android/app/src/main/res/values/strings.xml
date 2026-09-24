@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BattleHub</string>
+    <string name="title_activity_main">BattleHub</string>
+    <string name="package_name">gg.battlehub.app</string>
+    <string name="custom_url_scheme">gg.battlehub.app</string>
+</resources>
