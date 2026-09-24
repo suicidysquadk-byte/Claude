@@ -1,0 +1,221 @@
+/* Entrada: login (Google ou código por e-mail), verificação animada, cadastro do Free Fire, suspensão */
+window.BH = window.BH || {};
+(function () {
+  const U = BH.ui, I = BH.icon, api = BH.api, esc = U.esc;
+  const pages = BH.pages, actions = BH.actions, forms = BH.forms, flows = BH.flows, st = BH.state;
+  const app = () => BH.app;
+  st.auth = st.auth || { step: 'start', email: '', sentAt: 0 };
+  st.ob = st.ob || { step: 1 };
+
+  BH.backRow = (label) => '<button type="button" class="back ripple" data-act="back">' + I('back') + (label || 'Voltar') + '</button>';
+
+  pages.setup = function () {
+    return {
+      hideNav: true, bare: true,
+      html: '<section class="login"><div class="login-bg" aria-hidden="true"><i></i><i></i><i></i></div><div class="login-card">' +
+        '<div class="login-logo">' + BH.logo('xl') + '</div>' +
+        '<p class="login-tag">O servidor ainda não foi conectado.</p>' +
+        '<ol class="steps"><li>Crie o projeto no Supabase e rode as migrações da pasta <b>supabase/</b>.</li><li>Cole a URL e a chave <b>anon</b> em <b>www/js/config.js</b>.</li><li>Gere o app de novo.</li></ol>' +
+        '<p class="muted small center">O passo a passo completo está no LEIA-ME.</p></div></section>'
+    };
+  };
+
+  /* ---------------- login ---------------- */
+  pages.login = function () {
+    const a = st.auth;
+    const wait = Math.max(0, 60 - Math.floor((Date.now() - a.sentAt) / 1000));
+    const body = a.step === 'code'
+      ? '<form class="form" data-form="code"><p class="login-sent">' + I('mail') + '<span>Enviamos um código para <b>' + esc(a.email) + '</b>. Olhe também o spam.</span></p>' +
+        '<label class="field"><span>Código</span><input id="lg-code" class="code-input" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required placeholder="••••••"></label>' +
+        '<button class="btn primary block lg">' + I('login') + 'Entrar</button>' +
+        '<div class="login-links"><button type="button" class="link" data-act="authEmail">Trocar e-mail</button>' +
+        '<button type="button" class="link" data-act="resendCode"' + (wait ? ' disabled' : '') + '>' + (wait ? 'Reenviar em <span id="lg-wait">' + wait + '</span>s' : 'Reenviar código') + '</button></div></form>'
+      : '<button type="button" class="btn google block lg" data-act="google">' + BH.googleLogo + 'Continuar com Google</button>' +
+        '<div class="or"><span>ou use seu e-mail</span></div>' +
+        '<form class="form" data-form="email"><label class="field"><span>E-mail</span><input id="lg-email" name="email" type="email" inputmode="email" autocomplete="email" required placeholder="voce@email.com" value="' + esc(a.email) + '"></label>' +
+        '<button class="btn outline block lg">' + I('mail') + 'Receber código de acesso</button></form>';
+    return {
+      hideNav: true, bare: true,
+      html: '<section class="login"><div class="login-bg" aria-hidden="true"><i></i><i></i><i></i></div>' +
+        '<div class="login-card">' +
+        '<div class="login-logo">' + BH.logo('xl') + '</div>' +
+        '<p class="login-tag">Salas de Free Fire valendo prêmio, ranking, guildas e chat. Tudo online.</p>' +
+        body +
+        '<p class="login-terms">Ao entrar você confirma ter 18 anos ou mais e aceita as regras do BattleHub. O BattleHub não é afiliado à Garena.</p>' +
+        '</div></section>',
+      onMount(root) {
+        const w = root.querySelector('#lg-wait');
+        if (w) {
+          const t = setInterval(() => {
+            const left = Math.max(0, 60 - Math.floor((Date.now() - st.auth.sentAt) / 1000));
+            if (!w.isConnected) return clearInterval(t);
+            if (left <= 0) { clearInterval(t); app().refresh(); } else w.textContent = left;
+          }, 1000);
+        }
+        const c = root.querySelector('#lg-code');
+        if (c) { c.focus(); c.addEventListener('input', () => { c.value = c.value.replace(/\D/g, ''); }); }
+      }
+    };
+  };
+  actions.google = (el) => U.run(el, () => api.signInGoogle());
+  forms.email = async function (f) {
+    const email = f.email.value.trim();
+    const ok = await U.run(f.querySelector('button'), () => api.sendCode(email));
+    if (!ok) return;
+    Object.assign(st.auth, { step: 'code', email, sentAt: Date.now() });
+    app().rerender('soft');
+  };
+  actions.authEmail = () => { st.auth.step = 'start'; app().rerender('soft'); };
+  actions.resendCode = async (el) => {
+    if (await U.run(el, () => api.sendCode(st.auth.email), 'Código reenviado.')) { st.auth.sentAt = Date.now(); app().refresh(); }
+  };
+  forms.code = async function (f) {
+    const btn = f.querySelector('button.btn');
+    const session = await U.run(btn, () => api.verifyCode(st.auth.email, f.code.value));
+    if (!session) return;
+    st.auth = { step: 'start', email: '', sentAt: 0 };
+    flows.afterLogin(session);
+  };
+
+  /* ---------------- verificação animada ---------------- */
+  flows.verifyAnimation = function (session) {
+    const user = (session && session.user) || {};
+    const provider = (user.app_metadata && user.app_metadata.provider) === 'google' ? 'Conta Google conectada' : 'Código confirmado';
+    const el = document.createElement('div');
+    el.className = 'verify-screen';
+    el.setAttribute('role', 'status');
+    el.innerHTML = '<div class="vs-orb"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="vs-track" cx="60" cy="60" r="52"/><circle class="vs-prog" cx="60" cy="60" r="52" pathLength="1"/></svg>' +
+      '<span class="vs-scan" aria-hidden="true"></span><span class="vs-shield">' + I('shield') + '</span><span class="vs-check">' + I('check') + '</span></div>' +
+      '<h2 class="vs-title">Verificando sua conta</h2>' +
+      '<ol class="vs-steps">' +
+      '<li><i></i><span>' + provider + '</span></li>' +
+      '<li><i></i><span>E-mail confirmado' + (user.email ? ': <b>' + esc(user.email) + '</b>' : '') + '</span></li>' +
+      '<li><i></i><span>Carregando seu perfil</span></li></ol>';
+    document.body.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('in'));
+    const steps = el.querySelectorAll('.vs-steps li');
+    const set = (i, cls) => steps[i] && steps[i].classList.add(cls);
+    const fast = U.reduced();
+    set(0, 'run');
+    const t0 = Date.now();
+    const timers = [
+      setTimeout(() => { set(0, 'ok'); set(1, 'run'); el.style.setProperty('--p', '.4'); }, fast ? 0 : 650),
+      setTimeout(() => { set(1, 'ok'); set(2, 'run'); el.style.setProperty('--p', '.72'); }, fast ? 0 : 1350)
+    ];
+    return {
+      done(ok) {
+        return new Promise((resolve) => {
+          const wait = Math.max(0, (fast ? 0 : 2000) - (Date.now() - t0));
+          setTimeout(() => {
+            timers.forEach(clearTimeout);
+            if (!ok) { el.classList.add('fail'); el.querySelector('.vs-title').textContent = 'Não deu para verificar'; setTimeout(() => { el.remove(); resolve(); }, fast ? 0 : 1100); return; }
+            [0, 1, 2].forEach((i) => set(i, 'ok'));
+            el.style.setProperty('--p', '1');
+            el.classList.add('success');
+            el.querySelector('.vs-title').textContent = 'Tudo certo!';
+            U.confetti(innerWidth / 2, innerHeight * 0.32);
+            setTimeout(() => { el.classList.add('out'); setTimeout(() => { el.remove(); resolve(); }, fast ? 0 : 420); }, fast ? 0 : 900);
+          }, wait);
+        });
+      }
+    };
+  };
+
+  /* ---------------- cadastro (nick + Free Fire) ---------------- */
+  function preview(blob) { return blob ? URL.createObjectURL(blob) : null; }
+  pages.onboarding = function () {
+    const o = st.ob, me = api.me || {};
+    const dots = '<div class="ob-dots"><i class="' + (o.step >= 1 ? 'on' : '') + '"></i><i class="' + (o.step >= 2 ? 'on' : '') + '"></i></div>';
+    let body;
+    if (o.step === 1) {
+      body = '<form class="form" data-form="ob1"><p class="eyebrow">Passo 1 de 2</p><h1 class="h1">Como te chamam?</h1>' +
+        '<p class="muted">Esse é o nome que aparece nas salas, no ranking e no chat.</p>' +
+        '<label class="ob-avatar"><input id="ob-av" type="file" accept="image/*" data-pick="ob-avatar">' +
+        (o.avatarUrl ? '<img src="' + esc(o.avatarUrl) + '" alt="Sua foto">' : (me.avatar_url ? '<img src="' + esc(me.avatar_url) + '" alt="Sua foto">' : '<span>' + I('camera') + '</span>')) +
+        '<small>' + (o.avatarUrl || me.avatar_url ? 'Trocar foto' : 'Foto de perfil (opcional)') + '</small></label>' +
+        '<label class="field"><span>Nickname</span><input id="ob-nick" name="nick" maxlength="20" required autocomplete="nickname" placeholder="Ex.: SHADOW lock" value="' + esc(o.nick || me.nick || '') + '"></label>' +
+        '<button class="btn primary block lg">Continuar' + I('right') + '</button></form>';
+    } else {
+      body = '<form class="form" data-form="ob2"><p class="eyebrow">Passo 2 de 2</p><h1 class="h1">Seu Free Fire</h1>' +
+        '<p class="muted">A equipe confere o print para garantir que o ID é seu. Sem isso, não dá para sacar prêmios.</p>' +
+        '<div class="grid2"><label class="field"><span>Nick no Free Fire</span><input id="ob-ffnick" name="ffNick" maxlength="24" required placeholder="Seu nick no jogo" value="' + esc(o.ffNick || '') + '"></label>' +
+        '<label class="field"><span>ID do Free Fire</span><input id="ob-ffid" name="ffId" inputmode="numeric" maxlength="12" required placeholder="123456789" value="' + esc(o.ffId || '') + '"></label></div>' +
+        '<label class="drop' + (o.photoUrl ? ' has' : '') + '"><input id="ob-photo" type="file" accept="image/*" data-pick="ob-photo">' +
+        '<span class="drop-empty">' + I('image') + '<b>Print do perfil do Free Fire</b><small>Abra o jogo, toque no seu avatar e tire um print que mostre o nick e o ID</small></span>' +
+        (o.photoUrl ? '<img src="' + esc(o.photoUrl) + '" alt="Prévia do print">' : '') + '</label>' +
+        '<button class="btn primary block lg">' + I('check') + 'Concluir cadastro</button>' +
+        '<button type="button" class="btn ghost block" data-act="obBack">' + I('back') + 'Voltar</button></form>';
+    }
+    return {
+      hideNav: true, bare: true, className: 'ob-page',
+      html: '<section class="page onboarding"><header class="ob-head">' + BH.logo() + dots + '</header>' + body + '</section>'
+    };
+  };
+  // guarda o que foi digitado para nada se perder se a tela for redesenhada
+  const OB_FIELDS = { 'ob-nick': 'nick', 'ob-ffnick': 'ffNick', 'ob-ffid': 'ffId' };
+  document.addEventListener('input', (e) => { const k = OB_FIELDS[e.target.id]; if (k && st.ob) st.ob[k] = e.target.value; });
+  document.addEventListener('change', async (e) => {
+    const inp = e.target.closest('input[type=file][data-pick]');
+    if (!inp || !inp.files || !inp.files[0]) return;
+    const kind = inp.dataset.pick;
+    try {
+      const blob = await U.compressImage(inp.files[0], kind === 'ob-photo' ? 1600 : 640);
+      if (kind === 'ob-avatar') { st.ob.avatarBlob = blob; st.ob.avatarUrl = preview(blob); st.ob.nick = (document.getElementById('ob-nick') || {}).value || st.ob.nick; app().refresh(); }
+      if (kind === 'ob-photo') { st.ob.photoBlob = blob; st.ob.photoUrl = preview(blob); st.ob.ffNick = (document.getElementById('ob-ffnick') || {}).value || st.ob.ffNick; st.ob.ffId = (document.getElementById('ob-ffid') || {}).value || st.ob.ffId; app().refresh(); }
+      document.dispatchEvent(new CustomEvent('bh:picked', { detail: { kind, blob, input: inp } }));
+    } catch (err) { U.err(err); }
+  });
+  forms.ob1 = function (f) {
+    const nick = f.nick.value.trim();
+    if (nick.length < 3) return U.toast('O nickname precisa ter pelo menos 3 caracteres.', 'bad');
+    st.ob.nick = nick; st.ob.step = 2;
+    app().rerender('enter');
+  };
+  actions.obBack = () => { st.ob.ffNick = (document.getElementById('ob-ffnick') || {}).value; st.ob.ffId = (document.getElementById('ob-ffid') || {}).value; st.ob.step = 1; app().rerender('enter'); };
+  forms.ob2 = async function (f) {
+    const o = st.ob;
+    o.ffNick = f.ffNick.value.trim(); o.ffId = f.ffId.value.trim();
+    if (!o.photoBlob) return U.toast('Escolha o print do seu perfil do Free Fire.', 'bad');
+    const ok = await U.run(f.querySelector('button.primary'), async () => {
+      const path = await api.upload('verificacoes', o.photoBlob);
+      await api.rpc('complete_onboarding', { p_nick: o.nick, p_ff_nick: o.ffNick, p_ff_id: o.ffId, p_photo_path: path });
+      if (o.avatarBlob) {
+        const ap = await api.upload('avatars', o.avatarBlob);
+        await api.rpc('update_profile', { p_nick: o.nick, p_bio: '', p_avatar_url: api.publicUrl('avatars', ap), p_anonymous: false });
+      }
+      await api.refreshMe();
+    });
+    if (!ok) return;
+    st.ob = { step: 1 };
+    U.confetti();
+    U.toast('Cadastro concluído. Seu ID está em análise.', 'good');
+    app().boot(false);
+  };
+
+  /* ---------------- suspensão e manutenção ---------------- */
+  pages.banned = function () {
+    const me = api.me || {};
+    const until = me.banned_until ? new Date(me.banned_until) : null;
+    const perm = !until || until.getFullYear() > 2200;
+    return {
+      hideNav: true, bare: true,
+      html: '<section class="login"><div class="login-card ban-card"><span class="ban-ic">' + I('ban') + '</span><h1 class="h1">Conta suspensa</h1>' +
+        '<p class="muted">Motivo: <b>' + esc(me.ban_reason || 'violação das regras') + '</b></p>' +
+        (perm ? '<p class="ban-left">Suspensão permanente</p>' : '<p class="ban-left">Libera em <b class="mono" data-until="' + until.getTime() + '">' + U.until(until.getTime()) + '</b></p>') +
+        '<p class="muted small">Seu saldo continua guardado. Se acha que foi um engano, fale com a equipe pelo e-mail de suporte informado na Play Store.</p>' +
+        '<button type="button" class="btn ghost block" data-act="logout">' + I('logout') + 'Sair da conta</button></div></section>'
+    };
+  };
+  pages.maintenance = function () {
+    return {
+      hideNav: true,
+      html: '<section class="page">' + U.empty('wrench', 'Estamos em manutenção', 'Voltamos em instantes. Suas salas e seu saldo estão seguros.', '<button type="button" class="btn ghost" data-act="retry">' + I('refresh') + 'Tentar de novo</button>') + '</section>'
+    };
+  };
+  actions.logout = async function () {
+    if (!(await U.confirm({ title: 'Sair da conta?', body: 'Você volta para a tela de entrada.', ok: 'Sair', icon: 'logout' }))) return;
+    await api.signOut();
+    BH.app.setSession(null);
+    BH.app.boot(false);
+  };
+})();
