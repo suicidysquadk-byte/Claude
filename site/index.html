@@ -1,0 +1,208 @@
+<meta charset="utf-8">
+<title>AlphaHome Showroom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Montserrat:wght@400;500;600;700&display=swap">
+<style>
+  :root {
+    color-scheme: dark;
+    --ink: #0d0c0a;
+    --panel: #17150f;
+    --line: #2a261d;
+    --gold: #c39953;
+    --gold-soft: #e0bf85;
+    --text: #f2eee6;
+    --muted: #a49c8d;
+    --display: 'Marcellus', 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+  }
+  html, body { height: 100%; }
+  body { background: var(--ink); color: var(--text); font-family: var(--sans); font-size: 15px; line-height: 1.5; }
+  a { color: inherit; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 3px; }
+
+  .alpha-badge {
+    position: fixed; z-index: 60; left: 50%; transform: translateX(-50%);
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase; font-weight: 600;
+    color: var(--gold-soft); background: rgba(13, 12, 10, .72); border: 1px solid var(--line);
+    padding: 5px 12px; border-radius: 999px; white-space: nowrap; pointer-events: none;
+  }
+
+  /* ---------- fachada 3D ---------- */
+  #fachada { position: fixed; inset: 0; z-index: 30; background: #cfd4d6; transition: opacity .7s ease; }
+  #fachada.saindo { opacity: 0; pointer-events: none; }
+  #cena3d { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+  #cena3d:active { cursor: grabbing; }
+  .fachada-ui {
+    position: absolute; left: 0; right: 0; bottom: 0; padding: 0 16px calc(env(safe-area-inset-bottom, 0px) + 28px);
+    display: grid; justify-items: center; gap: 14px; text-align: center;
+    background: linear-gradient(to top, rgba(13,12,10,.82), rgba(13,12,10,0));
+    padding-top: 90px; pointer-events: none;
+  }
+  .fachada-ui > * { pointer-events: auto; }
+  .eyebrow { font-size: 11px; letter-spacing: .28em; text-transform: uppercase; color: var(--gold-soft); font-weight: 600; }
+  .fachada-ui h1 { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(30px, 6vw, 52px); letter-spacing: .06em; text-wrap: balance; }
+  .btn-entrar {
+    display: inline-flex; align-items: center; gap: 12px; cursor: pointer;
+    background: var(--gold); color: var(--ink); border: 0; border-radius: 999px;
+    padding: 14px 26px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: 13px;
+  }
+  .btn-entrar:hover { background: var(--gold-soft); }
+  .btn-entrar svg { width: 16px; height: 16px; }
+  .hint { font-size: 12px; color: var(--muted); }
+  #fallback-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+  /* ---------- passeio ---------- */
+  #passeio { position: relative; }
+  #trilho { position: relative; }
+  .palco { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; background: var(--ink); }
+  #fundo, #quadro { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  #fundo { filter: blur(28px) brightness(.45) saturate(1.1); transform: scale(1.1); }
+  #quadro { transition: filter .05s linear; }
+  #baloes { position: absolute; inset: 0; pointer-events: none; }
+  #baloes svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+  .ponto {
+    position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%;
+    background: var(--gold); box-shadow: 0 0 0 3px rgba(13,12,10,.55); pointer-events: auto; cursor: pointer; border: 0; padding: 0;
+  }
+  .ponto::after {
+    content: ''; position: absolute; inset: -8px; border-radius: 50%; border: 2px solid var(--gold-soft);
+    animation: pulsa 1.8s ease-out infinite;
+  }
+  @keyframes pulsa { from { transform: scale(.5); opacity: .9; } to { transform: scale(1.6); opacity: 0; } }
+
+  .etiqueta {
+    position: absolute; width: min(260px, 62vw); pointer-events: auto; cursor: pointer; text-align: left;
+    background: rgba(13, 12, 10, .82); border: 1px solid rgba(195,153,83,.45); border-radius: 10px;
+    padding: 12px 14px; display: grid; gap: 4px;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    opacity: 0; transform: translateY(6px); transition: opacity .35s ease, transform .35s ease;
+  }
+  .etiqueta.visivel { opacity: 1; transform: none; }
+  .etiqueta .num { font-size: 10px; letter-spacing: .24em; color: var(--gold-soft); font-weight: 700; text-transform: uppercase; }
+  .etiqueta .nome { font-family: var(--display); font-size: 21px; line-height: 1.15; }
+  .etiqueta .frase { font-size: 13px; color: var(--muted); }
+  .etiqueta .ver { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-top: 4px; }
+
+  .rail {
+    position: absolute; right: calc(env(safe-area-inset-right, 0px) + 14px); top: 50%; transform: translateY(-50%);
+    display: grid; gap: 10px; z-index: 5;
+  }
+  .rail button {
+    width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(242,238,230,.35); background: rgba(13,12,10,.55);
+    font-size: 11px; font-weight: 700; cursor: pointer; font-variant-numeric: tabular-nums; color: var(--text);
+  }
+  .rail button.ativo { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+
+  .dica-rolar {
+    position: absolute; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 26px); transform: translateX(-50%);
+    font-size: 11px; letter-spacing: .22em; text-transform: uppercase; font-weight: 600; color: var(--text);
+    background: rgba(13,12,10,.6); padding: 8px 16px; border-radius: 999px; transition: opacity .4s ease; white-space: nowrap;
+  }
+  .dica-rolar span { display: inline-block; animation: desce 1.4s ease-in-out infinite; margin-left: 6px; }
+  @keyframes desce { 50% { transform: translateY(4px); } }
+
+  /* ---------- painel de detalhes ---------- */
+  #painel {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; max-height: 78vh; overflow: auto;
+    background: var(--panel); border-top: 1px solid var(--gold); border-radius: 18px 18px 0 0;
+    padding: 22px 20px calc(env(safe-area-inset-bottom, 0px) + 24px);
+    transform: translateY(105%); transition: transform .45s cubic-bezier(.2,.8,.2,1);
+    display: grid; gap: 14px; max-width: 620px; margin: 0 auto;
+  }
+  #painel.aberto { transform: none; }
+  #painel .num { font-size: 11px; letter-spacing: .24em; color: var(--gold-soft); font-weight: 700; text-transform: uppercase; }
+  #painel h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 30px; text-wrap: balance; }
+  #painel p { margin: 0; color: var(--muted); max-width: 62ch; }
+  #painel ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+  #painel li { display: flex; gap: 10px; align-items: baseline; }
+  #painel li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); flex: none; transform: translateY(-2px); }
+  .painel-acoes { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn-sec { background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 12px 20px; cursor: pointer; font-weight: 600; font-size: 13px; }
+  .provisorio { font-size: 11px; color: var(--muted); letter-spacing: .04em; }
+  #veu { position: fixed; inset: 0; z-index: 45; background: rgba(0,0,0,.4); opacity: 0; pointer-events: none; transition: opacity .3s; }
+  #veu.aberto { opacity: 1; pointer-events: auto; }
+
+  /* ---------- final ---------- */
+  #final {
+    min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: 18px; text-align: center;
+    padding: 80px 16px calc(env(safe-area-inset-bottom, 0px) + 80px); background: var(--ink);
+    border-top: 1px solid var(--line);
+  }
+  #final img { width: 140px; }
+  #final h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(28px, 5vw, 44px); letter-spacing: .12em; }
+  #final .sub { color: var(--gold-soft); letter-spacing: .3em; text-transform: uppercase; font-size: 12px; font-weight: 600; }
+  .contatos { display: grid; gap: 10px; margin-top: 12px; width: min(420px, 100%); }
+  .contato { display: flex; justify-content: space-between; gap: 12px; border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; font-size: 14px; }
+  .contato span:first-child { color: var(--muted); letter-spacing: .1em; text-transform: uppercase; font-size: 11px; font-weight: 600; align-self: center; }
+
+  #cortina { position: fixed; inset: 0; z-index: 40; background: #000; opacity: 0; pointer-events: none; transition: opacity .6s ease; }
+  #cortina.fechada { opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ponto::after, .dica-rolar span { animation: none; }
+    .etiqueta, #painel, #fachada, #cortina { transition: none; }
+  }
+</style>
+
+<div class="alpha-badge">Versão alfa · textos provisórios</div>
+
+<section id="fachada" aria-label="Fachada da loja">
+  <img id="fallback-img" src="assets/fachada.jpg" alt="Fachada da AlphaHome" hidden>
+  <canvas id="cena3d" aria-hidden="true"></canvas>
+  <div class="fachada-ui">
+    <div class="eyebrow">Ambientes planejados · Três Lagoas - MS</div>
+    <h1>Bem-vindo à AlphaHome</h1>
+    <button class="btn-entrar" id="entrar" type="button">
+      Entrar na loja
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+    </button>
+    <div class="hint" id="carregando">Arraste para girar a fachada</div>
+  </div>
+</section>
+
+<main id="passeio" hidden>
+  <div id="trilho">
+    <div class="palco">
+      <canvas id="fundo" aria-hidden="true"></canvas>
+      <canvas id="quadro" role="img" aria-label="Passeio pelo showroom da AlphaHome"></canvas>
+      <div id="baloes"><svg id="linhas" aria-hidden="true"></svg></div>
+      <nav class="rail" id="rail" aria-label="Projetos"></nav>
+      <div class="dica-rolar" id="dica">Role para conhecer a loja<span aria-hidden="true">↓</span></div>
+    </div>
+  </div>
+
+  <section id="final" aria-label="Contato">
+    <img src="assets/logo-ah.png" alt="Logo AlphaHome">
+    <h2>ALPHAHOME</h2>
+    <div class="sub">Ambientes planejados</div>
+    <p style="margin:0;color:var(--muted);max-width:44ch">Projetos em alvenaria e em contêiner, do jeito que você imaginou.</p>
+    <div class="contatos">
+      <div class="contato"><span>WhatsApp</span><span>(67) 0000-0000 · a definir</span></div>
+      <div class="contato"><span>Instagram</span><span>@alphahome · a definir</span></div>
+      <div class="contato"><span>Endereço</span><span>Três Lagoas - MS · a definir</span></div>
+    </div>
+    <button class="btn-sec" id="voltar" type="button">Voltar para a fachada</button>
+  </section>
+</main>
+
+<div id="veu"></div>
+<aside id="painel" aria-live="polite" aria-label="Detalhes do projeto">
+  <div class="num" id="p-num"></div>
+  <h2 id="p-nome"></h2>
+  <p id="p-desc"></p>
+  <ul id="p-det"></ul>
+  <div class="painel-acoes">
+    <a class="btn-entrar" href="#final" id="p-orc">Quero um orçamento</a>
+    <button class="btn-sec" id="p-fechar" type="button">Continuar o passeio</button>
+  </div>
+  <div class="provisorio">Texto provisório. A descrição final será enviada pela AlphaHome.</div>
+</aside>
+<div id="cortina"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="projetos.js"></script>
+<script src="app.js"></script>
