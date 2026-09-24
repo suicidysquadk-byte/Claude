@@ -1,0 +1,20 @@
+# Segredos
+.env
+# Research outputs (timestamped run data)
+x-research/*/
+instagram-research/*/
+youtube-research/*/
+tiktok-research/*/
+content-plans/*/
+
+# Downloaded/temp video files
+*.mp4
+*.mov
+*.avi
+*.webm
+temp/
+tmp/
+
+# Python
+__pycache__/
+*.pyc
