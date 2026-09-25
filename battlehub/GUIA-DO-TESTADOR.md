@@ -5,7 +5,7 @@ em teste: use valores pequenos e conte tudo o que achar estranho.
 
 ## 1. Instalar (Android)
 
-1. Abra o arquivo **BattleHub-2.1.0.apk** que você recebeu.
+1. Abra o arquivo **BattleHub-2.2.0.apk** que você recebeu.
 2. Se o celular avisar sobre "fontes desconhecidas", toque em **Configurações** e ligue **Permitir desta fonte**.
 3. Toque em **Instalar**.
    - O app ainda não está na Play Store, por isso aparece esse aviso.
@@ -48,7 +48,8 @@ Marque o que conseguiu fazer e anote o que deu errado:
   - Abrir a Liga Semanal ou um campeonato.
   - Ver a classificação.
 - [ ] **Loja**
-  - Ver os banners animados, os chapéus (bruxa, palha, coroa…) e os fundos animados.
+  - Ver os banners animados, os acessórios 3D (coroa, chapéu de palha, cartola, máscara oni…) e os fundos animados.
+  - Tocar num item para ver a prévia no seu perfil.
   - Equipar algum item em Perfil → Visual.
 - [ ] **Perfil**
   - Trocar a foto.

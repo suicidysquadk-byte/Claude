@@ -20,32 +20,54 @@ window.BH = window.BH || {};
     };
   };
 
+  /* ---------------- boas-vindas (primeira vez) ---------------- */
+  st.welcomed = () => { try { return !!localStorage.getItem('bh.welcome'); } catch (e) { return true; } };
+  const MURAL = [1, 2, 3, 4, 5, 6, 7, 8].map((n) => 'img/mural/m' + n + '.jpg');
+  pages.welcome = function () {
+    // três colunas com as telas repetidas: a animação sobe (ou desce) metade da coluna e recomeça sem emenda
+    const col = (k) => '<div class="wall-col">' + [0, 1].map(() => MURAL.map((src, i) => MURAL[(i + k * 3) % MURAL.length]).map((src) => '<img src="' + src + '" alt="" loading="eager" decoding="async">').join('')).join('') + '</div>';
+    return {
+      hideNav: true, bare: true,
+      html: '<section class="welcome auth-anim"><div class="wall" aria-hidden="true">' + col(0) + col(1) + col(2) + '</div><div class="welcome-fade"></div>' +
+        '<div class="welcome-body"><h1>Salas valendo prêmio. <b>Do seu jeito.</b></h1>' +
+        '<p>Entre nas salas oficiais e dos organizadores, dispute a liga da semana, suba no ranking e receba pelo Pix.</p>' +
+        '<button type="button" class="btn primary block lg" data-act="welcomeGo">Começar' + I('right') + '</button>' +
+        '<small>Salas oficiais · eventos toda semana · prêmio na carteira</small></div></section>'
+    };
+  };
+  actions.welcomeGo = () => { try { localStorage.setItem('bh.welcome', '1'); } catch (e) { /* segue mesmo sem guardar */ } app().rerender('enter'); };
+
   /* ---------------- login ---------------- */
+  const bolt = '<svg class="auth-bolt" viewBox="0 0 70 230" aria-hidden="true"><path d="M44 0 30 58 42 62 22 128 34 132 8 230M30 58 12 80M22 128 4 150"/></svg>';
   pages.login = async function () {
     const a = st.auth;
     const pv = await api.providers();
+    const criar = a.mode === 'criar';
     const wait = Math.max(0, 60 - Math.floor((Date.now() - a.sentAt) / 1000));
-    const body = a.step === 'code'
-      ? '<form class="form" data-form="code"><p class="login-sent">' + I('mail') + '<span>Enviamos um e-mail para <b>' + esc(a.email) + '</b>. Abra <b>neste celular</b> e toque no botão de entrar, ou digite abaixo o código, se vier um. Olhe também o spam.</span></p>' +
+    const card = a.step === 'code'
+      ? '<form class="form" data-form="code"><p class="auth-sent">' + I('mail') + '<span>Enviamos um e-mail para <b>' + esc(a.email) + '</b>. Abra <b>neste celular</b> e toque no botão de entrar, ou digite abaixo o código, se vier um. Olhe também o spam.</span></p>' +
         '<div class="field"><span id="lg-code-l">Código (se o e-mail trouxer)</span><div class="otp" id="lg-otp"><input id="lg-code" class="otp-input" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required aria-labelledby="lg-code-l">' +
         '<div class="otp-cards" aria-hidden="true">' + [0, 1, 2, 3, 4, 5].map((i) => '<i style="--i:' + i + '"><b></b></i>').join('') + '</div></div></div>' +
         '<button class="btn primary block lg">' + I('login') + 'Entrar</button>' +
         '<div class="login-links"><button type="button" class="link" data-act="authEmail">Trocar e-mail</button>' +
         '<button type="button" class="link" data-act="resendCode"' + (wait ? ' disabled' : '') + '>' + (wait ? 'Reenviar em <span id="lg-wait">' + wait + '</span>s' : 'Reenviar e-mail') + '</button></div></form>'
-      : (pv.google ? '<button type="button" class="btn google block lg" data-act="google">' + BH.googleLogo + 'Continuar com Google</button>' +
-        '<div class="or"><span>ou use seu e-mail</span></div>' : '') +
-        '<form class="form" data-form="email"><label class="field"><span>E-mail</span><input id="lg-email" name="email" type="email" inputmode="email" autocomplete="email" required placeholder="voce@email.com" value="' + esc(a.email) + '"></label>' +
-        '<button class="btn outline block lg">' + I('mail') + 'Entrar com e-mail</button></form>';
+      : '<div class="auth-tabs" role="tablist"><button type="button" role="tab" aria-selected="' + !criar + '" class="' + (criar ? '' : 'on') + '" data-act="authMode" data-v="entrar">Entrar</button>' +
+        '<button type="button" role="tab" aria-selected="' + criar + '" class="' + (criar ? 'on' : '') + '" data-act="authMode" data-v="criar">Criar conta</button></div>' +
+        '<form class="form" data-form="email"><label class="auth-field">' + I('mail') + '<input id="lg-email" name="email" type="email" inputmode="email" autocomplete="email" required placeholder="Seu e-mail" value="' + esc(a.email) + '" aria-label="E-mail"></label>' +
+        '<p class="muted small">' + (criar ? 'Mandamos um link para criar sua conta. Não precisa de senha.' : 'Mandamos um link de entrada para o seu e-mail. Não precisa de senha.') + '</p>' +
+        '<button class="btn primary block lg">' + (criar ? 'Criar minha conta' : 'Entrar') + I('right') + '</button></form>' +
+        (pv.google ? '<div class="auth-or">ou continue com</div><button type="button" class="btn google block lg" data-act="google">' + BH.googleLogo + 'Google</button>' : '') +
+        '<p class="auth-foot">' + (criar ? 'Já tem conta? <button type="button" class="link" data-act="authMode" data-v="entrar">Entrar</button>' : 'Novo no BattleHub? <button type="button" class="link" data-act="authMode" data-v="criar">Criar conta</button>') + '</p>';
     return {
       hideNav: true, bare: true,
-      html: '<section class="login"><div class="login-bg" aria-hidden="true"><i></i><i></i><i></i></div>' +
-        '<div class="login-card">' +
-        '<div class="login-logo">' + BH.logo('xl') + '</div>' +
-        '<p class="login-tag">Salas de Free Fire valendo prêmio, ranking, guildas e chat. Tudo online.</p>' +
-        body +
-        '<p class="login-terms">Ao entrar você confirma ter 18 anos ou mais e aceita as regras do BattleHub. O BattleHub não é afiliado à Garena.</p>' +
-        '</div></section>',
+      html: '<section class="auth auth-anim' + (a.seen ? ' no-enter' : '') + '"><div class="auth-top">' + bolt +
+        '<div class="auth-brand"><span class="logo-mark">' + I('crown') + '</span><span class="auth-word">Battle<b>Hub</b></span></div>' +
+        '<h1 class="auth-title">' + (a.step === 'code' ? 'Confira seu e-mail.' : criar ? 'Crie sua conta.' : 'Bem-vindo de volta.') + '</h1>' +
+        '<p class="auth-sub">' + (a.step === 'code' ? 'Falta só um toque para entrar.' : criar ? 'Salas, eventos e prêmios de Free Fire num lugar só.' : 'Suas salas e prêmios estão esperando.') + '</p></div>' +
+        '<div class="auth-card">' + card +
+        '<p class="auth-terms">Ao entrar você confirma ter 18 anos ou mais e aceita as regras do BattleHub. O BattleHub não é afiliado à Garena.</p></div></section>',
       onMount(root) {
+        if (!a.seen) setTimeout(() => { a.seen = true; }, 1200);
         const w = root.querySelector('#lg-wait');
         if (w) {
           const t = setInterval(() => {
@@ -56,7 +78,7 @@ window.BH = window.BH || {};
         }
         const c = root.querySelector('#lg-code');
         if (c) {
-          // cartas do código: abrem em leque, cada dígito vira uma carta e a faísca corre na próxima
+          // cartas do código: abrem em leque, cada dígito ocupa uma carta e a próxima fica marcada
           const cards = root.querySelectorAll('.otp-cards i');
           const paint = () => {
             c.value = c.value.replace(/\D/g, '').slice(0, 6);
@@ -76,6 +98,7 @@ window.BH = window.BH || {};
       }
     };
   };
+  actions.authMode = (el) => { st.auth.mode = el.dataset.v; app().rerender('soft'); };
   actions.google = (el) => U.run(el, () => api.signInGoogle());
   forms.email = async function (f) {
     const email = f.email.value.trim();

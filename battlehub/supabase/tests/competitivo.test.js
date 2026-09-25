@@ -337,14 +337,17 @@ async function conservation(label) {
      'acessório, fundo e banner equipados', meS && meS.equipped);
   const pf = await must('perfil público', call(P[1], 'get_profile', { p_user: P[0] }));
   ok(pf && pf.accessory === 'palha' && pf.background_data.fx === 'sakura' && pf.banner_data.anim === 'flames', 'outros veem o visual', pf && { a: pf.accessory, b: pf.banner_data });
-  await must('troca de acessório', call(P[0], 'buy_item', { p_item: 'acc-bruxa' }));
+  await must('troca de acessório', call(P[0], 'buy_item', { p_item: 'acc-cartola' }));
   const pf2 = await call(P[1], 'get_profile', { p_user: P[0] });
-  ok(pf2.accessory === 'bruxa', 'um acessório por vez', pf2.accessory);
+  ok(pf2.accessory === 'cartola', 'um acessório por vez', pf2.accessory);
+  ok(!items.find((i) => i.id === 'acc-bruxa') && items.find((i) => i.id === 'acc-asas'), 'acessórios desenhados à mão saíram, os 3D entraram');
+  const lv18 = await q1("select item_id from rewards where level = 18");
+  ok(lv18 && lv18.item_id === 'acc-capelo', 'recompensa do nível 18 é o capelo', lv18);
   await must('tira o acessório', call(P[0], 'unequip_item', { p_kind: 'acessorio' }));
   await must('tira o fundo', call(P[0], 'unequip_item', { p_kind: 'fundo' }));
   const pf3 = await call(P[1], 'get_profile', { p_user: P[0] });
   ok(pf3.accessory === null && pf3.background_data === null, 'sem acessório nem fundo', pf3 && { a: pf3.accessory, b: pf3.background_data });
-  await refuse('recompensa não se compra', call(P[0], 'buy_item', { p_item: 'acc-louros' }), /recompensa/);
+  await refuse('recompensa não se compra', call(P[0], 'buy_item', { p_item: 'acc-capelo' }), /recompensa/);
   await must('admin cria acessório', call(owner, 'admin_shop_save', { p: { id: 'acc-teste', kind: 'acessorio', name: 'Teste', price_cents: 100, data: { acc: 'gato' } } }));
   await conservation('loja nova');
 

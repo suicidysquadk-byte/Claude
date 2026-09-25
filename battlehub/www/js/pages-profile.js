@@ -257,12 +257,37 @@ window.BH = window.BH || {};
         const items = s.items.filter((i) => i.kind === st.shopTab && i.price_cents != null);
         return '<div class="pix-amount"><small>Seu saldo</small><b>' + U.cents(api.me.balance_cents) + '</b></div>' + shopTabs(st.shopTab) +
           (st.shopTab === 'prioridade' ? '<p class="note-gold">' + I('zap') + '<span>Quando uma sala lota, você passa na frente da fila de espera. Se abrir vaga, é sua primeiro.</span></p>' : '') +
-          '<ul class="shop-grid stagger">' + (items.length ? items.map((it) => '<li class="shop-item' + (it.owned ? ' owned' : '') + '"><div class="shop-pv">' + itemPreview(it) + '</div><b>' + esc(it.name) + '</b><small>' + esc(it.description) + '</small>' +
+          '<ul class="shop-grid stagger">' + (items.length ? items.map((it) => '<li class="shop-item' + (it.owned ? ' owned' : '') + '"><div class="shop-pv"' + (PREVIEW[it.kind] ? ' data-act="shopPreview" data-id="' + esc(it.id) + '" role="button" tabindex="0" aria-label="Ver prévia de ' + esc(it.name) + '"' : '') + '>' + itemPreview(it) + (PREVIEW[it.kind] ? '<span class="pv-hint">' + I('eye') + 'Prévia</span>' : '') + '</div><b>' + esc(it.name) + '</b><small>' + esc(it.description) + '</small>' +
             (it.kind === 'prioridade'
               ? (it.owned ? '<span class="chip tone-green">Ativa até ' + U.date(it.expires_at).slice(0, 5) + '</span>' : '') + '<button type="button" class="btn primary sm" data-act="buy" data-id="' + it.id + '" data-price="' + it.price_cents + '">' + (it.owned ? 'Estender · ' : '') + U.cents(it.price_cents) + '</button>'
               : it.owned ? (it.equipped ? '<span class="chip tone-green">' + I('check') + 'Em uso</span>' : '<button type="button" class="btn ghost sm" data-act="equip" data-id="' + it.id + '">Usar</button>')
                 : '<button type="button" class="btn primary sm" data-act="buy" data-id="' + it.id + '" data-price="' + it.price_cents + '">' + U.cents(it.price_cents) + '</button>') + '</li>').join('') : '<li class="muted pad">Nada à venda nessa categoria.</li>') + '</ul>' +
           '<p class="muted small center">Itens de recompensa saem no caminho de níveis.</p>';
+      }
+    });
+  };
+  // prévia: mostra o item animado no seu perfil (na grade da loja tudo fica parado, para não pesar)
+  const PREVIEW = { banner: 1, fundo: 1, acessorio: 1, moldura: 1 };
+  actions.shopPreview = function (el) {
+    const id = el.dataset.id;
+    U.sheet({
+      title: 'Prévia', loading: false,
+      body: async () => {
+        const s = await api.rpc('shop');
+        const it = s.items.find((x) => x.id === id);
+        if (!it) return U.empty('bag', 'Item não encontrado', '');
+        const me = api.me, e = me.equipped || {}, d = it.data || {};
+        const banner = it.kind === 'banner' ? d : (e.banner_data || { bg: e.banner_bg });
+        const fx = it.kind === 'fundo' ? d.fx : (e.background_data && e.background_data.fx);
+        const card = { id: me.id, nick: me.nick, avatar_url: me.avatar_url, frame: it.kind === 'moldura' ? d : e.frame_data, color: e.color_hex, title: e.title_text,
+          accessory: it.kind === 'acessorio' ? d.acc : e.accessory_key };
+        const action = it.owned
+          ? (it.equipped ? '<span class="chip tone-green center">' + I('check') + 'Em uso</span>' : '<button type="button" class="btn primary block lg" data-act="equip" data-id="' + esc(it.id) + '">Usar agora</button>')
+          : it.price_cents != null ? '<button type="button" class="btn primary block lg" data-act="buy" data-id="' + esc(it.id) + '" data-price="' + it.price_cents + '">' + I('bag') + 'Comprar por ' + U.cents(it.price_cents) + '</button>'
+            : '<p class="muted small center">Recompensa do nível ' + (it.reward_level || '') + '.</p>';
+        return '<div class="preview-card">' + (fx ? BH.cos.fx(fx, me.id, 'p-fx') : '') + BH.cos.banner(banner, 'pp-banner', '', me.id) +
+          '<div class="pv-id">' + U.av(card, 'xl', 'pop') + '<h3>' + U.nick(card) + '</h3>' + U.title(card) + '</div></div>' +
+          '<div class="stack"><div><b>' + esc(it.name) + '</b><p class="muted small">' + esc(it.description) + '</p></div><div class="preview-actions">' + action + '</div></div>';
       }
     });
   };

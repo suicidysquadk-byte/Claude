@@ -21,9 +21,12 @@ O passo a passo do que **você** precisa fazer (contas, chaves, loja) está em
 - Cadastro com nick, foto e **print do perfil do Free Fire** (nick + ID). A equipe confere no painel.
   Mudança de nick ou ID volta para a fila de verificação. Saque só com ID verificado.
 - XP por participação, abates, top 3, vitória e prêmios; níveis liberam banners, molduras e títulos.
-- Loja: banners animados (inclusive discretos e em estilo anime), **acessórios de avatar** (chapéu de bruxa,
-  chapéu de palha, coroa, auréola, elmo samurai…), **fundos animados** do perfil, molduras, títulos, cor do
-  nick e **prioridade na fila** de salas lotadas. Toda a arte é desenhada no próprio app (SVG e CSS).
+- Loja: banners animados (inclusive discretos e em estilo anime), **acessórios de avatar em 3D** (coroa, chapéu de
+  palha, cartola, boné, capacete tático, headset, óculos, máscaras oni e tengu, laço, flor de sakura, asas),
+  **fundos animados** do perfil, molduras, títulos, cor do nick e **prioridade na fila** de salas lotadas. Na loja
+  tudo fica parado (leve em celular simples) e a **prévia** mostra o item animado no seu perfil.
+  - Os acessórios são do **Fluent Emoji** da Microsoft (licença MIT, uso comercial liberado; o aviso de licença vai
+    junto, em `www/img/acessorios/LICENCA-FLUENT-EMOJI.txt`). Banners e fundos são desenhados no app (SVG e CSS).
 - Opção de ficar anônimo no ranking (o valor ganho continua visível).
 - **Excluir minha conta** (exigência da Play Store): apaga os dados pessoais e guarda só o histórico de pagamentos.
 
@@ -85,7 +88,10 @@ www/                  o app (index.html, css/, js/, fonts/, vendor/)
   js/api.js           conversa com o Supabase (login, RPC, fotos, Pix, tempo real)
   js/pages-*.js       telas (entrada, salas, eventos, social, perfil, admin)
   js/cosmetics.js     arte da loja: acessórios, fundos e banners animados
-  css/ouro.css        visual preto e dourado e as animações
+  css/ouro.css        visual preto e dourado (sóbrio) e a loja
+  css/entrada.css     abertura (coroa desenhada, zoom), boas-vindas com mural e login
+  img/acessorios/     acessórios 3D (Fluent Emoji, MIT)
+  img/mural/          telas do app usadas no mural das boas-vindas
 supabase/
   migrations/         banco: tabelas, regras de dinheiro, API, admin, fotos, competitivo, eventos, conta
   functions/          pix-criar e pix-webhook (Mercado Pago), convite (link de entrada para testador)

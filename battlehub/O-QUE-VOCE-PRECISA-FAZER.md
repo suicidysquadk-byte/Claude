@@ -3,7 +3,7 @@
 **Onde estamos:**
 - O servidor (Supabase) está no ar, com todas as regras de dinheiro, eventos, loja e painel.
 - A sua conta já é a **dona**.
-- O app da versão **2.1.0** aponta para ele.
+- O app da versão **2.2.0** aponta para ele.
 
 O que falta são contas nos serviços, que só você pode criar (ficam no seu nome e no seu CPF/CNPJ). Faça **na
 ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu conecto.
@@ -18,7 +18,7 @@ ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu c
 No plano grátis, o e-mail padrão do Supabase **só entrega para os e-mails da sua equipe no Supabase**. Um
 amigo não receberia o e-mail de entrada. Enquanto o passo 3 não fica pronto, use o **convite**:
 
-1. Mande o arquivo **BattleHub-2.1.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
+1. Mande o arquivo **BattleHub-2.2.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
 2. No app: **Perfil → Painel administrativo → Usuários → Convidar testador**.
 3. Digite o e-mail da pessoa e toque em **Gerar link de entrada**.
 4. Toque em **Mandar no WhatsApp**. A pessoa instala o app e depois toca no link no mesmo celular.
@@ -71,26 +71,41 @@ site e para o e-mail de suporte que a Play Store pede.
 
 O botão "Continuar com Google" aparece sozinho no app quando isso estiver ligado.
 
-## 4. Pix automático: Mercado Pago · 20 min (opcional no começo)
+## 4. Pagamento automático (Pix): Mercado Pago · 20 min (comece por aqui)
 
-Sem isso o Pix já funciona no modo **manual**:
-- o jogador paga pelo QR Code gerado com a **sua chave Pix**;
-- você confere no banco e aperta "Pix recebido" no painel.
+O app já está pronto para o Mercado Pago:
+- o jogador gera o Pix no app;
+- o Mercado Pago avisa o servidor quando o pagamento cai;
+- o saldo entra sozinho.
 
-Para confirmar sozinho:
-1. Crie uma conta **Mercado Pago** (de preferência como **empresa/CNPJ**).
-2. Em **mercadopago.com.br/developers**: *Suas integrações → Criar aplicação* (tipo: pagamentos on-line / Checkout
-   Transparente).
-3. Em *Credenciais de produção*, copie o **Access Token**.
-4. Em *Webhooks*:
+O servidor confere a assinatura do aviso e confirma o pagamento direto no Mercado Pago antes de creditar. Os
+**saques continuam manuais** no painel. É mais seguro no começo: você confere cada saque antes de pagar.
+
+1. Crie uma conta **Mercado Pago**, de preferência como **empresa (CNPJ)**.
+   - Descreva o negócio como ele é: torneios de e-sports com inscrição e premiação.
+   - Alguns meios de pagamento pedem documentos para esse tipo de negócio.
+2. No app do Mercado Pago, cadastre uma **chave Pix** na conta: *Seu perfil → Pix → Minhas chaves*. Sem chave Pix,
+   o Mercado Pago não gera QR Code.
+3. Em **mercadopago.com.br/developers**, entre em *Suas integrações → Criar aplicação*:
+   - Nome: `BattleHub`.
+   - Tipo: **Pagamentos on-line**, com **Checkout Transparente** (pagamento pela API).
+4. Na aplicação, abra *Credenciais de produção*. Se pedir, preencha os dados do negócio para ativar. Copie o
+   **Access Token**, que começa com `APP_USR-`.
+5. Na aplicação, abra *Webhooks → Configurar notificações*:
    - URL de produção: `https://tjaqjirsayclexzaycti.supabase.co/functions/v1/pix-webhook`.
    - Evento: **Pagamentos**.
    - Salve e copie a **assinatura secreta**.
-5. **Me mande** o **Access Token** e a **assinatura secreta**.
+6. **Me mande** o **Access Token** e a **assinatura secreta**.
+   - Eu guardo as duas no servidor. Elas não ficam no app nem no GitHub.
+   - Depois faço um depósito de teste de R$ 5 com você.
+
+**Saque automático (depois, se quiser):** o Mercado Pago não oferece envio de Pix pela API para a maioria das
+contas. Quando o volume crescer, dá para ligar os saques automáticos pelo **Asaas** ou pelo **Efí Bank**, que
+mandam Pix pela API. Me avise que eu integro.
 
 ## 5. Configurar a plataforma no app · 5 min
 
-1. Instale o **BattleHub-2.1.0.apk** no seu celular (por cima do anterior, sem desinstalar).
+1. Instale o **BattleHub-2.2.0.apk** no seu celular (por cima do anterior, sem desinstalar).
 2. Painel admin → *Configurações*:
    - Coloque a **chave Pix da plataforma**, o nome e a cidade (usados no Pix manual).
    - Confira a **parte da plataforma**: padrão 10% da arrecadação das salas dos organizadores.
@@ -122,7 +137,7 @@ Para confirmar sozinho:
    - Idioma: português (Brasil).
    - Tipo: jogo.
    - Grátis.
-4. Envie o arquivo **`BattleHub-2.1.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
+4. Envie o arquivo **`BattleHub-2.2.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
 5. Preencha a ficha com os textos de `loja/descricao.md` e as imagens da pasta `loja/` (ícone, destaque e as 8
    telas novas em preto e dourado).
 6. Preencha os formulários:
@@ -162,6 +177,6 @@ Para confirmar sozinho:
 
 | Passo | O que me mandar |
 |---|---|
+| 4 | Access Token e assinatura secreta do Mercado Pago |
 | 2 | Gmail + senha de app **ou** API Key do Resend + domínio |
 | 3 | (opcional) ID do cliente e chave secreta do Google |
-| 4 | (opcional) Access Token e assinatura secreta do Mercado Pago |

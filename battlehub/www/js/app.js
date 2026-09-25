@@ -27,7 +27,7 @@ window.BH = window.BH || {};
   let sessionCache = null;
   function gate(page) {
     if (!api.configured) return 'setup';
-    if (!sessionCache || !api.me) return page === 'offline' ? 'offline' : 'login';
+    if (!sessionCache || !api.me) return page === 'offline' ? 'offline' : BH.state.welcomed() ? 'login' : 'welcome';
     const me = api.me;
     if (me.banned) return 'banned';
     if (!me.onboarded) return 'onboarding';
@@ -325,10 +325,22 @@ window.BH = window.BH || {};
         if (event === 'TOKEN_REFRESHED') sessionCache = session;
       });
     }
-    boot(true).finally(() => {
-      const splash = document.getElementById('splash');
-      if (splash) setTimeout(() => { splash.classList.add('out'); setTimeout(() => splash.remove(), 600); }, U.reduced() ? 0 : api.native ? 350 : 600);
-    });
+    boot(true).finally(endIntro);
+  }
+  // abertura: espera a coroa terminar de se desenhar, dá o zoom e revela o app
+  const introStart = performance.now();
+  function endIntro() {
+    const splash = document.getElementById('splash');
+    const done = () => { document.body.classList.remove('intro-wait'); if (splash) splash.remove(); };
+    if (!splash) return done();
+    const quick = splash.classList.contains('intro-fast');
+    const wait = U.reduced() ? 0 : Math.max(0, (quick ? 1150 : 2900) - (performance.now() - introStart));
+    setTimeout(() => {
+      try { localStorage.setItem('bh.intro', '1'); } catch (e) { /* sem armazenamento: repete a abertura completa */ }
+      splash.classList.add('zoom');
+      setTimeout(() => document.body.classList.remove('intro-wait'), 380);
+      setTimeout(done, 780);
+    }, wait);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();

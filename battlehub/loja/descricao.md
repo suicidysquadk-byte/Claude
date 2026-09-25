@@ -40,7 +40,7 @@ CARTEIRA E PIX
 PERFIL, RANKING E SOCIAL
 • Verificação do ID do Free Fire pelo print do perfil
 • XP, níveis e recompensas: banners, molduras e títulos
-• Loja de visual: banners animados, arte estilo anime, chapéus e acessórios de avatar e fundos animados
+• Loja de visual: banners animados, arte estilo anime, acessórios de avatar em 3D e fundos animados
 • Ranking de abates, ganhos, salas, sobrevivência e vitórias (com opção anônima)
 • Guildas com líder, vice, cofre e salário mensal
 • Chat privado com fotos, amigos e mensagens do organizador com resposta rápida
