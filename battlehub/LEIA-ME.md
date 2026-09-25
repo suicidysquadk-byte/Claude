@@ -28,6 +28,7 @@ O passo a passo do que **você** precisa fazer (contas, chaves, loja) está em
   - Os acessórios são do **Fluent Emoji** da Microsoft (licença MIT, uso comercial liberado; o aviso de licença vai
     junto, em `www/img/acessorios/LICENCA-FLUENT-EMOJI.txt`). Banners e fundos são desenhados no app (SVG e CSS).
 - Opção de ficar anônimo no ranking (o valor ganho continua visível).
+- **Aparência**: Sistema (igual ao celular), Preto ou Branco. A coroa e o nome BattleHub ficam sempre em dourado.
 - **Excluir minha conta** (exigência da Play Store): apaga os dados pessoais e guarda só o histórico de pagamentos.
 
 **Dinheiro**
@@ -90,6 +91,7 @@ www/                  o app (index.html, css/, js/, fonts/, vendor/)
   js/cosmetics.js     arte da loja: acessórios, fundos e banners animados
   css/ouro.css        visual preto e dourado (sóbrio) e a loja
   css/entrada.css     abertura (coroa desenhada, zoom), boas-vindas com mural e login
+  css/claro.css       tema Branco
   img/acessorios/     acessórios 3D (Fluent Emoji, MIT)
   img/mural/          telas do app usadas no mural das boas-vindas
 supabase/

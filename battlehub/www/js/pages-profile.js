@@ -73,6 +73,7 @@ window.BH = window.BH || {};
           .map((x) => '<div class="sg"><span>' + I(x[0]) + '</span>' + U.num(x[1]) + '<small>' + x[2] + '</small></div>').join('') + '</div>' +
         '<nav class="menu stagger">' +
         '<button type="button" class="menu-row ripple" data-act="editProfile">' + I('settings') + '<span>Editar perfil</span>' + I('right', 'chev') + '</button>' +
+        '<button type="button" class="menu-row ripple" data-act="themeSheet">' + I('palette') + '<span>Aparência</span><small class="muted">' + ({ sistema: 'Sistema', escuro: 'Preto', claro: 'Branco' }[BH.theme.get()] || 'Preto') + '</small>' + I('right', 'chev') + '</button>' +
         (me.role_level >= 1 ? '<button type="button" class="menu-row admin ripple" data-act="admin" data-v="overview">' + I('crown') + '<span>Painel administrativo</span>' + (pendN ? '<b class="dot-count">' + pendN + '</b>' : '') + I('right', 'chev') + '</button>' : '') +
         '<button type="button" class="menu-row ripple" data-act="logout">' + I('logout') + '<span>Sair</span></button>' +
         '<button type="button" class="menu-row danger ripple" data-act="deleteAccount">' + I('userX') + '<span>Excluir minha conta</span></button></nav></section>'
@@ -307,6 +308,19 @@ window.BH = window.BH || {};
   actions.unequip = async function (el) {
     if (await U.run(el, () => api.rpc('unequip_item', { p_kind: el.dataset.v }))) { await api.refreshMe(); const s = U.topSheet(); if (s) s.render('static'); app().refresh(); }
   };
+  // aparência: segue o celular, sempre preto ou sempre branco
+  actions.themeSheet = function () {
+    U.sheet({
+      title: 'Aparência', loading: false,
+      body: () => {
+        const cur = BH.theme.get();
+        const opt = (v, label, hint, sw) => '<button type="button" class="' + (cur === v ? 'on' : '') + '" data-act="themeSet" data-v="' + v + '" aria-pressed="' + (cur === v) + '"><span class="tp-sw ' + sw + '"><i></i><i></i><i></i></span>' + label + '<small>' + hint + '</small></button>';
+        return '<div class="theme-pick">' + opt('sistema', 'Sistema', 'Igual ao celular', 'tp-sys') + opt('escuro', 'Preto', 'Sempre escuro', 'tp-dark') + opt('claro', 'Branco', 'Sempre claro', 'tp-light') + '</div>' +
+          '<p class="muted small">A coroa e o nome BattleHub ficam sempre em dourado.</p>';
+      }
+    });
+  };
+  actions.themeSet = (el) => { BH.theme.set(el.dataset.v); const s = U.topSheet(); if (s) s.render('static'); app().refresh(); };
   actions.lookSheet = function () {
     U.sheet({
       title: 'Seu visual', size: 'lg',

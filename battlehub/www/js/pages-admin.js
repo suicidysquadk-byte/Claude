@@ -101,7 +101,7 @@ window.BH = window.BH || {};
   actions.aInvite = function () {
     U.sheet({
       title: 'Convidar testador', loading: false,
-      body: '<form class="form" data-form="aInvite"><p class="muted">A pessoa instala o APK, depois toca no link <b>no mesmo celular</b>. O link vale por 24 horas e só funciona uma vez.</p>' +
+      body: '<form class="form" data-form="aInvite"><p class="muted">A pessoa instala o APK, depois toca no link <b>no mesmo celular</b>. O link funciona uma vez só e tem prazo; se passar, gere outro.</p>' +
         '<label class="field"><span>E-mail da pessoa</span><input id="inv-email" name="email" type="email" inputmode="email" required placeholder="amigo@email.com" autocomplete="off"></label>' +
         '<button class="btn primary block">' + I('link') + 'Gerar link de entrada</button><div id="inv-out"></div></form>'
     });

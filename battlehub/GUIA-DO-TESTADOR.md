@@ -5,7 +5,7 @@ em teste: use valores pequenos e conte tudo o que achar estranho.
 
 ## 1. Instalar (Android)
 
-1. Abra o arquivo **BattleHub-2.2.0.apk** que você recebeu.
+1. Abra o arquivo **BattleHub-2.3.0.apk** que você recebeu.
 2. Se o celular avisar sobre "fontes desconhecidas", toque em **Configurações** e ligue **Permitir desta fonte**.
 3. Toque em **Instalar**.
    - O app ainda não está na Play Store, por isso aparece esse aviso.
@@ -20,9 +20,9 @@ Use o **link de entrada** que o dono do app te mandou pelo WhatsApp:
 3. Se o celular perguntar com qual app abrir, escolha **BattleHub**.
 
 Observações:
-- O link vale por **24 horas** e só funciona **uma vez**.
-- Se não funcionar, peça um novo link.
-- Ainda não dá para entrar pelo e-mail: a opção vai funcionar quando o e-mail do app for configurado.
+- O link funciona **uma vez só** e tem prazo. Se não funcionar, peça um novo link.
+- Quando o e-mail do app estiver ligado, dá para entrar direto: digite seu e-mail no app e depois o código de 6 dígitos
+  que chega no e-mail.
 
 ## 3. Primeiro acesso
 
@@ -53,6 +53,7 @@ Marque o que conseguiu fazer e anote o que deu errado:
   - Equipar algum item em Perfil → Visual.
 - [ ] **Perfil**
   - Trocar a foto.
+  - Em **Aparência**, testar os temas Sistema, Preto e Branco.
   - Ver o nível e o caminho de recompensas.
 - [ ] **Ranking e guildas**
   - Ver o ranking.

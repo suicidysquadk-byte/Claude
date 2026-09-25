@@ -3,7 +3,7 @@
 **Onde estamos:**
 - O servidor (Supabase) está no ar, com todas as regras de dinheiro, eventos, loja e painel.
 - A sua conta já é a **dona**.
-- O app da versão **2.2.0** aponta para ele.
+- O app da versão **2.3.0** aponta para ele.
 
 O que falta são contas nos serviços, que só você pode criar (ficam no seu nome e no seu CPF/CNPJ). Faça **na
 ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu conecto.
@@ -18,13 +18,13 @@ ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu c
 No plano grátis, o e-mail padrão do Supabase **só entrega para os e-mails da sua equipe no Supabase**. Um
 amigo não receberia o e-mail de entrada. Enquanto o passo 3 não fica pronto, use o **convite**:
 
-1. Mande o arquivo **BattleHub-2.2.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
+1. Mande o arquivo **BattleHub-2.3.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
 2. No app: **Perfil → Painel administrativo → Usuários → Convidar testador**.
 3. Digite o e-mail da pessoa e toque em **Gerar link de entrada**.
 4. Toque em **Mandar no WhatsApp**. A pessoa instala o app e depois toca no link no mesmo celular.
 
 Sobre o link:
-- Vale por **24 horas** e funciona **uma vez**.
+- Vale por **24 horas** (1 hora depois que o e-mail próprio do passo 2 for ligado) e funciona **uma vez**.
 - Por segurança, só funciona para quem **ainda não entrou** no app. Ninguém da equipe consegue usar o convite
   para entrar na conta de um jogador.
 
@@ -44,7 +44,9 @@ Sem isso, só a sua equipe recebe o e-mail de entrada. Escolha **uma** opção.
 2. Ligue a **verificação em duas etapas** em *myaccount.google.com → Segurança*.
 3. Em *myaccount.google.com/apppasswords*, crie uma **senha de app** com o nome `BattleHub`. São 16 letras.
 4. **Me mande**: o endereço do Gmail e a senha de app.
-   - Eu ligo o e-mail próprio no Supabase e o código de 6 dígitos volta a aparecer no e-mail.
+   - Eu ligo o e-mail próprio no Supabase (script `scripts/ligar-email.js`).
+   - Na hora do login o app pede o código, e o e-mail chega com o **código de 6 dígitos** em destaque, além do botão de
+     entrar.
    - O Gmail manda até cerca de 500 e-mails por dia.
 
 **Opção B: Resend (profissional, precisa de domínio)**
@@ -105,7 +107,7 @@ mandam Pix pela API. Me avise que eu integro.
 
 ## 5. Configurar a plataforma no app · 5 min
 
-1. Instale o **BattleHub-2.2.0.apk** no seu celular (por cima do anterior, sem desinstalar).
+1. Instale o **BattleHub-2.3.0.apk** no seu celular (por cima do anterior, sem desinstalar).
 2. Painel admin → *Configurações*:
    - Coloque a **chave Pix da plataforma**, o nome e a cidade (usados no Pix manual).
    - Confira a **parte da plataforma**: padrão 10% da arrecadação das salas dos organizadores.
@@ -137,7 +139,7 @@ mandam Pix pela API. Me avise que eu integro.
    - Idioma: português (Brasil).
    - Tipo: jogo.
    - Grátis.
-4. Envie o arquivo **`BattleHub-2.2.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
+4. Envie o arquivo **`BattleHub-2.3.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
 5. Preencha a ficha com os textos de `loja/descricao.md` e as imagens da pasta `loja/` (ícone, destaque e as 8
    telas novas em preto e dourado).
 6. Preencha os formulários:

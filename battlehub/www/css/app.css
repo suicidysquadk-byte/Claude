@@ -245,7 +245,8 @@ dl, dd { margin: 0; }
 }
 .av .ic { width: 52%; height: 52%; stroke-width: 2.2; }
 .av { position: relative; overflow: visible; }
-.av img { width: var(--s); height: var(--s); max-width: none; border-radius: 50%; object-fit: cover; display: block; grid-area: 1 / 1; }
+.av-photo { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; display: block; -webkit-mask-image: -webkit-radial-gradient(white, black); }
+.av-photo img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: center 30%; display: block; border-radius: 0; }
 .av-letter { font: 800 calc(var(--s) * .42) / 1 var(--display); letter-spacing: .02em; text-shadow: 0 1px 2px rgba(0, 0, 0, .35); }
 .av-anon { background: var(--surface-3); color: var(--muted); }
 .ring-color { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring) !important; }

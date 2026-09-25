@@ -63,11 +63,35 @@ window.BH = window.BH || {};
     const acc = u.accessory && BH.cos ? BH.cos.acc(u.accessory) : '';
     const cls = 'av av-' + s + ring + (acc ? ' has-acc' : '') + (extra ? ' ' + extra : '');
     if (!u.id && u.anonymous) return '<span class="' + cls + ' av-anon" role="img" aria-label="Jogador anônimo">' + I('user') + '</span>';
-    if (u.avatar_url) return '<span class="' + cls + '" style="' + style + '"><img src="' + U.esc(u.avatar_url) + '" alt="" loading="lazy" referrerpolicy="no-referrer">' + acc + '</span>';
+    // a foto fica dentro de um círculo próprio que corta o que sobra (foto vertical, foto grande)
+    if (u.avatar_url) return '<span class="' + cls + '" style="' + style + '"><span class="av-photo"><img src="' + U.esc(u.avatar_url) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>' + acc + '</span>';
     const g = GRADS[hash(String(u.id || u.nick || '?')) % GRADS.length];
     const letter = String(u.nick || '?').trim().charAt(0).toUpperCase() || '?';
     return '<span class="' + cls + ' av-letter" style="' + style + '--a1:' + g[0] + ';--a2:' + g[1] + '" role="img" aria-label="' + U.esc(u.nick || 'Jogador') + '">' + U.esc(letter) + acc + '</span>';
   };
+  /* ---------- tema: Sistema, Preto ou Branco ---------- */
+  const THEME_KEY = 'bh.theme';
+  const media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+  BH.theme = {
+    get() { try { return localStorage.getItem(THEME_KEY) || 'escuro'; } catch (e) { return 'escuro'; } },
+    set(v) { try { localStorage.setItem(THEME_KEY, v); } catch (e) { /* sem armazenamento: vale só nesta abertura */ } BH.theme.apply(v); },
+    apply(v) {
+      const pref = v || BH.theme.get();
+      const light = pref === 'claro' || (pref === 'sistema' && media && media.matches);
+      document.documentElement.setAttribute('data-theme', light ? 'light' : 'dark');
+      const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', light ? '#f6f4ef' : '#0b0b0d');
+      // ícones da barra do Android: escuros no tema Branco, claros no Preto
+      const bars = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SystemBars;
+      if (bars && bars.setStyle) bars.setStyle({ style: light ? 'LIGHT' : 'DARK' }).catch(() => {});
+      return light;
+    }
+  };
+  if (media) {
+    const follow = () => { if (BH.theme.get() === 'sistema') BH.theme.apply('sistema'); };
+    if (media.addEventListener) media.addEventListener('change', follow); else if (media.addListener) media.addListener(follow);
+  }
+  BH.theme.apply();
+
   U.verified = (u) => (u && u.verified ? '<span class="vbadge" title="ID do Free Fire verificado">' + I('badgeCheck') + '</span>' : '');
   U.nick = function (u, opts) {
     opts = opts || {};

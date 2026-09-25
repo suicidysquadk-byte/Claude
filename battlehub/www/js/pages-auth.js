@@ -45,8 +45,8 @@ window.BH = window.BH || {};
     const criar = a.mode === 'criar';
     const wait = Math.max(0, 60 - Math.floor((Date.now() - a.sentAt) / 1000));
     const card = a.step === 'code'
-      ? '<form class="form" data-form="code"><p class="auth-sent">' + I('mail') + '<span>Enviamos um e-mail para <b>' + esc(a.email) + '</b>. Abra <b>neste celular</b> e toque no botão de entrar, ou digite abaixo o código, se vier um. Olhe também o spam.</span></p>' +
-        '<div class="field"><span id="lg-code-l">Código (se o e-mail trouxer)</span><div class="otp" id="lg-otp"><input id="lg-code" class="otp-input" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required aria-labelledby="lg-code-l">' +
+      ? '<form class="form" data-form="code"><p class="auth-sent">' + I('mail') + '<span>Enviamos um código de 6 dígitos para <b>' + esc(a.email) + '</b>. Digite abaixo. Se o e-mail trouxer o botão de entrar, pode tocar nele neste celular. Olhe também o spam.</span></p>' +
+        '<div class="field"><span id="lg-code-l">Código de 6 dígitos</span><div class="otp" id="lg-otp"><input id="lg-code" class="otp-input" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required aria-labelledby="lg-code-l">' +
         '<div class="otp-cards" aria-hidden="true">' + [0, 1, 2, 3, 4, 5].map((i) => '<i style="--i:' + i + '"><b></b></i>').join('') + '</div></div></div>' +
         '<button class="btn primary block lg">' + I('login') + 'Entrar</button>' +
         '<div class="login-links"><button type="button" class="link" data-act="authEmail">Trocar e-mail</button>' +
@@ -54,7 +54,7 @@ window.BH = window.BH || {};
       : '<div class="auth-tabs" role="tablist"><button type="button" role="tab" aria-selected="' + !criar + '" class="' + (criar ? '' : 'on') + '" data-act="authMode" data-v="entrar">Entrar</button>' +
         '<button type="button" role="tab" aria-selected="' + criar + '" class="' + (criar ? 'on' : '') + '" data-act="authMode" data-v="criar">Criar conta</button></div>' +
         '<form class="form" data-form="email"><label class="auth-field">' + I('mail') + '<input id="lg-email" name="email" type="email" inputmode="email" autocomplete="email" required placeholder="Seu e-mail" value="' + esc(a.email) + '" aria-label="E-mail"></label>' +
-        '<p class="muted small">' + (criar ? 'Mandamos um link para criar sua conta. Não precisa de senha.' : 'Mandamos um link de entrada para o seu e-mail. Não precisa de senha.') + '</p>' +
+        '<p class="muted small">' + (criar ? 'Mandamos um código para o seu e-mail para criar a conta. Não precisa de senha.' : 'Mandamos um código para o seu e-mail. Não precisa de senha.') + '</p>' +
         '<button class="btn primary block lg">' + (criar ? 'Criar minha conta' : 'Entrar') + I('right') + '</button></form>' +
         (pv.google ? '<div class="auth-or">ou continue com</div><button type="button" class="btn google block lg" data-act="google">' + BH.googleLogo + 'Google</button>' : '') +
         '<p class="auth-foot">' + (criar ? 'Já tem conta? <button type="button" class="link" data-act="authMode" data-v="entrar">Entrar</button>' : 'Novo no BattleHub? <button type="button" class="link" data-act="authMode" data-v="criar">Criar conta</button>') + '</p>';
@@ -63,7 +63,7 @@ window.BH = window.BH || {};
       html: '<section class="auth auth-anim' + (a.seen ? ' no-enter' : '') + '"><div class="auth-top">' + bolt +
         '<div class="auth-brand"><span class="logo-mark">' + I('crown') + '</span><span class="auth-word">Battle<b>Hub</b></span></div>' +
         '<h1 class="auth-title">' + (a.step === 'code' ? 'Confira seu e-mail.' : criar ? 'Crie sua conta.' : 'Bem-vindo de volta.') + '</h1>' +
-        '<p class="auth-sub">' + (a.step === 'code' ? 'Falta só um toque para entrar.' : criar ? 'Salas, eventos e prêmios de Free Fire num lugar só.' : 'Suas salas e prêmios estão esperando.') + '</p></div>' +
+        '<p class="auth-sub">' + (a.step === 'code' ? 'Digite o código que enviamos.' : criar ? 'Salas, eventos e prêmios de Free Fire num lugar só.' : 'Suas salas e prêmios estão esperando.') + '</p></div>' +
         '<div class="auth-card">' + card +
         '<p class="auth-terms">Ao entrar você confirma ter 18 anos ou mais e aceita as regras do BattleHub. O BattleHub não é afiliado à Garena.</p></div></section>',
       onMount(root) {
