@@ -13,16 +13,16 @@ em teste: use valores pequenos e conte tudo o que achar estranho.
 
 ## 2. Entrar
 
-Use o **link de entrada** que o dono do app te mandou pelo WhatsApp:
-
-1. Instale o app **antes** de tocar no link.
-2. Toque no link **no mesmo celular** em que o app está instalado.
-3. Se o celular perguntar com qual app abrir, escolha **BattleHub**.
+1. Abra o app, toque em **Começar** e depois em **Criar conta** (ou **Entrar**, se já tiver conta).
+2. Digite o seu e-mail. Não precisa de senha.
+3. Chega um e-mail do **BattleHub** (battlehubofc@gmail.com) com o assunto "Seu código do BattleHub".
+4. Digite no app o **código de 6 dígitos**. Ele vale por 1 hora.
 
 Observações:
-- O link funciona **uma vez só** e tem prazo. Se não funcionar, peça um novo link.
-- Quando o e-mail do app estiver ligado, dá para entrar direto: digite seu e-mail no app e depois o código de 6 dígitos
-  que chega no e-mail.
+- Se o e-mail não chegar em 1 minuto, olhe a pasta **Spam** ou **Promoções**.
+- Também dá para tocar no botão "entrar" do e-mail, no mesmo celular em que o app está instalado.
+- Se o dono do app te mandou um **link de entrada** pelo WhatsApp, é só tocar nele no mesmo celular. Ele funciona uma vez
+  só.
 
 ## 3. Primeiro acesso
 

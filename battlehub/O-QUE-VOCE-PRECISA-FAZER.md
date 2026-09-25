@@ -13,18 +13,18 @@ ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu c
 
 ---
 
-## Já dá para mandar para alguém testar (sem fazer nada antes)
-
-No plano grátis, o e-mail padrão do Supabase **só entrega para os e-mails da sua equipe no Supabase**. Um
-amigo não receberia o e-mail de entrada. Enquanto o passo 3 não fica pronto, use o **convite**:
+## Mandar para alguém testar
 
 1. Mande o arquivo **BattleHub-2.3.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
-2. No app: **Perfil → Painel administrativo → Usuários → Convidar testador**.
-3. Digite o e-mail da pessoa e toque em **Gerar link de entrada**.
-4. Toque em **Mandar no WhatsApp**. A pessoa instala o app e depois toca no link no mesmo celular.
+2. Ela instala, digita o e-mail no app e entra com o **código de 6 dígitos** que chega do battlehubofc@gmail.com.
+
+Se o e-mail dela demorar ou cair no spam, use o **convite**:
+1. No app: **Perfil → Painel administrativo → Usuários → Convidar testador**.
+2. Digite o e-mail da pessoa e toque em **Gerar link de entrada**.
+3. Toque em **Mandar no WhatsApp**. A pessoa toca no link no mesmo celular em que o app está instalado.
 
 Sobre o link:
-- Vale por **24 horas** (1 hora depois que o e-mail próprio do passo 2 for ligado) e funciona **uma vez**.
+- Vale por **1 hora** e funciona **uma vez**.
 - Por segurança, só funciona para quem **ainda não entrou** no app. Ninguém da equipe consegue usar o convite
   para entrar na conta de um jogador.
 
@@ -35,7 +35,13 @@ Sobre o link:
 - O **Access Token** que você me mandou ainda é usado para eu publicar as atualizações. Quando o projeto estiver
   pronto, apague-o em *supabase.com/dashboard/account/tokens*. Se precisar de mim depois, é só gerar outro.
 
-## 2. E-mail que manda o link de entrada · 10 min (necessário antes de abrir para o público)
+## 2. E-mail que manda o código de entrada · ✅ feito (Gmail battlehubofc@gmail.com)
+
+Ligado com a senha de app do Gmail. O e-mail chega com o **código de 6 dígitos** (vale 1 hora) e o botão de entrar.
+Limite: até 60 e-mails por hora (o Gmail aceita cerca de 500 por dia). Para cortar o acesso, apague a senha de app em
+*myaccount.google.com/apppasswords*. Quando o app crescer, dá para trocar pelo Resend com domínio próprio.
+
+Como era antes (para referência):
 
 Sem isso, só a sua equipe recebe o e-mail de entrada. Escolha **uma** opção.
 
@@ -180,5 +186,4 @@ mandam Pix pela API. Me avise que eu integro.
 | Passo | O que me mandar |
 |---|---|
 | 4 | Access Token e assinatura secreta do Mercado Pago |
-| 2 | Gmail + senha de app **ou** API Key do Resend + domínio |
 | 3 | (opcional) ID do cliente e chave secreta do Google |
