@@ -2,3 +2,4 @@
 scripts/conexao.env
 *.jks
 *.keystore
+supabase/.temp/
