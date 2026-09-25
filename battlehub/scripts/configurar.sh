@@ -11,7 +11,6 @@ ENV_FILE="${1:-scripts/conexao.env}"
 set -a; . "$ENV_FILE"; set +a
 : "${SUPABASE_ACCESS_TOKEN:?Preencha SUPABASE_ACCESS_TOKEN em $ENV_FILE}"
 : "${SUPABASE_PROJECT_REF:?Preencha SUPABASE_PROJECT_REF em $ENV_FILE}"
-: "${SUPABASE_DB_PASSWORD:?Preencha SUPABASE_DB_PASSWORD em $ENV_FILE}"
 export SUPABASE_ACCESS_TOKEN
 REF="$SUPABASE_PROJECT_REF"
 URL="https://$REF.supabase.co"
@@ -19,15 +18,15 @@ SB="npx -y supabase@2"
 API="https://api.supabase.com/v1/projects/$REF"
 auth() { curl -fsS -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" -H "Content-Type: application/json" "$@"; }
 
-echo "1/6 Ligando ao projeto $REF"
-$SB link --project-ref "$REF" --password "$SUPABASE_DB_PASSWORD"
+echo "1/6 Conferindo o acesso ao projeto $REF"
+auth "$API" > /dev/null || { echo "Não consegui acessar o projeto $REF com esse Access Token."; exit 1; }
 
-echo "2/6 Criando tabelas, regras de dinheiro e fotos (migrações)"
-$SB db push --password "$SUPABASE_DB_PASSWORD"
+echo "2/6 Criando tabelas, regras de dinheiro e fotos (migrações, pela API)"
+SUPABASE_PROJECT_REF="$REF" node scripts/aplicar-migracoes.js
 
 echo "3/6 Publicando as funções do Pix"
-$SB functions deploy pix-criar --project-ref "$REF"
-$SB functions deploy pix-webhook --project-ref "$REF" --no-verify-jwt
+$SB functions deploy pix-criar --project-ref "$REF" --use-api
+$SB functions deploy pix-webhook --project-ref "$REF" --no-verify-jwt --use-api
 
 echo "4/6 Guardando as chaves do Mercado Pago"
 if [ -n "${MP_ACCESS_TOKEN:-}" ]; then

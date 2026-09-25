@@ -15,11 +15,10 @@ cada passo usa algo do anterior. Onde está escrito **"me mande"**, cole a infor
 2. **New project**:
    - Nome: `battlehub`.
    - Região: **South America (São Paulo)**.
-   - Crie uma **senha do banco** forte e guarde.
+   - Crie uma **senha do banco** forte e guarde (fica só com você).
 3. Espere o projeto ficar pronto (uns 2 minutos).
 4. **Me mande**:
    - O **Reference ID**: *Project Settings → General*. São umas 20 letras, por exemplo `abcdefghijklmnopqrst`.
-   - A **senha do banco** que você criou.
    - Um **Access Token**: clique no seu avatar (canto de baixo à esquerda) → *Access Tokens* → *Generate new token*.
 
 Com isso eu rodo o `scripts/configurar.sh`, que:
@@ -148,7 +147,7 @@ Depois que eu gerar o app conectado:
 
 | Passo | O que me mandar |
 |---|---|
-| 1 | Reference ID do Supabase, senha do banco, Access Token |
+| 1 | Reference ID do Supabase e Access Token |
 | 2 | ID do cliente e chave secreta do Google |
 | 3 | (opcional) API Key do Resend e o domínio |
 | 4 | (opcional) Access Token e assinatura secreta do Mercado Pago |
