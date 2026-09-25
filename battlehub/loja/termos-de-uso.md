@@ -44,8 +44,33 @@ Só contas autorizadas pela administração criam salas. O organizador:
 - Ofensas, ameaças, discriminação, golpes e spam no chat.
 - Criar várias contas para ganhar vantagem ou burlar suspensões.
 
+- Nick, bio, foto de perfil ou nome de guilda com palavrão, nudez, violência, discriminação, propaganda, venda de
+  hack, link ou telefone. Foto nova só aparece para os outros depois que a equipe aprova. A equipe pode apagar bio ou
+  foto que quebre a regra. No chat, palavras proibidas viram asteriscos.
+
 Quem descumprir pode perder prêmios, ser removido das salas, ter a conta suspensa por tempo determinado ou
 permanentemente, e ter o saldo retido enquanto houver investigação.
+
+## 5.1 Análise de partida (suspeita de hack)
+
+- Nas salas pagas, **grave a tela da partida** com o killfeed (o aviso de quem matou quem) aparecendo. A gravação é a sua
+  defesa se alguém suspeitar de você.
+- A equipe pode chamar um jogador para análise depois de uma partida. Ele é avisado no app e recebe uma mensagem da
+  equipe no chat de salas.
+- Enquanto a análise estiver aberta, **os saques do jogador ficam pausados** e a conta não pode ser excluída.
+- O jogador tem **24 horas** para enviar o vídeo da partida pelo app (até 50 MB) ou por link. Sem o vídeo, a equipe decide
+  com as provas que tiver.
+- A equipe pode chamar o jogador para uma ligação de voz e pedir que ele compartilhe a tela.
+- O app pode ler o texto do killfeed do vídeo para achar os jogadores abatidos. A decisão final é sempre de uma pessoa da
+  equipe, que confere o vídeo.
+- **Trapaça confirmada**:
+  - quem foi abatido pelo trapaceiro (ou todos da sala, conforme a decisão da equipe) recebe a inscrição da sala de volta;
+  - **todo o saldo do trapaceiro fica retido** pela plataforma, e os saques pendentes dele são recusados;
+  - a conta é **banida para sempre**;
+  - o ID do Free Fire, as chaves Pix usadas nos saques e o identificador do aparelho entram numa lista de bloqueio: não
+    podem ser usados em outra conta.
+- Sem trapaça, a análise é encerrada e os saques voltam ao normal.
+- Quem se sentir injustiçado pode pedir revisão pelo e-mail de suporte.
 
 ## 6. Exclusão da conta
 

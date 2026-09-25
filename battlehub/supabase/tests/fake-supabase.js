@@ -109,7 +109,15 @@ http.createServer(async (req, res) => {
       const key = decodeURIComponent(p.replace(/^\/storage\/v1\/object\/(public|sign)\//, ''));
       const file = path.join(FILES, key.replace(/[^a-zA-Z0-9._/-]/g, '_'));
       if (!file.startsWith(FILES) || !fs.existsSync(file)) return send(res, 404, { message: 'not found' });
-      return send(res, 200, fs.readFileSync(file), 'image/jpeg');
+      const buf = fs.readFileSync(file), type = { '.mp4': 'video/mp4', '.webm': 'video/webm', '.mov': 'video/quicktime' }[path.extname(file)] || 'image/jpeg';
+      const range = /bytes=(\d*)-(\d*)/.exec(req.headers.range || '');
+      if (range) { // vídeo: o navegador pede pedaços para poder avançar
+        const a = range[1] ? Number(range[1]) : 0, b = range[2] ? Math.min(Number(range[2]), buf.length - 1) : buf.length - 1;
+        res.writeHead(206, { 'Content-Type': type, 'Content-Range': 'bytes ' + a + '-' + b + '/' + buf.length, 'Accept-Ranges': 'bytes', 'Content-Length': b - a + 1 });
+        return res.end(buf.subarray(a, b + 1));
+      }
+      res.writeHead(200, { 'Content-Type': type, 'Accept-Ranges': 'bytes', 'Content-Length': buf.length, 'Cache-Control': 'no-store' });
+      return res.end(buf);
     }
     if (p.startsWith('/storage/v1/object/') && (req.method === 'POST' || req.method === 'PUT')) {
       const c = verify((req.headers.authorization || '').replace(/^Bearer /, ''));

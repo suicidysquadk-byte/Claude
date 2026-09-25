@@ -23,15 +23,19 @@ quais dados coletamos, para que usamos e quais são os seus direitos pela Lei Ge
   prêmios.
 - **Social**: mensagens e fotos enviadas no chat privado e no chat das salas, pedidos de amizade, guilda e
   denúncias.
-- **Uso técnico**: data do último acesso (para mostrar quem está online) e registros de ações da equipe
-  (auditoria).
+- **Uso técnico**: data do último acesso (para mostrar quem está online), o **identificador do aparelho** (para
+  impedir que quem foi banido por trapaça volte com outra conta) e registros de ações da equipe (auditoria).
+- **Análise de partida**: se você for chamado para análise por suspeita de trapaça, o **vídeo da partida** que você
+  enviar (ou o link dele) e o resultado da análise. Só você e a equipe veem o vídeo.
 
 ## Para que usamos
 
 - Criar e manter sua conta e seu perfil.
 - Organizar salas e eventos, calcular pontos e pagar prêmios.
 - Processar depósitos e saques via Pix.
-- Evitar fraudes, trapaças e golpes, inclusive pela verificação do ID do Free Fire.
+- Evitar fraudes, trapaças e golpes, inclusive pela verificação do ID do Free Fire, pela aprovação das fotos de
+  perfil e pela análise de partidas. Quem é banido por trapaça tem o ID do Free Fire, as chaves Pix usadas nos saques
+  e o identificador do aparelho guardados numa lista de bloqueio.
 - Enviar notificações sobre salas, eventos, pagamentos, mensagens e mudanças no serviço.
 - Mostrar rankings (quem escolhe ficar anônimo aparece como "Jogador anônimo", mas o valor ganho continua
   visível).
@@ -41,7 +45,10 @@ quais dados coletamos, para que usamos e quais são os seus direitos pela Lei Ge
 - **Supabase** (servidor, banco de dados, login e armazenamento de fotos).
 - **Google**, se você entrar com a conta Google.
 - **Mercado Pago**, para gerar e confirmar o Pix dos depósitos.
-- **[provedor de e-mail]**, para enviar o código de acesso.
+- **Google (Gmail)**, para enviar o código de acesso por e-mail.
+- **Jitsi Meet** (8x8), só se a equipe te chamar para uma ligação de análise e você entrar nela.
+- **jsDelivr**, de onde o app da equipe baixa o leitor de texto usado no vídeo da análise (o vídeo não sai do
+  aparelho da equipe).
 - Autoridades, quando a lei exigir.
 
 Não vendemos seus dados. Organizadores de sala veem o nick e o ID do Free Fire dos inscritos da sala dele, para
@@ -49,7 +56,8 @@ conferir quem entrou na partida.
 
 ## Por quanto tempo guardamos
 
-Enquanto a conta estiver ativa. Registros financeiros (depósitos, saques, prêmios e taxas) são mantidos pelo
+Enquanto a conta estiver ativa. Vídeos de análise ficam guardados enquanto a análise puder ser revista. A lista de
+bloqueio por trapaça é mantida mesmo depois que a conta é excluída. Registros financeiros (depósitos, saques, prêmios e taxas) são mantidos pelo
 prazo exigido em lei, sem os seus dados pessoais depois que a conta é excluída.
 
 ## Excluir sua conta

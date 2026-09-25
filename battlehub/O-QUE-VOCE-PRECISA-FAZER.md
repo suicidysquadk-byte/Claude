@@ -3,7 +3,7 @@
 **Onde estamos:**
 - O servidor (Supabase) está no ar, com todas as regras de dinheiro, eventos, loja e painel.
 - A sua conta já é a **dona**.
-- O app da versão **2.3.0** aponta para ele.
+- O app da versão **2.4.0** aponta para ele.
 
 O que falta são contas nos serviços, que só você pode criar (ficam no seu nome e no seu CPF/CNPJ). Faça **na
 ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu conecto.
@@ -15,7 +15,7 @@ ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu c
 
 ## Mandar para alguém testar
 
-1. Mande o arquivo **BattleHub-2.3.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
+1. Mande o arquivo **BattleHub-2.4.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
 2. Ela instala, digita o e-mail no app e entra com o **código de 6 dígitos** que chega do battlehubofc@gmail.com.
 
 Se o e-mail dela demorar ou cair no spam, use o **convite**:
@@ -113,7 +113,7 @@ mandam Pix pela API. Me avise que eu integro.
 
 ## 5. Configurar a plataforma no app · 5 min
 
-1. Instale o **BattleHub-2.3.0.apk** no seu celular (por cima do anterior, sem desinstalar).
+1. Instale o **BattleHub-2.4.0.apk** no seu celular (por cima do anterior, sem desinstalar).
 2. Painel admin → *Configurações*:
    - Coloque a **chave Pix da plataforma**, o nome e a cidade (usados no Pix manual).
    - Confira a **parte da plataforma**: padrão 10% da arrecadação das salas dos organizadores.
@@ -131,6 +131,42 @@ mandam Pix pela API. Me avise que eu integro.
 5. Painel → *Loja*: os itens novos (banners animados, arte estilo anime, chapéus e fundos animados) já estão à
    venda. Dá para mudar preço, desativar ou criar outros.
 
+## 5.1 Moderação e anti-trapaça · como usar
+
+**Fotos e bio**
+- Painel → **Fotos de perfil**: aprove ou recuse as fotos novas. Até lá, os outros veem a foto anterior.
+- Painel → Usuários → Gerenciar conta → **Foto e bio**: apague a bio ou tire a foto de alguém.
+- Painel → Configurações → **Palavras proibidas**: acrescente ou tire palavras (uma por linha).
+
+**Suspeita de hack**
+1. Abra a sala, toque no jogador e em **Chamar para análise** (ou pelo botão na denúncia). Escreva o motivo.
+   - O jogador recebe o aviso e uma mensagem sua no chat de salas.
+   - Os saques dele ficam pausados e ele não consegue excluir a conta.
+   - Ele tem 24 horas para mandar o vídeo.
+2. Painel → **Análise de partida** → toque no caso.
+   - **Ligar (voz e tela)**: cria uma sala no Jitsi Meet e manda o link para o jogador. Na primeira vez, o Jitsi pede
+     para você entrar com uma conta Google. O jogador compartilha a tela pelo app do Jitsi.
+   - **Vídeo**: o que ele mandou pelo app abre ali. Se ele mandou link, baixe o vídeo e toque em **Abrir vídeo do
+     celular**.
+   - **Ler killfeed**: escolha o lado da tela onde aparece o killfeed (ou marque com o dedo) e toque em **Ler
+     killfeed**. O app acha quem o suspeito matou e sugere os prejudicados.
+     - Na primeira vez, baixa cerca de 7 MB. Um vídeo de 10 minutos leva alguns minutos para ler.
+     - Toque num nome para o vídeo pular para aquele momento e confira.
+3. Confira a lista de **Prejudicados** e toque em **Salvar prejudicados**.
+4. Resultado:
+   - **Sem trapaça**: os saques voltam ao normal.
+   - **Confirmar trapaça** (só admin e dono). Escolha quem recebe a inscrição de volta: os prejudicados ou todos da
+     sala. Depois disso:
+     - o saldo inteiro do trapaceiro fica retido e os saques pendentes dele são recusados;
+     - a conta é banida para sempre;
+     - o ID do Free Fire, as chaves Pix e o aparelho vão para a lista **Bloqueios**. Conta nova com eles é
+       barrada.
+
+A devolução sai da plataforma: o saldo retido do trapaceiro normalmente cobre, mas se ele já tinha sacado, a
+diferença fica com você.
+
+Vídeos pelo app vão até **50 MB** (limite do plano grátis do Supabase). No plano Pro dá para subir o limite.
+
 ## 6. Play Store · 1 a 3 dias (a análise do Google demora)
 
 1. Crie a conta de desenvolvedor em **play.google.com/console**. A taxa é de **US$ 25**, paga uma vez só.
@@ -145,7 +181,7 @@ mandam Pix pela API. Me avise que eu integro.
    - Idioma: português (Brasil).
    - Tipo: jogo.
    - Grátis.
-4. Envie o arquivo **`BattleHub-2.3.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
+4. Envie o arquivo **`BattleHub-2.4.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
 5. Preencha a ficha com os textos de `loja/descricao.md` e as imagens da pasta `loja/` (ícone, destaque e as 8
    telas novas em preto e dourado).
 6. Preencha os formulários:

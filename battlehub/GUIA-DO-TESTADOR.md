@@ -5,7 +5,7 @@ em teste: use valores pequenos e conte tudo o que achar estranho.
 
 ## 1. Instalar (Android)
 
-1. Abra o arquivo **BattleHub-2.3.0.apk** que você recebeu.
+1. Abra o arquivo **BattleHub-2.4.0.apk** que você recebeu.
 2. Se o celular avisar sobre "fontes desconhecidas", toque em **Configurações** e ligue **Permitir desta fonte**.
 3. Toque em **Instalar**.
    - O app ainda não está na Play Store, por isso aparece esse aviso.
@@ -60,6 +60,12 @@ Marque o que conseguiu fazer e anote o que deu errado:
   - Criar ou entrar numa guilda.
 - [ ] **Chat**
   - Mandar mensagem para um amigo.
+- [ ] **Jogo limpo**
+  - Trocar a foto: aparece "Foto nova em análise" até a equipe aprovar.
+  - Tentar pôr palavrão, link ou telefone na bio: o app recusa.
+  - Nas salas pagas, **grave a tela da partida** com o killfeed aparecendo.
+  - Se a equipe te chamar para análise, aparece um aviso vermelho no início: toque nele e mande o vídeo (até 50 MB)
+    ou cole o link do Google Drive.
 
 ## 5. Como mandar sua opinião
 
@@ -73,4 +79,5 @@ Mande para quem te convidou:
 
 - O app é para **maiores de 18 anos**.
 - O BattleHub **não é afiliado à Garena**.
+- Hack confirmado dá ban para sempre, e o saldo da conta fica retido para devolver a quem foi prejudicado.
 - Sua conta pode ser apagada no fim do teste. Para sair antes: **Perfil → Excluir minha conta**.

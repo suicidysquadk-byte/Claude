@@ -76,10 +76,26 @@ O passo a passo do que **você** precisa fazer (contas, chaves, loja) está em
   **balão no topo** (estilo WhatsApp) com resposta rápida.
 - Ranking de abates, salas jogadas, sobrevivência, ganhos, vitórias e XP (semana, mês, geral).
 
+**Moderação e anti-trapaça**
+- Palavras proibidas (editáveis no painel) bloqueiam nick, bio e nome de guilda; no chat viram asteriscos. O filtro
+  pega acento, letra repetida e troca por número (p0rr4). Bio sem link e sem telefone.
+- Foto de perfil nova só aparece para os outros depois que a equipe aprova (fila **Fotos de perfil**). A equipe
+  apaga bio ou foto de qualquer conta.
+- **Análise de partida**: pela sala (tocar no jogador) ou pela denúncia, a equipe chama o suspeito. Ele é avisado
+  no início do app e no chat de salas, os saques ficam pausados e ele tem 24 horas para mandar o vídeo da partida
+  (até 50 MB pelo app, ou link do Drive/YouTube).
+- A equipe liga por voz no **Jitsi Meet** (o jogador compartilha a tela pelo app do Jitsi).
+- **Leitura do killfeed**: o app tira quadros do vídeo, lê o texto (Tesseract.js) e acha os nicks da sala. Quem o
+  suspeito matou vira a lista separada de prejudicados; a equipe confere e salva.
+- **Veredito**: trapaça confirmada devolve a inscrição para os prejudicados (ou todos da sala), retém todo o saldo
+  do trapaceiro, recusa os saques pendentes, bane para sempre e bloqueia o ID do Free Fire, as chaves Pix e o
+  aparelho. Sem trapaça, os saques voltam.
+
 **Painel administrativo** (dono, admin e moderador)
 - Visão geral, receita por origem, usuários (cargos, permissão de criar sala, taxa do organizador,
-  suspensão com tempo, ajuste de saldo, extrato), verificação de ID, financeiro (depósitos manuais e saques),
-  salas, eventos, modelos de sala, denúncias, guildas, avisos, loja, configurações e auditoria.
+  suspensão com tempo, ajuste de saldo, extrato, apagar bio ou foto), verificação de ID, financeiro (depósitos
+  manuais e saques), salas, eventos, modelos de sala, denúncias, análise de partida, fotos de perfil, guildas,
+  avisos, loja, configurações (com as palavras proibidas) e auditoria.
 
 ## Estrutura
 
@@ -89,9 +105,12 @@ www/                  o app (index.html, css/, js/, fonts/, vendor/)
   js/api.js           conversa com o Supabase (login, RPC, fotos, Pix, tempo real)
   js/pages-*.js       telas (entrada, salas, eventos, social, perfil, admin)
   js/cosmetics.js     arte da loja: acessórios, fundos e banners animados
+  js/pages-mod.js     moderação: fotos, análise de partida, aviso do suspeito
+  js/killfeed.js      leitura do killfeed no vídeo (Tesseract.js baixado do jsDelivr só quando usado)
   css/ouro.css        visual preto e dourado (sóbrio) e a loja
   css/entrada.css     abertura (coroa desenhada, zoom), boas-vindas com mural e login
   css/claro.css       tema Branco
+  css/moderacao.css   telas de moderação
   img/acessorios/     acessórios 3D (Fluent Emoji, MIT)
   img/mural/          telas do app usadas no mural das boas-vindas
 supabase/

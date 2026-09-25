@@ -88,6 +88,7 @@ window.BH = window.BH || {};
     const xpPct = (me.xp - me.xp_level) / Math.max(1, me.xp_next - me.xp_level);
     return {
       html: '<section class="page home">' +
+        (me.cheat_case && BH.caseBanner ? BH.caseBanner(me.cheat_case) : '') +
         (me.pinned ? '<button type="button" class="notice ripple" data-act="pinned">' + I('megaphone') + '<span><b>' + esc(me.pinned.title) + '</b>' + esc(me.pinned.body) + '</span></button>' : '') +
         '<div class="hello"><div><p class="eyebrow">' + greet + '</p><h1 class="h1">' + esc(me.nick) + '</h1></div>' +
         '<button type="button" class="lvl-chip ripple" data-act="track"><span class="lvl-n">' + me.level + '</span><span class="lvl-bar">' + U.bar(xpPct, 'elo') + '<small>' + U.int(me.xp - me.xp_level) + '/' + U.int(me.xp_next - me.xp_level) + ' XP</small></span></button></div>' +
@@ -153,7 +154,8 @@ window.BH = window.BH || {};
       else cta = '<div class="cta-bar"><div><small>' + (full ? 'Sala lotada' : 'Inscrição') + '</small><b>' + entryLabel(r) + '</b></div><button type="button" class="btn primary" data-act="joinRoom" data-id="' + r.id + '">' + I(full ? 'clock' : 'zap') + (full ? 'Entrar na fila' : 'Inscrever-se') + '</button></div>';
     }
     const secrets = r.secrets && r.secrets.game_room_id
-      ? '<div class="room-card-secret"><span class="live"><i></i>Sala liberada</span><div class="room-grid"><div><small>ID da sala</small><b class="mono">' + esc(r.secrets.game_room_id) + '</b></div><div><small>Senha</small><b class="mono">' + esc(r.secrets.password) + '</b></div></div><button type="button" class="btn ghost sm" data-act="copy" data-v="' + esc(r.secrets.game_room_id) + '">' + I('copy') + 'Copiar ID</button></div>'
+      ? '<div class="room-card-secret"><span class="live"><i></i>Sala liberada</span><div class="room-grid"><div><small>ID da sala</small><b class="mono">' + esc(r.secrets.game_room_id) + '</b></div><div><small>Senha</small><b class="mono">' + esc(r.secrets.password) + '</b></div></div><button type="button" class="btn ghost sm" data-act="copy" data-v="' + esc(r.secrets.game_room_id) + '">' + I('copy') + 'Copiar ID</button>' +
+        (Number(r.entry_cents) > 0 ? '<p class="rec-tip">' + I('video') + '<span><b>Grave a tela da partida</b> com o killfeed aparecendo. Se alguém suspeitar de hack, a equipe pede o vídeo.</span></p>' : '') + '</div>'
       : (r.status === 'em_andamento' && !r.joined && !r.can_manage ? '<div class="room-card-secret locked">' + I('lock') + '<span>O ID e a senha aparecem só para os inscritos.</span></div>' : '');
     const drawBtn = (type, icon, label) => (r.mechanics.some((m) => m.type === type) && !(type === 'rei' ? r.king : r.lucky) ? '<button type="button" class="btn outline sm" data-act="roomDraw" data-kind="' + type + '" data-id="' + r.id + '">' + I(icon) + label + '</button>' : '');
     const manage = r.can_manage && (r.status === 'aberta' || r.status === 'em_andamento')
@@ -288,6 +290,7 @@ window.BH = window.BH || {};
         (mine ? '' : '<div class="btn-row two"><button type="button" class="btn outline" data-act="profile" data-id="' + uid + '">' + I('user') + 'Ver perfil</button><button type="button" class="btn ghost" data-act="dm" data-id="' + uid + '">' + I('message') + 'Mensagem</button></div>') +
         (r.can_manage && !mine ? '<div class="org-actions"><p class="eyebrow">' + I('crown') + 'Como organizador</p><div class="btn-row two"><button type="button" class="btn gold sm" data-act="roomMsg" data-id="' + uid + '" data-room="' + rid + '">' + I('send') + 'Chamar no privado</button>' +
           (r.status === 'aberta' || r.status === 'em_andamento' ? '<button type="button" class="btn danger-ghost sm" data-act="roomKick" data-id="' + uid + '" data-room="' + rid + '">' + I('userMinus') + 'Remover da sala</button>' : '') + '</div></div>' : '') +
+        (api.me.role_level >= 1 && !mine && (r.status === 'em_andamento' || r.status === 'finalizada') && ({ moderador: 1, admin: 2, dono: 3 }[p.role] || 0) < api.me.role_level ? '<button type="button" class="btn gold block sm" data-act="caseOpen" data-id="' + uid + '" data-room="' + rid + '">' + I('shieldAlert') + 'Chamar para análise (suspeita de hack)</button>' : '') +
         (mine ? '' : '<button type="button" class="btn danger-ghost block sm" data-act="report" data-id="' + uid + '" data-room="' + rid + '">' + I('flag') + 'Denunciar</button>') + '</div>'
     });
   };

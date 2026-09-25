@@ -16,6 +16,8 @@ window.BH = window.BH || {};
     { id: 'events', label: 'Eventos', icon: 'medal', level: 2 },
     { id: 'templates', label: 'Modelos de sala', icon: 'gem', level: 2 },
     { id: 'reports', label: 'Denúncias', icon: 'flag', level: 1, badge: 'reports' },
+    { id: 'cases', label: 'Análise de partida', icon: 'shieldAlert', level: 1, badge: 'cases' },
+    { id: 'photos', label: 'Fotos de perfil', icon: 'image', level: 1, badge: 'photos' },
     { id: 'guilds', label: 'Guildas', icon: 'shield', level: 1 },
     { id: 'broadcast', label: 'Avisos', icon: 'megaphone', level: 2 },
     { id: 'shop', label: 'Loja', icon: 'bag', level: 2 },
@@ -33,7 +35,7 @@ window.BH = window.BH || {};
     if (!list.some((s) => s.id === sa.section)) sa.section = 'overview';
     const cur = list.find((s) => s.id === sa.section);
     const pend = me.admin_pending || {};
-    const badge = (s) => s.badge === 'ff' ? pend.ff : s.badge === 'reports' ? pend.reports : s.badge === 'money' ? (pend.deposits || 0) + (pend.withdrawals || 0) : 0;
+    const badge = (s) => s.badge === 'money' ? (pend.deposits || 0) + (pend.withdrawals || 0) : s.badge ? pend[s.badge] || 0 : 0;
     const nav = (cls) => list.map((s) => { const b = badge(s); return '<button type="button" class="' + cls + (s.id === sa.section ? ' on' : '') + '" data-act="aSection" data-v="' + s.id + '">' + I(s.icon) + '<span>' + s.label + '</span>' + (b ? '<b class="dot-count">' + b + '</b>' : '') + '</button>'; }).join('');
     const body = await SECTION[sa.section]();
     return {
@@ -61,7 +63,9 @@ window.BH = window.BH || {};
     const REV = { taxa_sala: 'Taxa das salas dos organizadores', sala_oficial: 'Sobra das salas oficiais', lucro_evento: 'Sobra dos eventos', loja: 'Loja', cobertura_sala: 'Prêmio completado em salas oficiais', cobertura_evento: 'Prêmio completado em eventos' };
     const rev = Object.keys(x.revenue_by_kind || {}).map((k) => [k, Number(x.revenue_by_kind[k])]).sort((a, b) => b[1] - a[1]);
     const labels = d.series.map((x) => x.day.slice(8, 10) + '/' + x.day.slice(5, 7));
-    const todo = [['ff', null, 'badgeCheck', 'IDs para verificar', p.ff, 1], ['finance', 'depositos', 'arrowIn', 'Depósitos manuais', p.deposits, 2], ['finance', 'saques', 'arrowOut', 'Saques para pagar', p.withdrawals, 2], ['reports', null, 'flag', 'Denúncias abertas', p.reports, 1]].filter((x) => me.role_level >= x[5]);
+    const mp = me.admin_pending || {};
+    const todo = [['ff', null, 'badgeCheck', 'IDs para verificar', p.ff, 1], ['finance', 'depositos', 'arrowIn', 'Depósitos manuais', p.deposits, 2], ['finance', 'saques', 'arrowOut', 'Saques para pagar', p.withdrawals, 2], ['reports', null, 'flag', 'Denúncias abertas', p.reports, 1],
+      ['cases', null, 'shieldAlert', 'Análises abertas', mp.cases || 0, 1], ['photos', null, 'image', 'Fotos para aprovar', mp.photos || 0, 1]].filter((x) => me.role_level >= x[5]);
     const total = todo.reduce((a, x) => a + x[4], 0);
     return {
       html: '<p class="a-hello">Olá, ' + esc(me.nick) + '. ' + (total ? 'Tem ' + U.plural(total, 'pendência', 'pendências') + ' esperando por você.' : 'Nenhuma pendência agora.') + '</p>' +
@@ -141,6 +145,9 @@ window.BH = window.BH || {};
               '<p class="muted small">' + U.plural(u.creator_rooms || 0, 'sala finalizada', 'salas finalizadas') + ' · já pagou ' + U.cents(u.creator_fee_paid_cents || 0) + ' para a plataforma. Deixe vazio para usar a taxa padrão.</p></form>' : '') +
             (canRole ? '<label class="field"><span>Cargo</span><select id="au-role" data-act-change="aRole" data-id="' + u.id + '">' + [['jogador', 'Jogador'], ['moderador', 'Moderador'], ['admin', 'Admin']].filter((r) => r[0] !== 'admin' || me.role === 'dono').map((r) => '<option value="' + r[0] + '"' + (u.role === r[0] ? ' selected' : '') + '>' + r[1] + '</option>').join('') + '</select></label>' : '') + '</section>' : '') +
           '<section class="mu-sec"><h4>Suspensão</h4>' + (u.banned ? '<button type="button" class="btn ghost sm" data-act="aUnban" data-id="' + u.id + '">' + I('userCheck') + 'Tirar suspensão</button>' : canBan ? '<button type="button" class="btn danger sm" data-act="aBan" data-id="' + u.id + '">' + I('ban') + 'Suspender conta</button>' : '<p class="muted small">Você não pode suspender esta conta.</p>') +
+          (canBan ? '<section class="mu-sec"><h4>Foto e bio</h4>' + (u.bio ? '<blockquote>' + esc(u.bio) + '</blockquote>' : '<p class="muted small">Sem bio.</p>') +
+            '<div class="btn-row"><button type="button" class="btn ghost sm" data-act="aModerate" data-v="bio" data-id="' + u.id + '"' + (u.bio ? '' : ' disabled') + '>' + I('edit') + 'Apagar bio</button>' +
+            '<button type="button" class="btn ghost sm" data-act="aModerate" data-v="foto" data-id="' + u.id + '"' + (u.avatar_url ? '' : ' disabled') + '>' + I('image') + 'Remover foto</button></div></section>' : '') +
           (u.bans.length ? '<ul class="mini-log">' + u.bans.map((b) => '<li>' + U.date(b.created_at) + ' · ' + (b.until ? 'até ' + U.date(b.until) : 'permanente') + ' · ' + esc(b.reason) + (b.by ? ' · por ' + esc(b.by.nick) : '') + (b.lifted_at ? ' · encerrada' : '') + '</li>').join('') + '</ul>' : '') + '</section>' +
           (me.role_level >= 2 ? '<section class="mu-sec"><h4>Ajustar saldo</h4><form class="form tight" data-form="aAdjust" data-id="' + u.id + '"><div class="grid2"><label class="field"><span>Valor (use − para debitar)</span><input id="aa-v" name="value" inputmode="decimal" required placeholder="10,00 ou -10,00"></label><label class="field"><span>Motivo</span><input id="aa-r" name="reason" required maxlength="80" placeholder="Ex.: bônus de evento"></label></div><button class="btn ghost block sm">' + I('wallet') + 'Aplicar ajuste</button></form></section>' : '') +
           '<section class="mu-sec"><h4>Extrato</h4><ul class="tx-list">' + (u.ledger.length ? u.ledger.slice(0, 12).map(BH.ledgerRow).join('') : '<li class="muted small">Sem movimentações.</li>') + '</ul></section>' +
@@ -285,7 +292,8 @@ window.BH = window.BH || {};
       html: U.chips([['aberta', 'Abertas', null, (api.me.admin_pending || {}).reports], ['resolvida', 'Resolvidas'], ['descartada', 'Descartadas']], sa.repStatus, 'aRepStatus') +
         (list.length ? '<div class="stack stagger">' + list.map((r) => '<article class="report"><header>' + ucell(r.target, U.plural(r.against_count, 'denúncia', 'denúncias') + ' contra') + '<span class="tag tone-red">' + I('flag') + esc(r.reason) + '</span></header>' +
           '<blockquote>' + esc(r.detail || 'Sem detalhes.') + '</blockquote><p class="muted small">Por ' + esc(r.reporter.nick) + (r.room ? ' · Sala #' + r.room.code : '') + ' · ' + U.ago(r.created_at) + (r.resolution ? ' · <b>' + esc(r.resolution) + '</b>' : '') + '</p>' +
-          (r.status === 'aberta' ? '<div class="btn-row"><button type="button" class="btn ghost sm" data-act="aUser" data-id="' + r.target.id + '">' + I('user') + 'Ver conta</button><button type="button" class="btn green sm" data-act="aRep" data-s="resolvida" data-id="' + r.id + '">' + I('check') + 'Resolvida</button><button type="button" class="btn danger-ghost sm" data-act="aRep" data-s="descartada" data-id="' + r.id + '">' + I('x') + 'Descartar</button></div>' : '') + '</article>').join('') + '</div>'
+          (r.status === 'aberta' ? '<div class="btn-row"><button type="button" class="btn ghost sm" data-act="aUser" data-id="' + r.target.id + '">' + I('user') + 'Ver conta</button>' +
+            (r.room ? '<button type="button" class="btn gold sm" data-act="caseOpen" data-id="' + r.target.id + '" data-room="' + r.room.id + '">' + I('shieldAlert') + 'Chamar para análise</button>' : '') + '<button type="button" class="btn green sm" data-act="aRep" data-s="resolvida" data-id="' + r.id + '">' + I('check') + 'Resolvida</button><button type="button" class="btn danger-ghost sm" data-act="aRep" data-s="descartada" data-id="' + r.id + '">' + I('x') + 'Descartar</button></div>' : '') + '</article>').join('') + '</div>'
           : '<div class="all-clear">' + I('checkCircle') + '<b>Tudo em dia!</b><small>Nenhuma denúncia nesse filtro</small></div>')
     };
   };
@@ -477,7 +485,7 @@ window.BH = window.BH || {};
   /* ---------- configurações ---------- */
   const capExample = (pct) => 'Ex.: 10 jogadores × R$ 10 = R$ 100. Prêmios e mecânicas somados podem prometer até ' + U.cents(Math.floor(10000 * pct / 100)) + '; os outros ' + U.cents(10000 - Math.floor(10000 * pct / 100)) + ' ficam para o organizador e a plataforma. Vale para todas as salas pagas, inclusive as oficiais.';
   SECTION.settings = async function () {
-    const s = await api.rpc('admin_get_settings');
+    const [s, words] = await Promise.all([api.rpc('admin_get_settings'), api.rpc('admin_banned_words').catch(() => [])]);
     const xp = s.xp || {};
     const money = (name, label, v) => '<label class="field money-field"><span>' + label + '</span><b>R$</b><input id="st-' + name + '" name="' + name + '" inputmode="decimal" value="' + U.centsInput(v) + '"></label>';
     return {
@@ -501,7 +509,11 @@ window.BH = window.BH || {};
         '<label class="switch"><input id="st-vw" type="checkbox" name="require_verified_withdraw"' + (s.require_verified_withdraw ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span>Saque só com ID do Free Fire verificado</span></label>' +
         '<label class="switch"><input id="st-vp" type="checkbox" name="require_verified_paid"' + (s.require_verified_paid ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span>Salas pagas só com ID verificado</span></label>' +
         '<label class="switch warn"><input id="st-mt" type="checkbox" name="maintenance"' + (s.maintenance ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span>Modo manutenção <small>Só a equipe entra no app</small></span></label></section>' +
-        '<button class="btn primary block lg">' + I('check') + 'Salvar configurações</button></form>',
+        '<button class="btn primary block lg">' + I('check') + 'Salvar configurações</button></form>' +
+        '<form class="form" data-form="aWords"><section class="card"><h3 class="card-h">' + I('ban') + 'Palavras proibidas</h3>' +
+        '<p class="muted small">Bloqueiam nick, bio e nome de guilda; no chat viram asteriscos. O filtro também pega acento, letra repetida e troca por número (p0rr4, caraaalho). Uma palavra ou expressão por linha.</p>' +
+        '<label class="field"><span>' + U.plural(words.length, 'palavra', 'palavras') + '</span><textarea id="st-words" name="words" rows="8" spellcheck="false">' + esc(words.join('\n')) + '</textarea></label>' +
+        '<button class="btn outline block">' + I('check') + 'Salvar palavras</button></section></form>',
       onMount(root) {
         [['st-fee', 'st-fee-v'], ['st-gc', 'st-gc-v'], ['st-mp', 'st-mp-v'], ['st-xpct', 'st-xp-v']].forEach(([a, b]) => { const r = root.querySelector('#' + a); if (r) r.addEventListener('input', () => { root.querySelector('#' + b).textContent = r.value + '%'; }); });
         const xr = root.querySelector('#st-xpct'); if (xr) xr.addEventListener('input', () => { root.querySelector('#st-xp-ex').textContent = capExample(Number(xr.value)); });
@@ -522,6 +534,11 @@ window.BH = window.BH || {};
     if (await U.run(f.querySelector('button.primary'), () => api.rpc('admin_set_settings', { p }), 'Configurações salvas.')) refresh();
   };
 
+  forms.aWords = async function (f) {
+    const list = f.words.value.split(/[\n,;]+/).map((w) => w.trim()).filter((w) => w.length >= 2);
+    if (await U.run(f.querySelector('button'), () => api.rpc('admin_banned_words_set', { p_words: list }), 'Palavras salvas.')) app().rerender('static');
+  };
+
   /* ---------- auditoria ---------- */
   SECTION.logs = async function () {
     const list = await api.rpc('admin_logs', { p_q: sa.logQ || null });
@@ -530,4 +547,5 @@ window.BH = window.BH || {};
         '<p class="muted small">Cada ação da equipe e dos organizadores fica gravada aqui.</p><section class="card"><ul class="log-list stagger">' + (list.length ? list.map(logRow).join('') : '<li class="muted pad">Nenhum registro.</li>') + '</ul></section>'
     };
   };
+  BH.admin = { SECTION, ucell, refresh, again };
 })();

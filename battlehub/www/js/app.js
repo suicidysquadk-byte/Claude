@@ -181,7 +181,7 @@ window.BH = window.BH || {};
     });
     if (cur.page === 'chat') refreshSoon();
   }
-  const NICON = { sala: 'trophy', resultado: 'trophy', deposito: 'wallet', saque: 'wallet', amizade: 'userPlus', nivel: 'sparkles', guilda: 'shield', admin: 'shieldCheck', aviso: 'megaphone', ban: 'ban', conta: 'badgeCheck' };
+  const NICON = { sala: 'trophy', resultado: 'trophy', deposito: 'wallet', saque: 'wallet', amizade: 'userPlus', nivel: 'sparkles', guilda: 'shield', admin: 'shieldCheck', aviso: 'megaphone', ban: 'ban', conta: 'badgeCheck', analise: 'shieldAlert' };
   async function onNotification(n) {
     try { await api.refreshMe(); header(); } catch (e) { /* ignora */ }
     const d = n.data || {};
@@ -189,7 +189,8 @@ window.BH = window.BH || {};
       icon: NICON[n.kind] || 'bell', title: n.title, body: n.body, tone: n.kind === 'ban' ? 'bad' : n.kind === 'resultado' || n.kind === 'deposito' ? 'good' : '',
       open: () => {
         U.closeAll();
-        if (d.room_id) push('room', { id: d.room_id });
+        if (n.kind === 'analise' && d.case_id) { if (d.staff) push('caseAdmin', { id: d.case_id }); else if (d.link) api.openExternal(d.link).catch(U.err); else BH.actions.myCase(); }
+        else if (d.room_id) push('room', { id: d.room_id });
         else if (d.event_id) push('event', { id: d.event_id });
         else if (d.guild_id) push('guild', { id: d.guild_id });
         else if (n.kind === 'amizade') { BH.state.chatTab = 'amigos'; go('chat'); }
@@ -197,7 +198,7 @@ window.BH = window.BH || {};
       }
     });
     if (n.kind === 'nivel' || n.kind === 'resultado') U.confetti();
-    if (n.kind === 'ban' || n.kind === 'conta') render('static');
+    if (n.kind === 'ban' || n.kind === 'conta' || (n.kind === 'analise' && !d.staff)) render('static');
     const cur = current();
     if (d.room_id && cur.page === 'room' && cur.params.id === d.room_id) refreshSoon();
   }
@@ -208,7 +209,7 @@ window.BH = window.BH || {};
     if (api.configured) {
       sessionCache = await api.session();
       if (sessionCache) {
-        try { await api.refreshMe(); startLive(); }
+        try { await api.refreshMe(); startLive(); BH.flows.sendDevice(); }
         catch (e) {
           if (/sessão expirou/i.test(e.message)) { await api.signOut(); sessionCache = null; }
           else { api.me = null; nav.set('home', false); view.innerHTML = '<section class="page">' + U.empty('wifiOff', 'Sem conexão com o servidor', e.message, '<button type="button" class="btn primary" data-act="retry">' + I('refresh') + 'Tentar de novo</button>') + '</section>'; document.body.classList.add('no-nav'); header(); return; }

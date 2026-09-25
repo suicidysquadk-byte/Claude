@@ -25,8 +25,8 @@ window.BH = window.BH || {};
     [/rate limit|too many requests|security purposes/i, 'Muitas tentativas seguidas. Espere um minuto e tente de novo.'],
     [/jwt expired|invalid jwt|not authenticated/i, 'Sua sessão expirou. Entre de novo.'],
     [/unable to validate email|invalid email/i, 'Digite um e-mail válido.'],
-    [/payload too large|exceeded the maximum/i, 'A foto é grande demais. Escolha outra.'],
-    [/mime type/i, 'Envie uma foto em JPG, PNG ou WEBP.']
+    [/payload too large|exceeded the maximum/i, 'O arquivo é grande demais. Escolha outro menor.'],
+    [/mime type/i, 'Formato não aceito. Envie foto em JPG, PNG ou WEBP, ou vídeo em MP4.']
   ];
   function fail(e) {
     const raw = (e && (e.message || e.error_description || e.msg || e.error)) || String(e || '');
@@ -123,7 +123,7 @@ window.BH = window.BH || {};
   api.removeMyFiles = async function () {
     const s = await api.session();
     if (!s) return;
-    for (const bucket of ['avatars', 'chat', 'verificacoes']) {
+    for (const bucket of ['avatars', 'chat', 'verificacoes', 'analises']) {
       try {
         const { data } = await sb.storage.from(bucket).list(s.user.id, { limit: 1000 });
         const paths = (data || []).map((f) => s.user.id + '/' + f.name);
@@ -133,17 +133,19 @@ window.BH = window.BH || {};
   };
 
   /* ---------- fotos ---------- */
-  api.upload = async function (bucket, blob) {
+  // opt: { ext, type } para arquivos que não são foto (vídeo da análise)
+  api.upload = async function (bucket, blob, opt) {
+    const o = opt || {};
     const s = await api.session();
     if (!s) throw new Error('Entre na sua conta para enviar fotos.');
-    const path = s.user.id + '/' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8) + '.jpg';
-    const { error } = await sb.storage.from(bucket).upload(path, blob, { contentType: 'image/jpeg', upsert: false, cacheControl: '31536000' });
+    const path = s.user.id + '/' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8) + '.' + (o.ext || 'jpg');
+    const { error } = await sb.storage.from(bucket).upload(path, blob, { contentType: o.type || 'image/jpeg', upsert: false, cacheControl: '31536000' });
     if (error) throw fail(error);
     return path;
   };
   api.publicUrl = (bucket, path) => sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
-  api.signedUrl = async function (path) {
-    const { data, error } = await sb.storage.from('verificacoes').createSignedUrl(path, 900);
+  api.signedUrl = async function (path, bucket) {
+    const { data, error } = await sb.storage.from(bucket || 'verificacoes').createSignedUrl(path, bucket === 'analises' ? 3600 : 900);
     if (error) throw fail(error);
     return data.signedUrl;
   };
@@ -157,6 +159,17 @@ window.BH = window.BH || {};
     const status = error.context && error.context.status;
     if (status === 501 || status === 404 || (body && body.error === 'mp_nao_configurado')) return null;
     throw fail(body && body.error ? body.error : error);
+  };
+
+  // identificador do aparelho (bloqueio de quem foi banido por trapaça). No navegador, um código salvo no aparelho.
+  api.deviceId = async function () {
+    const Device = Cap && Cap.Plugins && Cap.Plugins.Device;
+    if (native && Device && Device.getId) {
+      try { const r = await Device.getId(); if (r && r.identifier) return 'and:' + r.identifier; } catch (e) { /* segue para o código salvo */ }
+    }
+    let id = store.getItem('bh.device');
+    if (!id) { id = 'web:' + Date.now().toString(36) + Math.random().toString(36).slice(2, 12); store.setItem('bh.device', id); }
+    return id;
   };
 
   // abre um endereço fora do app (WhatsApp, navegador)

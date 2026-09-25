@@ -32,6 +32,11 @@ EVENTOS OFICIAIS
 • Intensivo de guildas com ranking de guildas da semana
 • Classificação ao vivo por pontos de abate e colocação
 
+JOGO LIMPO
+• Suspeita de hack vira análise de partida: o jogador manda o vídeo e a equipe confere o killfeed
+• Trapaça confirmada: quem foi prejudicado recebe a inscrição de volta e o trapaceiro é banido para sempre
+• Fotos de perfil aprovadas pela equipe e filtro de palavrões no nick, na bio e no chat
+
 CARTEIRA E PIX
 • Depósito por Pix: o saldo entra quando o pagamento é confirmado
 • Prêmio na carteira assim que o resultado é confirmado
@@ -65,6 +70,8 @@ registrada da Garena. Para maiores de 18 anos.
 | Mensagens no app | Sim | Não | Funcionalidade | Não |
 | Informações financeiras (histórico de compras e pagamentos, chave Pix) | Sim | Sim, com o Mercado Pago (processar o Pix) | Pagamentos | Sim para depositar/sacar |
 | Interações no app (salas, resultados) | Sim | Não | Funcionalidade, ranking | Sim |
+| Vídeos (gravação da partida na análise de trapaça) | Sim | Não | Prevenção de fraude | Não (só quem é chamado para análise) |
+| IDs do dispositivo ou outros IDs (identificador do aparelho) | Sim | Não | Prevenção de fraude, segurança | Sim |
 
 - Os dados são criptografados em trânsito: **sim** (HTTPS).
 - O usuário pode pedir a exclusão: **sim** (*Perfil → Excluir minha conta* ou pelo e-mail de suporte).

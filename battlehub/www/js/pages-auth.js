@@ -243,13 +243,14 @@ window.BH = window.BH || {};
   pages.banned = function () {
     const me = api.me || {};
     const until = me.banned_until ? new Date(me.banned_until) : null;
-    const perm = !until || until.getFullYear() > 2200;
+    const perm = !until || isNaN(until.getTime()) || until.getFullYear() > 2200;
+    const cheat = /trapaça/i.test(me.ban_reason || '');
     return {
       hideNav: true, bare: true,
       html: '<section class="login"><div class="login-card ban-card"><span class="ban-ic">' + I('ban') + '</span><h1 class="h1">Conta suspensa</h1>' +
         '<p class="muted">Motivo: <b>' + esc(me.ban_reason || 'violação das regras') + '</b></p>' +
         (perm ? '<p class="ban-left">Suspensão permanente</p>' : '<p class="ban-left">Libera em <b class="mono" data-until="' + until.getTime() + '">' + U.until(until.getTime()) + '</b></p>') +
-        '<p class="muted small">Seu saldo continua guardado. Se acha que foi um engano, fale com a equipe pelo e-mail de suporte informado na Play Store.</p>' +
+        '<p class="muted small">' + (cheat ? 'Por trapaça, o saldo fica retido e a inscrição volta para os jogadores prejudicados, como está nos termos de uso.' : 'Seu saldo continua guardado.') + ' Se acha que foi um engano, fale com a equipe pelo e-mail de suporte informado na Play Store.</p>' +
         '<button type="button" class="btn ghost block" data-act="logout">' + I('logout') + 'Sair da conta</button></div></section>'
     };
   };

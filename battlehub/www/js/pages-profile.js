@@ -57,7 +57,7 @@ window.BH = window.BH || {};
         '<h1 class="h1">' + U.nick(card) + '</h1>' + U.title(card) +
         '<div class="p-badges"><span class="lvl-tag">Nível ' + me.level + '</span>' + U.role(me.role) + (me.guild ? '<button type="button" class="tag tone-violet" data-act="openGuild" data-id="' + me.guild.id + '">' + I('shield') + esc(me.guild.tag) + '</button>' : '') +
         '<button type="button" class="chip mono ripple" data-act="copy" data-v="' + me.code + '">' + I('hash') + me.code + '</button>' + (me.anonymous ? '<span class="chip tone-muted">' + I('eyeOff') + 'Anônimo no ranking</span>' : '') + '</div>' +
-        (me.bio ? '<p class="p-bio">' + esc(me.bio) + '</p>' : '') + '<p class="muted small">' + esc(me.email || '') + '</p></div>' +
+        (me.bio ? '<p class="p-bio">' + esc(me.bio) + '</p>' : '') + (me.avatar_pending ? '<p class="pend-photo">' + I('clock') + '<span>Foto nova em análise. Os outros ainda veem a anterior.</span></p>' : '') + '<p class="muted small">' + esc(me.email || '') + '</p></div>' +
         '<button type="button" class="xp-card ripple" data-act="track"><div class="xp-top"><span class="lvl-n big">' + me.level + '</span><div class="grow"><b>Nível ' + me.level + '</b><small>' + U.int(me.xp_next - me.xp) + ' XP para o nível ' + (me.level + 1) + '</small></div>' + I('right', 'chev') + '</div>' + U.bar(xpPct, 'elo') + '</button>' +
         '<div class="v-card ' + (me.ff.status === 'aprovado' ? 'ok' : me.ff.status === 'pendente' ? 'wait' : '') + '"><span class="v-ic">' + I(fs[1]) + '</span><div><b>Free Fire · <span class="' + fs[0] + '-t">' + fs[2] + '</span></b><p>' + esc(me.ff.nick || '–') + ' · ID ' + esc(me.ff.id || '–') + (me.ff.status === 'recusado' && me.ff.note ? '<br>Motivo: ' + esc(me.ff.note) : '') + '</p>' +
         '<button type="button" class="btn outline sm" data-act="ffSheet">' + I('upload') + (me.ff.status === 'nao_enviado' ? 'Enviar print' : 'Atualizar nick, ID ou print') + '</button></div></div>' +
@@ -92,6 +92,7 @@ window.BH = window.BH || {};
       title: 'Editar perfil', loading: false, data: { blob: null, url: null },
       body: (s) => '<form class="form" data-form="profile"><label class="ob-avatar"><input id="ep-av" type="file" accept="image/*" data-pick="profile-avatar">' +
         (s.data.url || me.avatar_url ? '<img src="' + esc(s.data.url || me.avatar_url) + '" alt="Sua foto">' : '<span>' + I('camera') + '</span>') + '<small>Trocar foto</small></label>' +
+        (me.role_level >= 1 ? '' : '<p class="muted small center">A foto nova aparece para os outros depois que a equipe aprova.</p>') +
         '<label class="field"><span>Nickname</span><input id="ep-nick" name="nick" maxlength="20" required value="' + esc(me.nick) + '"></label>' +
         '<label class="field"><span>Bio</span><textarea id="ep-bio" name="bio" rows="2" maxlength="160" placeholder="Seu estilo de jogo">' + esc(me.bio) + '</textarea></label>' +
         '<label class="switch"><input id="ep-anon" type="checkbox" name="anonymous"' + (me.anonymous ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span>Ficar anônimo no ranking <small>Seu nick e foto somem do ranking e dos pagamentos recentes, mas o valor ganho continua visível.</small></span></label>' +
@@ -111,7 +112,7 @@ window.BH = window.BH || {};
       if (s.data.blob) url = api.publicUrl('avatars', await api.upload('avatars', s.data.blob));
       await api.rpc('update_profile', { p_nick: f.nick.value, p_bio: f.bio.value, p_avatar_url: url, p_anonymous: f.anonymous.checked });
       await api.refreshMe();
-    }, 'Perfil salvo.');
+    }, s.data.blob && api.me.role_level < 1 ? 'Perfil salvo. A foto nova foi para análise.' : 'Perfil salvo.');
     if (ok) { U.closeAll(); app().refresh(); }
   };
 

@@ -322,18 +322,19 @@ window.BH = window.BH || {};
   };
 
   /* ================= NOTIFICAÇÕES ================= */
-  const NICON = { sala: 'trophy', resultado: 'trophy', deposito: 'wallet', saque: 'wallet', amizade: 'userPlus', nivel: 'sparkles', guilda: 'shield', admin: 'shieldCheck', aviso: 'megaphone', ban: 'ban', conta: 'badgeCheck' };
+  const NICON = { sala: 'trophy', resultado: 'trophy', deposito: 'wallet', saque: 'wallet', amizade: 'userPlus', nivel: 'sparkles', guilda: 'shield', admin: 'shieldCheck', aviso: 'megaphone', ban: 'ban', conta: 'badgeCheck', analise: 'shieldAlert' };
   actions.notifications = function () {
     U.sheet({
       title: 'Notificações',
       body: async () => {
         const list = await api.rpc('my_notifications');
         api.rpc('read_notifications').then(() => api.refreshMe()).then(() => BH.app.header()).catch(() => {});
-        return '<ul class="notif-list stagger">' + (list.length ? list.map((n) => '<li class="' + (n.read ? '' : 'unread') + '"><button type="button" class="notif-btn" data-act="notifOpen" data-room="' + esc((n.data || {}).room_id || '') + '" data-guild="' + esc((n.data || {}).guild_id || '') + '" data-kind="' + esc(n.kind) + '"><span class="n-ic tone-' + (n.kind === 'ban' ? 'bad' : n.kind === 'resultado' || n.kind === 'deposito' ? 'good' : 'violet') + '">' + I(NICON[n.kind] || 'bell') + '</span><div><b>' + esc(n.title) + '</b><p>' + esc(n.body) + '</p><small data-ago="' + n.created_at + '">' + U.ago(n.created_at) + '</small></div></button></li>').join('') : '<li>' + U.empty('bell', 'Tudo em dia', 'Nenhuma notificação por enquanto.') + '</li>') + '</ul>';
+        return '<ul class="notif-list stagger">' + (list.length ? list.map((n) => '<li class="' + (n.read ? '' : 'unread') + '"><button type="button" class="notif-btn" data-act="notifOpen" data-room="' + esc((n.data || {}).room_id || '') + '" data-guild="' + esc((n.data || {}).guild_id || '') + '" data-case="' + esc((n.data || {}).case_id || '') + '" data-staff="' + ((n.data || {}).staff ? '1' : '') + '" data-kind="' + esc(n.kind) + '"><span class="n-ic tone-' + (n.kind === 'ban' ? 'bad' : n.kind === 'resultado' || n.kind === 'deposito' ? 'good' : 'violet') + '">' + I(NICON[n.kind] || 'bell') + '</span><div><b>' + esc(n.title) + '</b><p>' + esc(n.body) + '</p><small data-ago="' + n.created_at + '">' + U.ago(n.created_at) + '</small></div></button></li>').join('') : '<li>' + U.empty('bell', 'Tudo em dia', 'Nenhuma notificação por enquanto.') + '</li>') + '</ul>';
       }
     });
   };
   actions.notifOpen = function (el) {
+    if (el.dataset.case) { U.closeAll(); return el.dataset.staff ? app().push('caseAdmin', { id: el.dataset.case }) : actions.myCase(); }
     if (el.dataset.room) { U.closeAll(); return app().push('room', { id: el.dataset.room }); }
     if (el.dataset.guild) { U.closeAll(); return app().push('guild', { id: el.dataset.guild }); }
     if (el.dataset.kind === 'amizade') { U.closeAll(); st.chatTab = 'amigos'; return app().go('chat'); }
