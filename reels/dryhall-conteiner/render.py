@@ -51,7 +51,7 @@ def tmask(text, fname, size, spacing=0):
     k = (text, fname, size, spacing)
     if k not in _tm:
         m, base, pad = text_mask(text, font(fname, size), spacing)
-        sh = cv2.GaussianBlur(m, (0, 0), 5)
+        sh = cv2.GaussianBlur(m, (0, 0), 2.2)
         _tm[k] = (m, sh, base, pad)
     return _tm[k]
 
@@ -71,7 +71,7 @@ def draw_text(frame, text, fname, size, x, y_base, color, alpha, spacing=0, alig
     w = m.shape[1] - 2 * pad
     if align == "center": x = x - w / 2
     elif align == "right": x = x - w
-    if shadow > 0: paste(frame, sh, x - pad, y_base - base + 3, BLACK, alpha * shadow)
+    if shadow > 0: paste(frame, sh, x - pad, y_base - base + 2, BLACK, alpha * shadow)
     paste(frame, m, x - pad, y_base - base, color, alpha)
     return w
 
@@ -229,7 +229,7 @@ SHOTS = [
 ]
 
 CAPTIONS = [
-    (0.29, 3.12, "O móvel planejado não começa na *montagem.*"),
+    (0.29, 3.12, "Móveis planejados não começam na *montagem.*"),
     (3.47, 5.80, "Ele começa *antes da obra.*"),
     (6.25, 8.47, "Na AlphaHome, desenvolvemos *projetos*"),
     (8.53, 10.58, "tanto para construção em *alvenaria*"),
@@ -258,8 +258,8 @@ TAGS = [  # (t0, t1, text)
 # ---------------------------------------------------------------- captions
 CAP_Y = 1318          # vertical centre of caption block
 CAP_MAXW = 880
-N_FONT, N_SIZE = "Montserrat-Medium.ttf", 50
-H_FONT, H_SIZE = "Marcellus-Regular.ttf", 58
+N_FONT, N_SIZE = "Montserrat-SemiBold.ttf", 50
+H_FONT, H_SIZE = "Marcellus-Regular.ttf", 60
 LINE_H = 70
 
 def layout_caption(text):
@@ -318,25 +318,23 @@ def cap_backdrop(i, pl):
 
 def draw_captions(frame, T):
     for ci, (s, e, pl, times) in enumerate(_caps):
-        if T < s - 0.1 or T > e + 0.01: continue
-        out = 1 - ramp(T, e - 0.16, e)
+        if T < s - 0.08 or T > e + 0.01: continue
+        a = smooth(ramp(T, s - 0.08, s + 0.06)) * (1 - smooth(ramp(T, e - 0.12, e)))
+        if a <= 0: continue
         m, bx0, by0 = cap_backdrop(ci, pl)
-        paste(frame, m, bx0, by0, BLACK, 0.34 * eout(ramp(T, s - 0.1, s + 0.25)) * out)
-        for (wd, h, x, yb), tw in zip(pl, times):
-            a = eout(ramp(T, tw, tw + 0.28)) * out
-            if a <= 0: continue
-            dy = (1 - eout(ramp(T, tw, tw + 0.36))) * 14
-            if h: draw_text(frame, wd, H_FONT, H_SIZE, x, yb + dy, GOLD_SOFT, a, shadow=0.55)
-            else: draw_text(frame, wd, N_FONT, N_SIZE, x, yb + dy, IVORY, a, shadow=0.55)
+        paste(frame, m, bx0, by0, BLACK, 0.34 * a)
+        for (wd, h, x, yb) in pl:
+            if h: draw_text(frame, wd, H_FONT, H_SIZE, x, yb, GOLD_SOFT, a, shadow=0.6)
+            else: draw_text(frame, wd, N_FONT, N_SIZE, x, yb, IVORY, a, shadow=0.6)
 
 def draw_tags(frame, T):
     for (s, e, txt) in TAGS:
         if T < s or T > e: continue
         a = eout(ramp(T, s, s + 0.4)) * (1 - ramp(T, e - 0.3, e))
-        dx = (1 - eout(ramp(T, s, s + 0.5))) * -14
+        dx = 0
         ly = Layer().circle((98 + dx, 318), 5, fill=True)
         comp_mask_bbox(frame, ly, GOLD_SOFT, a, (80, 300, 120, 340))
-        draw_text(frame, txt, "Montserrat-SemiBold.ttf", 24, 116 + dx, 327, IVORY, a * 0.95, spacing=5, shadow=0.5)
+        draw_text(frame, txt, "Montserrat-SemiBold.ttf", 26, 116 + dx, 328, IVORY, a * 0.95, spacing=5, shadow=0.5)
         ln = Layer().line((116 + dx, 344), (116 + dx + 46 * eout(ramp(T, s + 0.2, s + 0.8)), 344), 2)
         comp_mask_bbox(frame, ln, GOLD, a * 0.9, (100, 340, 200, 350))
 
@@ -345,7 +343,7 @@ BP_STILL = None
 def shot_blueprint(T):
     global BP_STILL
     if BP_STILL is None: BP_STILL = still(f"{S}/stills/D_2.4.png")
-    z = 1.0 + 0.045 * einout(ramp(T, 3.30, 6.30)); cx, cy = 420, 980
+    z = 1.0; cx, cy = 420, 980
     img = zoom(BP_STILL, z, cx, cy)
     f = grade(img, G(exposure=-0.02, temp=0.035))
     b = einout(ramp(T, 3.32, 3.85))
@@ -372,7 +370,7 @@ def shot_blueprint(T):
         if k > 0.02: L3.circle(q(p), 16 * k, 2)
     L3.comp(f, IVORY, 0.9)
     a_lab = eout(ramp(T, 4.65, 5.05))
-    p = q((112, 860)); draw_text(f, "PONTOS ELÉTRICOS", "Montserrat-Medium.ttf", 20, p[0], p[1], IVORY, a_lab * 0.85, spacing=3)
+    p = q((112, 860)); draw_text(f, "PONTOS ELÉTRICOS", "Montserrat-SemiBold.ttf", 22, p[0], p[1], IVORY, a_lab * 0.85, spacing=3)
     # reinforcement line (gold)
     L4 = Layer().dashed(q((14, 1030)), q((690, 1030)), einout(ramp(T, 4.75, 5.45)), dash=18, gap=10, th=3)
     L5 = Layer()
@@ -382,7 +380,7 @@ def shot_blueprint(T):
             c = q((x, 1030)); s = 9 * k
             L5.rect(c[0] - s, c[1] - s, c[0] + s, c[1] + s, fill=True)
     L4.comp(f, GOLD_SOFT, 0.95); L5.comp(f, GOLD_SOFT, 0.95)
-    p = q((48, 1004)); draw_text(f, "REFORÇOS PREVISTOS", "Montserrat-SemiBold.ttf", 20, p[0], p[1], GOLD_SOFT, eout(ramp(T, 5.25, 5.65)), spacing=3)
+    p = q((40, 1004)); draw_text(f, "REFORÇOS PREVISTOS", "Montserrat-SemiBold.ttf", 22, p[0], p[1], GOLD_SOFT, eout(ramp(T, 5.25, 5.65)), spacing=3)
     corner_marks(f, 70, 230, 1010, 1640, 30, IVORY, 0.55 * eout(ramp(T, 3.40, 3.80)))
     return f
 
@@ -403,11 +401,11 @@ def draw_header(f, T, fade):
         if T < s - 0.01 or T > e + 0.3: continue
         a = eout(ramp(T, s, s + 0.35)) * (1 - ramp(T, e - 0.05, e + 0.25)) * fade
         if a <= 0: continue
-        dy = (1 - eout(ramp(T, s, s + 0.5))) * 12
+        dy = 0
         draw_text(f, num, "Marcellus-Regular.ttf", 72, 150, 372 + dy, GOLD_SOFT, a, shadow=0.3)
         ly = Layer().line((252, 300 + dy), (252, 384 + dy), 2); comp_mask_bbox(f, ly, IVORY, a * 0.45, (245, 290, 260, 400))
         draw_text(f, title, "Montserrat-SemiBold.ttf", 28, 276, 334 + dy, IVORY, a, spacing=4, shadow=0.3)
-        draw_text(f, sub, "Montserrat-LightItalic.ttf", 27, 276, 374 + dy, IVORY, a * 0.72, shadow=0.3)
+        draw_text(f, sub, "Montserrat-Italic.ttf", 26, 276, 374 + dy, IVORY, a * 0.8, shadow=0.35)
 
 def draw_diagram(f, T, fade):
     if fade <= 0: return
@@ -446,8 +444,8 @@ def draw_diagram(f, T, fade):
         comp_mask_bbox(f, sm, IVORY, 0.5 * fade, (720, DTOP, 730, DBOT))
         # small labels
         la = eout(ramp(T, 18.9, 19.4)) * fade * (1 - 0.6 * ramp(T, 20.4, 20.8))
-        draw_text(f, "PERFIL METÁLICO", "Montserrat-Medium.ttf", 19, 262, DBOT + 38, IVORY, la * 0.8, spacing=3, align="center", shadow=0.4)
-        draw_text(f, "PLACA DE GESSO", "Montserrat-Medium.ttf", 19, 739, DBOT + 38, IVORY, la * 0.8, spacing=3, align="center", shadow=0.4)
+        draw_text(f, "PERFIL METÁLICO", "Montserrat-SemiBold.ttf", 22, 262, DBOT + 40, IVORY, la * 0.85, spacing=3, align="center", shadow=0.4)
+        draw_text(f, "PLACA DE GESSO", "Montserrat-SemiBold.ttf", 22, 739, DBOT + 40, IVORY, la * 0.85, spacing=3, align="center", shadow=0.4)
         lk = Layer().line((262, DBOT + 8), (262, DBOT + 16), 2).line((739, DBOT + 8), (739, DBOT + 16), 2)
         comp_mask_bbox(f, lk, IVORY, la * 0.6, (250, DBOT, 750, DBOT + 20))
     # planned line
@@ -457,7 +455,7 @@ def draw_diagram(f, T, fade):
         dl.line((120, 780), (120, 804), 2)
         if pl >= 1: dl.line((960, 780), (960, 804), 2)
         comp_mask_bbox(f, dl, GOLD_SOFT, 0.95 * fade, (110, 770, 970, 810))
-        draw_text(f, "altura definida no projeto", "Montserrat-LightItalic.ttf", 24, 960, 738, GOLD_SOFT, eout(ramp(T, 21.2, 21.7)) * fade * (1 - ramp(T, 24.2, 24.6)), align="right", shadow=0.4)
+        draw_text(f, "altura definida no projeto", "Montserrat-Italic.ttf", 25, 960, 738, GOLD_SOFT, eout(ramp(T, 21.2, 21.7)) * fade * (1 - ramp(T, 24.2, 24.6)), align="right", shadow=0.4)
     # reinforcement blocks
     for i, (a, b) in enumerate(BAYS):
         k = einout(ramp(T, 23.03 + i * 0.16, 23.55 + i * 0.16))
@@ -519,9 +517,13 @@ def shot_drywall(T, rd):
 
 # ---------------------------------------------------------------- S8: tracked markers on the real brackets
 TRK = json.load(open(f"{S}/track.json"))
+_b1 = np.array([[v[0], v[1]] for v in TRK["b1"]], np.float32)
+_pad = np.pad(_b1, ((4, 4), (0, 0)), mode="edge")
+TRK_SMOOTH = np.stack([np.convolve(_pad[:, k], np.ones(9) / 9, mode="valid") for k in range(2)], 1)
 def trk(src_t):
-    i = int(round((src_t - TRK["start"]) * 30)); i = max(0, min(len(TRK["b1"]) - 1, i))
-    x, y, _ = TRK["b1"][i]; return x, y
+    fi = (src_t - TRK["start"]) * 30; fi = max(0.0, min(len(TRK_SMOOTH) - 1.0, fi))
+    i0 = int(fi); i1 = min(i0 + 1, len(TRK_SMOOTH) - 1); w = fi - i0
+    x, y = TRK_SMOOTH[i0] * (1 - w) + TRK_SMOOTH[i1] * w; return float(x), float(y)
 
 def draw_markers(f, T, src_t):
     bx, by = trk(src_t)
@@ -542,10 +544,10 @@ def draw_markers(f, T, src_t):
             comp_mask_bbox(f, pr, GOLD_SOFT, (1 - pk) * 0.8, (p[0] - 70, p[1] - 70, p[0] + 70, p[1] + 70))
     # label with leader from the held bracket
     la = eout(ramp(T, 26.65, 27.05)) * (1 - ramp(T, 27.45, 27.70))
-    p = pts[2]; q1 = (p[0] + 22, p[1] - 22); q2 = (p[0] + 90, p[1] - 150); q3 = (q2[0] + 36, q2[1])
+    p = pts[2]; q1 = (p[0] + 22, p[1] - 22); q2 = (640, 512); q3 = (676, 512)
     ld = Layer().poly_partial([q1, q2, q3], einout(ramp(T, 26.55, 26.95)), 2)
     ld.comp(f, GOLD_SOFT, 0.9 * (1 - ramp(T, 27.45, 27.70)))
-    draw_text(f, "PONTO DE REFORÇO", "Montserrat-SemiBold.ttf", 24, q3[0] + 12, q3[1] + 9, IVORY, la, spacing=4, shadow=0.6)
+    draw_text(f, "PONTO DE REFORÇO", "Montserrat-SemiBold.ttf", 25, 688, 521, IVORY, la, spacing=4, shadow=0.6)
 
 # ---------------------------------------------------------------- S13: end card
 END_STILL = None; LOGO = None
@@ -563,7 +565,7 @@ def shot_endcard(T):
     # logo
     k = eout(ramp(T, 38.95, 39.75))
     if k > 0:
-        s = 0.94 + 0.06 * k
+        s = 1.0
         lg = cv2.resize(LOGO, None, fx=s, fy=s, interpolation=cv2.INTER_AREA)
         h, w = lg.shape[:2]; x = int(540 - w / 2); y = int(770 - h / 2)
         a = lg[..., 3:4] * k
@@ -572,11 +574,11 @@ def shot_endcard(T):
     if lk > 0:
         ln = Layer().line((540 - 120 * lk, 905), (540 + 120 * lk, 905), 2)
         comp_mask_bbox(f, ln, GOLD, 0.95, (400, 895, 680, 915))
-    a1 = eout(ramp(T, 39.60, 40.30)); dy = (1 - a1) * 16
+    a1 = eout(ramp(T, 39.60, 40.30)); dy = 0
     draw_text(f, "ALPHAHOME", "Marcellus-Regular.ttf", 74, 540, 1004 + dy, IVORY, a1, spacing=14, align="center", shadow=0.4)
     a2 = eout(ramp(T, 39.85, 40.50))
-    draw_text(f, "AMBIENTES PLANEJADOS", "Montserrat-Medium.ttf", 24, 540, 1058, GOLD_SOFT, a2, spacing=9, align="center", shadow=0.4)
-    a3 = eout(ramp(T, 40.30, 40.95)); dy3 = (1 - a3) * 18
+    draw_text(f, "AMBIENTES PLANEJADOS", "Montserrat-SemiBold.ttf", 25, 540, 1058, GOLD_SOFT, a2, spacing=9, align="center", shadow=0.4)
+    a3 = eout(ramp(T, 40.30, 40.95)); dy3 = 0
     if a3 > 0:
         pw, ph = 440, 88; x0, y0 = 540 - pw / 2, 1200 + dy3
         pf = Layer(); cv2.rectangle(pf.m, (int(x0 + 44), int(y0)), (int(x0 + pw - 44), int(y0 + ph)), 255, -1)
@@ -586,7 +588,7 @@ def shot_endcard(T):
         comp_mask_bbox(f, po, GOLD_SOFT, 0.95 * a3, (x0 - 4, y0 - 4, x0 + pw + 4, y0 + ph + 4))
         draw_text(f, "CHAME NO DIRECT", "Montserrat-SemiBold.ttf", 30, 540, y0 + 55, IVORY, a3, spacing=6, align="center", shadow=0.3)
     a4 = eout(ramp(T, 40.75, 41.40))
-    draw_text(f, "Alvenaria  ·  Contêiner  ·  Três Lagoas - MS", "Montserrat-Regular.ttf", 25, 540, 1372, IVORY, a4 * 0.72, align="center", shadow=0.3)
+    draw_text(f, "Alvenaria  ·  Contêiner  ·  Três Lagoas - MS", "Montserrat-Medium.ttf", 26, 540, 1372, IVORY, a4 * 0.8, align="center", shadow=0.3)
     corner_marks(f, 110, 560, 970, 1440, 30, IVORY, 0.35 * eout(ramp(T, 38.9, 39.6)))
     return f
 
@@ -635,7 +637,6 @@ class Renderer:
         out = out * (1 - GRAD)
         draw_tags(out, T)
         draw_captions(out, T)
-        out += GRAIN[int(T * FPS) % len(GRAIN)]
         self.release(T)
         return np.clip(out * 255 + 0.5, 0, 255).astype(np.uint8)
 

@@ -7,7 +7,7 @@ mkdir -p fonts stills audio out
 
 # 1. Fontes da marca (OFL)
 [ -f fonts/Marcellus-Regular.ttf ] || curl -sSL -o fonts/Marcellus-Regular.ttf https://raw.githubusercontent.com/google/fonts/main/ofl/marcellus/Marcellus-Regular.ttf
-for w in Light Regular Medium SemiBold Bold LightItalic; do
+for w in Light Regular Medium SemiBold Bold LightItalic Italic; do
   [ -f fonts/Montserrat-$w.ttf ] || curl -sSL -o fonts/Montserrat-$w.ttf https://raw.githubusercontent.com/JulietaUla/Montserrat/master/fonts/ttf/Montserrat-$w.ttf
 done
 

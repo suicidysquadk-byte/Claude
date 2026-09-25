@@ -27,7 +27,7 @@ O resultado sai em `out/reels_dryhall_final.mp4` e `out/reels_dryhall_sem_narrac
 
 | Tempo | Imagem | Narração | Grafismo |
 |---|---|---|---|
-| 0,0 a 2,6 | E em câmera lenta | "O móvel planejado não começa na montagem." | Legenda palavra a palavra |
+| 0,0 a 2,6 | E em câmera lenta | "Móveis planejados não começam na montagem." | Legenda fixa |
 | 2,6 a 3,3 | C, parafusadeira | (continuação) | |
 | 3,3 a 6,3 | D congelado, sala vazia | "Ele começa antes da obra." | Linhas de projeto desenhando paredes, pontos elétricos e reforços |
 | 6,0 a 10,6 | A em câmera lenta | "Na AlphaHome, desenvolvemos projetos tanto para construção em alvenaria" | Etiqueta "Três Lagoas · MS" |
@@ -40,6 +40,12 @@ O resultado sai em `out/reels_dryhall_final.mp4` e `out/reels_dryhall_sem_narrac
 | 33,9 a 37,0 | B, varanda do contêiner | "Vai construir ou reformar?" | |
 | 37,0 a 38,9 | A, letreiro de Três Lagoas | "Planeje seus móveis antes da obra começar." | |
 | 38,6 a 43,3 | Encerramento sobre o ripado | "Chama a AlphaHome no direct." | Logo, "Ambientes planejados", botão "Chame no direct" |
+
+## Legendas
+
+- Cada frase aparece inteira, com um fade rápido, e fica parada até sair. Nenhum texto se move na tela.
+- O vídeo não tem filtro de granulação, para as letras ficarem nítidas.
+- As legendas seguem a fala da narração. A primeira é "Móveis planejados não começam na montagem.", como dito no áudio.
 
 ## Áudio
 
