@@ -13,6 +13,8 @@ window.BH = window.BH || {};
     { id: 'ff', label: 'Verificação de ID', icon: 'badgeCheck', level: 1, badge: 'ff' },
     { id: 'finance', label: 'Financeiro', icon: 'dollar', level: 2, badge: 'money' },
     { id: 'rooms', label: 'Salas', icon: 'trophy', level: 1 },
+    { id: 'events', label: 'Eventos', icon: 'medal', level: 2 },
+    { id: 'templates', label: 'Modelos de sala', icon: 'gem', level: 2 },
     { id: 'reports', label: 'Denúncias', icon: 'flag', level: 1, badge: 'reports' },
     { id: 'guilds', label: 'Guildas', icon: 'shield', level: 1 },
     { id: 'broadcast', label: 'Avisos', icon: 'megaphone', level: 2 },
@@ -54,8 +56,10 @@ window.BH = window.BH || {};
 
   /* ---------- visão geral ---------- */
   SECTION.overview = async function () {
-    const d = await api.rpc('admin_dashboard');
+    const [d, x] = await Promise.all([api.rpc('admin_dashboard'), api.rpc('admin_dashboard_extra').catch(() => ({ revenue_by_kind: {} }))]);
     const me = api.me, p = d.pending;
+    const REV = { taxa_sala: 'Taxa das salas dos organizadores', sala_oficial: 'Sobra das salas oficiais', lucro_evento: 'Sobra dos eventos', loja: 'Loja', cobertura_sala: 'Prêmio completado em salas oficiais', cobertura_evento: 'Prêmio completado em eventos' };
+    const rev = Object.keys(x.revenue_by_kind || {}).map((k) => [k, Number(x.revenue_by_kind[k])]).sort((a, b) => b[1] - a[1]);
     const labels = d.series.map((x) => x.day.slice(8, 10) + '/' + x.day.slice(5, 7));
     const todo = [['ff', null, 'badgeCheck', 'IDs para verificar', p.ff, 1], ['finance', 'depositos', 'arrowIn', 'Depósitos manuais', p.deposits, 2], ['finance', 'saques', 'arrowOut', 'Saques para pagar', p.withdrawals, 2], ['reports', null, 'flag', 'Denúncias abertas', p.reports, 1]].filter((x) => me.role_level >= x[5]);
     const total = todo.reduce((a, x) => a + x[4], 0);
@@ -66,6 +70,9 @@ window.BH = window.BH || {};
         tile('trophy', 'gold', d.rooms_open + d.rooms_live, 'Salas ativas', null, '<em>' + d.rooms_live + ' ao vivo · ' + d.rooms_week + ' finalizadas na semana</em>') +
         (me.role_level >= 2 ? tile('arrowIn', 'green', d.deposits_total, 'Depósitos confirmados', 'cents') + tile('percent', 'cyan', d.revenue_total, 'Receita da plataforma', 'cents', '<em>' + U.cents(d.revenue_month) + ' neste mês</em>') +
           tile('wallet', 'violet', d.wallets_total, 'Saldo dos jogadores', 'cents', '<em>Dinheiro que você deve aos jogadores</em>') + tile('vault', 'gold', d.vaults_total, 'Em cofres', 'cents', '<em>Salas abertas e guildas</em>') : '') + '</div>' +
+        (me.role_level >= 2 ? '<div class="a-cols"><section class="card"><h3 class="card-h">' + I('percent') + 'Receita do mês por origem</h3><ul class="a-list">' + (rev.length ? rev.map((r) => '<li class="a-row rev-row"><span>' + esc(REV[r[0]] || r[0]) + '</span><b class="' + (r[1] < 0 ? 'neg' : 'pos') + '">' + (r[1] < 0 ? '−' : '+') + U.cents(Math.abs(r[1])) + '</b></li>').join('') : '<li class="muted pad">Sem receita neste mês.</li>') + '</ul></section>' +
+          '<section class="card"><h3 class="card-h">' + I('medal') + 'Competições</h3><div class="kpis two">' + tile('medal', 'gold', x.events_active || 0, 'Eventos ativos') + tile('shieldCheck', 'cyan', x.official_open || 0, 'Salas oficiais abertas') + '</div>' +
+          '<div class="btn-row"><button type="button" class="btn outline sm" data-act="aGo" data-v="events">' + I('medal') + 'Eventos</button><button type="button" class="btn ghost sm" data-act="createRoom">' + I('plus') + 'Sala oficial</button></div></section></div>' : '') +
         (me.role_level >= 2 ? '<section class="card"><header class="card-row"><h3 class="card-h">' + I('chart') + 'Últimos 14 dias</h3><div class="legend"><span><i style="background:#34d399"></i>Depósitos</span><span><i style="background:#fb7185"></i>Saques</span><span><i style="background:#67e8f9"></i>Receita</span></div></header>' +
           U.areaChart([{ name: 'Depósitos', color: '#34d399', values: d.series.map((x) => x.deposits / 100) }, { name: 'Saques', color: '#fb7185', values: d.series.map((x) => x.withdrawals / 100) }, { name: 'Receita', color: '#67e8f9', values: d.series.map((x) => x.revenue / 100) }], labels, { label: 'Movimento diário' }) + '</section>' : '') +
         '<div class="a-cols"><section class="card"><h3 class="card-h">' + I('crown') + 'Organizadores do mês</h3><ul class="a-list">' + (d.top_creators.length ? d.top_creators.map((t) => '<li class="a-row">' + ucell(t.user, U.plural(t.rooms, 'sala', 'salas') + ' · ' + U.plural(t.players, 'jogador', 'jogadores')) + '</li>').join('') : '<li class="muted pad">Nenhuma sala finalizada ainda.</li>') + '</ul></section>' +
@@ -108,7 +115,9 @@ window.BH = window.BH || {};
           '<section class="mu-sec"><h4>Free Fire</h4><div class="ff-review">' + (photo ? '<button type="button" class="v-shot" data-act="viewImage" data-v="' + esc(photo) + '"><img src="' + esc(photo) + '" alt="Print do Free Fire"><span>' + I('eye') + 'Ampliar</span></button>' : '<span class="v-shot empty">' + I('image') + '</span>') +
           '<dl class="kv inline"><div><dt>Nick</dt><dd>' + esc(u.ff_nick || '–') + '</dd></div><div><dt>ID</dt><dd class="mono">' + esc(u.ff_id || '–') + '</dd></div><div><dt>Status</dt><dd>' + esc(u.ff_status) + '</dd></div></dl></div></section>' +
           (me.role_level >= 2 ? '<section class="mu-sec"><h4>Permissões</h4>' +
-            '<label class="switch"><input type="checkbox" data-act-change="aCreator" data-id="' + u.id + '"' + (u.can_create_rooms ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span>Pode criar salas <small>O organizador define inscrição e prêmios e recebe a sobra do cofre.</small></span></label>' +
+            '<label class="switch"><input type="checkbox" data-act-change="aCreator" data-id="' + u.id + '"' + (u.can_create_rooms ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span>Pode criar salas <small>O organizador define inscrição e prêmios e recebe a sobra do cofre, menos a parte da plataforma.</small></span></label>' +
+            (u.can_create_rooms ? '<form class="form tight fee-form" data-form="aCreatorFee" data-id="' + u.id + '"><label class="field"><span>Parte da plataforma nas salas dele (% da arrecadação)</span><div class="copy-line"><input id="au-fee" name="pct" type="number" inputmode="decimal" min="0" max="50" step="0.5" placeholder="Padrão: ' + me.settings.fee_pct + '%" value="' + (u.creator_fee_pct != null ? u.creator_fee_pct : '') + '"><button class="btn ghost sm">' + I('check') + 'Salvar</button></div></label>' +
+              '<p class="muted small">' + U.plural(u.creator_rooms || 0, 'sala finalizada', 'salas finalizadas') + ' · já pagou ' + U.cents(u.creator_fee_paid_cents || 0) + ' para a plataforma. Deixe vazio para usar a taxa padrão.</p></form>' : '') +
             (canRole ? '<label class="field"><span>Cargo</span><select id="au-role" data-act-change="aRole" data-id="' + u.id + '">' + [['jogador', 'Jogador'], ['moderador', 'Moderador'], ['admin', 'Admin']].filter((r) => r[0] !== 'admin' || me.role === 'dono').map((r) => '<option value="' + r[0] + '"' + (u.role === r[0] ? ' selected' : '') + '>' + r[1] + '</option>').join('') + '</select></label>' : '') + '</section>' : '') +
           '<section class="mu-sec"><h4>Suspensão</h4>' + (u.banned ? '<button type="button" class="btn ghost sm" data-act="aUnban" data-id="' + u.id + '">' + I('userCheck') + 'Tirar suspensão</button>' : canBan ? '<button type="button" class="btn danger sm" data-act="aBan" data-id="' + u.id + '">' + I('ban') + 'Suspender conta</button>' : '<p class="muted small">Você não pode suspender esta conta.</p>') +
           (u.bans.length ? '<ul class="mini-log">' + u.bans.map((b) => '<li>' + U.date(b.created_at) + ' · ' + (b.until ? 'até ' + U.date(b.until) : 'permanente') + ' · ' + esc(b.reason) + (b.by ? ' · por ' + esc(b.by.nick) : '') + (b.lifted_at ? ' · encerrada' : '') + '</li>').join('') + '</ul>' : '') + '</section>' +
@@ -127,6 +136,10 @@ window.BH = window.BH || {};
   });
   const again = async () => { const s = U.topSheet(); if (s) s.render('static'); await refresh(); };
   actions.aCreator = async (el) => { if (!(await U.run(null, () => api.rpc('admin_set_creator', { p_user: el.dataset.id, p_value: el.checked }), el.checked ? 'Agora pode criar salas.' : 'Permissão removida.'))) el.checked = !el.checked; else again(); };
+  forms.aCreatorFee = async function (f) {
+    const v = f.pct.value.trim();
+    if (await U.run(f.querySelector('button'), () => api.rpc('admin_set_creator_fee', { p_user: f.dataset.id, p_pct: v === '' ? null : Number(v.replace(',', '.')) }), 'Taxa do organizador salva.')) again();
+  };
   actions.aRole = async (el) => { if (await U.run(null, () => api.rpc('admin_set_role', { p_user: el.dataset.id, p_role: el.value }), 'Cargo atualizado.')) again(); };
   actions.aBan = async function (el) {
     const r = await U.confirm({ title: 'Suspender conta', body: 'A conta perde o acesso e sai das salas abertas com reembolso.', ok: 'Suspender', danger: true,
@@ -187,7 +200,7 @@ window.BH = window.BH || {};
     } else if (sa.finTab === 'historico') {
       content = '<ul class="tx-list full stagger">' + (f.history.length ? f.history.map((h) => '<li class="tx-row"><span class="tx-ic ' + (h.type === 'deposito' ? 'tone-green' : 'tone-red') + '">' + I(h.type === 'deposito' ? 'arrowIn' : 'arrowOut') + '</span><div class="tx-main"><b>' + esc(h.user.nick) + '</b><small>' + (h.type === 'deposito' ? 'Depósito' : 'Saque') + ' · ' + U.date(h.at) + (h.note ? ' · ' + esc(h.note) : '') + '</small></div><div class="tx-side"><b class="' + (h.status === 'recusado' || h.status === 'expirado' ? 'strike' : h.type === 'deposito' ? 'pos' : 'neg') + '">' + U.cents(h.amount_cents) + '</b><span class="chip tone-' + (h.status === 'aprovado' || h.status === 'pago' ? 'green' : 'red') + '">' + esc(h.status) + '</span></div></li>').join('') : '<li class="muted center pad">Nada ainda.</li>') + '</ul>';
     } else {
-      content = '<ul class="tx-list full stagger">' + (f.revenue.length ? f.revenue.map((r) => '<li class="tx-row"><span class="tx-ic tone-cyan">' + I(r.kind === 'loja' ? 'bag' : 'percent') + '</span><div class="tx-main"><b>' + esc(r.note || r.kind) + '</b><small>' + (r.kind === 'loja' ? 'Loja' : 'Taxa de sala') + ' · ' + U.date(r.created_at) + '</small></div><div class="tx-side"><b class="pos">+' + U.cents(r.amount_cents) + '</b></div></li>').join('') : '<li class="muted center pad">Sem receita ainda.</li>') + '</ul>';
+      content = '<ul class="tx-list full stagger">' + (f.revenue.length ? f.revenue.map((r) => '<li class="tx-row"><span class="tx-ic tone-cyan">' + I(r.kind === 'loja' ? 'bag' : 'percent') + '</span><div class="tx-main"><b>' + esc(r.note || r.kind) + '</b><small>' + ({ loja: 'Loja', taxa_sala: 'Taxa de sala', sala_oficial: 'Sala oficial', lucro_evento: 'Evento', cobertura_sala: 'Prêmio completado', cobertura_evento: 'Prêmio de evento completado' }[r.kind] || r.kind) + ' · ' + U.date(r.created_at) + '</small></div><div class="tx-side"><b class="' + (r.amount_cents < 0 ? 'neg' : 'pos') + '">' + (r.amount_cents < 0 ? '−' : '+') + U.cents(Math.abs(r.amount_cents)) + '</b></div></li>').join('') : '<li class="muted center pad">Sem receita ainda.</li>') + '</ul>';
     }
     return {
       html: '<div class="kpis four stagger">' + tile('arrowIn', 'green', f.deposits_total, 'Entrou', 'cents') + tile('arrowOut', 'red', f.withdrawals_total, 'Saiu', 'cents') + tile('wallet', 'violet', f.wallets_total, 'Saldo dos jogadores', 'cents') + tile('percent', 'cyan', f.revenue_total, 'Receita', 'cents') + '</div>' +
@@ -331,6 +344,115 @@ window.BH = window.BH || {};
     if (await U.run(f.querySelector('button'), () => api.rpc('admin_shop_save', { p }), 'Item salvo.')) { U.closeAll(); app().refresh(); }
   };
 
+  /* ---------- evento do dia (segunda a domingo) ---------- */
+  const THEME_MECH = ['first_blood', 'rei_lobby', 'destaque', 'sobrevivente', 'mvp', 'booyah', 'clutch', 'meta_abates'];
+  const mname = (id) => ((api.me.mechanics || []).find((m) => m.id === id) || { name: id }).name;
+  function themesEditor(s) {
+    const themes = s.daily_themes || [], base = s.daily_base || {};
+    const bm = Object.fromEntries((base.mechanics || []).map((m) => [m.type, m.cents]));
+    const bp = Object.fromEntries((base.prizes || []).map((z) => [z.place, z.cents]));
+    const val = (c) => (c ? U.centsInput(c) : '');
+    return '<section class="card"><h3 class="card-h">' + I('calendar') + 'Evento do dia</h3><p class="muted small">Aparece no início do app e quem cria a sala aplica com um toque. Deixe o valor vazio para desligar a mecânica.</p>' +
+      '<details class="day-ed" open><summary><b>Base fixa (todo dia)</b><small>kill paga, top 3 e líder</small></summary><div class="grid3">' +
+      [1, 2, 3].map((n) => '<label class="field money-field"><span>' + n + 'º lugar</span><b>R$</b><input name="base_p' + n + '" inputmode="decimal" value="' + val(bp[n]) + '"></label>').join('') +
+      '<label class="field money-field"><span>Kill paga</span><b>R$</b><input name="base_por_kill" inputmode="decimal" value="' + val(bm.por_kill) + '"></label><label class="field money-field"><span>Líder de abates</span><b>R$</b><input name="base_mvp" inputmode="decimal" value="' + val(bm.mvp) + '"></label></div></details>' +
+      [1, 2, 3, 4, 5, 6, 0].map((dow) => {
+        const t = themes.find((x) => x.dow === dow) || { dow, name: '', desc: '', mechanics: [] };
+        const on = Object.fromEntries((t.mechanics || []).map((m) => [m.type, m.cents]));
+        return '<details class="day-ed"><summary><b>' + BH.DOW[dow] + '</b><small>' + esc(t.name || 'sem tema') + '</small></summary>' +
+          '<div class="grid2"><label class="field"><span>Nome do tema</span><input name="th_' + dow + '_name" maxlength="30" value="' + esc(t.name) + '"></label><label class="field"><span>Frase</span><input name="th_' + dow + '_desc" maxlength="80" value="' + esc(t.desc || '') + '"></label></div>' +
+          '<div class="grid3">' + THEME_MECH.map((m) => '<label class="field money-field"><span>' + esc(mname(m)) + '</span><b>R$</b><input name="th_' + dow + '_' + m + '" inputmode="decimal" value="' + val(on[m]) + '"></label>').join('') + '</div></details>';
+      }).join('') + '</section>';
+  }
+  function readThemes(f) {
+    const out = [];
+    [0, 1, 2, 3, 4, 5, 6].forEach((dow) => {
+      const name = (f.querySelector('[name="th_' + dow + '_name"]') || {}).value || '';
+      if (!name.trim()) return;
+      const mechanics = THEME_MECH.map((m) => ({ type: m, cents: U.toCents((f.querySelector('[name="th_' + dow + '_' + m + '"]') || {}).value) })).filter((m) => m.cents > 0);
+      out.push({ dow, name: name.trim(), desc: ((f.querySelector('[name="th_' + dow + '_desc"]') || {}).value || '').trim(), mechanics });
+    });
+    return out;
+  }
+  function readBase(f) {
+    const v = (n) => U.toCents((f.querySelector('[name="' + n + '"]') || {}).value);
+    return { name: 'Base fixa', prizes: [1, 2, 3].map((n) => ({ place: n, cents: v('base_p' + n) })).filter((z) => z.cents > 0),
+      mechanics: [{ type: 'por_kill', cents: v('base_por_kill') }, { type: 'mvp', cents: v('base_mvp') }].filter((m) => m.cents > 0) };
+  }
+
+  /* ---------- eventos ---------- */
+  const IDEAS = [
+    ['Caça ao Rei', 'crown', 'Player Rei em todas as quedas da noite: quem eliminar o Rei leva o bônus; se o Rei sobreviver, o bônus é dele.'],
+    ['Corrida de Abates', 'target', 'Meta de 5 abates: todo mundo que chegar à meta ganha. Premia quem joga agressivo mesmo sem vencer.'],
+    ['Sobrevivência Extrema', 'heart', 'Sem kill paga: Sobrevivente top 5 e Booyah valendo mais. Premia o jogo estratégico.'],
+    ['Noite do Sniper', 'crosshair', 'Só armas de precisão (regra da sala). Destaque da partida para o melhor jogador, escolhido pela organização.'],
+    ['Rei da Colina', 'medal', 'Quem vencer uma queda defende o título na próxima; Domínio absoluto paga quem vence abatendo mais.'],
+    ['Copa Iniciantes', 'star', 'Inscrição barata e prêmio garantido para trazer jogadores novos.'],
+    ['Madrugada Relâmpago', 'zap', 'Copa de 3 quedas depois da meia-noite com XP em dobro.'],
+    ['Guerra de Guildas', 'shield', 'Cada guilda inscreve várias lines; os pontos somam no ranking de guildas da semana.']
+  ];
+  SECTION.events = async function () {
+    sa.evStatus = sa.evStatus || 'ativos';
+    const list = await api.rpc('admin_events', { p_status: sa.evStatus });
+    return {
+      html: '<div class="a-toolbar"><p class="muted small grow">Eventos oficiais da plataforma. As quedas são salas oficiais: a plataforma garante os prêmios e fica com a sobra.</p><button type="button" class="btn primary" data-act="eventNew">' + I('plus') + 'Novo evento</button></div>' +
+        U.chips([['ativos', 'Ativos'], ['encerrados', 'Encerrados'], ['todos', 'Todos']], sa.evStatus, 'aEvStatus') +
+        '<div class="u-grid stagger">' + (list.length ? list.map(BH.eventCard).join('') : U.empty('medal', 'Nenhum evento', 'Crie a Liga Semanal, a Champions Series ou o Intensivo de Lines em "Novo evento".')) + '</div>' +
+        '<section class="card"><h3 class="card-h">' + I('sparkles') + 'Ideias de eventos para o Free Fire</h3><ul class="ideas">' + IDEAS.map((x) => '<li>' + I(x[1]) + '<span><b>' + x[0] + '</b><small>' + x[2] + '</small></span></li>').join('') + '</ul>' +
+        '<p class="muted small">Todas dá para montar com os formatos prontos e as mecânicas das salas (Player Rei, Meta de abates, Sobrevivente, Destaque, Domínio e XP em dobro).</p></section>'
+    };
+  };
+  actions.aEvStatus = (el) => { sa.evStatus = el.dataset.v; app().rerender('soft'); };
+
+  /* ---------- modelos de sala ---------- */
+  SECTION.templates = async function () {
+    const list = await api.rpc('admin_templates');
+    return {
+      html: '<div class="a-toolbar"><p class="muted small grow">Modelos prontos que aparecem ao criar sala. Os exclusivos só aparecem para a administração (salas oficiais).</p><button type="button" class="btn primary" data-act="aTpl">' + I('plus') + 'Novo modelo</button></div>' +
+        '<div class="u-grid stagger">' + list.map((t) => {
+          const prize = t.prizes.reduce((a, z) => a + Number(z.cents), 0), pot = t.entry_cents * t.max_players;
+          return '<article class="u-card tpl-card t-' + esc(t.tier) + (t.active ? '' : ' banned') + '"><header><span class="kpi-ic">' + I('gem') + '</span><div class="grow"><b>' + esc(t.name) + '</b><small>' + (BH.TIERS[t.tier] || [t.tier])[0] + (t.official_only ? ' · exclusivo oficial' : '') + (t.active ? '' : ' · desativado') + '</small></div></header>' +
+            '<dl class="kv"><div><dt>Inscrição</dt><dd>' + (t.entry_cents ? U.centsShort(t.entry_cents) : 'Grátis') + '</dd></div><div><dt>Prêmios</dt><dd>' + U.centsShort(prize) + '</dd></div><div><dt>Vagas</dt><dd>' + t.max_players + '</dd></div></dl>' +
+            (pot ? '<p class="muted small">Sala cheia: ' + U.cents(pot) + ' · prêmios por colocação ' + Math.round(prize * 100 / pot) + '%</p>' : '') +
+            '<div class="mech-row">' + BH.mechChips(t.mechanics) + '</div>' +
+            '<div class="btn-row two"><button type="button" class="btn ghost sm" data-act="aTpl" data-id="' + esc(t.id) + '">' + I('edit') + 'Editar</button><button type="button" class="btn danger-ghost sm" data-act="aTplDel" data-id="' + esc(t.id) + '">' + I('trash') + 'Apagar</button></div></article>';
+        }).join('') + '</div>'
+    };
+  };
+  actions.aTpl = async function (el) {
+    const list = el.dataset.id ? await api.rpc('admin_templates') : [];
+    const t = list.find((x) => x.id === el.dataset.id) || { id: '', name: '', tier: 'base', description: '', mode: 'Battle Royale', team_size: 1, map: 'Bermuda', max_players: 48, entry_cents: 500, prizes: [{ place: 1, cents: 5000 }], mechanics: [], rules: '', xp_mult: 1, official_only: false, active: true };
+    const mech = Object.fromEntries(t.mechanics.map((m) => [m.type, m]));
+    U.sheet({
+      title: t.id ? 'Editar modelo' : 'Novo modelo', size: 'lg', loading: false,
+      body: '<form class="form" data-form="aTpl"><div class="grid2"><label class="field"><span>Código</span><input name="id" required value="' + esc(t.id) + '"' + (t.id ? ' readonly' : '') + ' placeholder="sala-noturna"></label>' +
+        '<label class="field"><span>Nível</span><select name="tier">' + Object.keys(BH.TIERS).map((k) => '<option value="' + k + '"' + (t.tier === k ? ' selected' : '') + '>' + BH.TIERS[k][0] + '</option>').join('') + '</select></label></div>' +
+        '<label class="field"><span>Nome</span><input name="title" required maxlength="60" value="' + esc(t.name) + '"></label>' +
+        '<label class="field"><span>Descrição</span><input name="description" maxlength="200" value="' + esc(t.description) + '"></label>' +
+        '<div class="grid3"><label class="field"><span>Formato</span><select name="team_size">' + [[1, 'Solo'], [2, 'Dupla'], [4, 'Squad']].map((x) => '<option value="' + x[0] + '"' + (t.team_size === x[0] ? ' selected' : '') + '>' + x[1] + '</option>').join('') + '</select></label>' +
+        '<label class="field"><span>Vagas</span><input name="max_players" type="number" inputmode="numeric" value="' + t.max_players + '"></label>' +
+        '<label class="field money-field"><span>Inscrição</span><b>R$</b><input name="entry" inputmode="decimal" value="' + U.centsInput(t.entry_cents) + '"></label></div>' +
+        '<label class="field"><span>Prêmios por colocação (1º; 2º; 3º...)</span><input name="prizes" value="' + esc(t.prizes.map((z) => U.centsInput(z.cents)).join('; ')) + '"></label>' +
+        '<h3 class="form-h">' + I('sparkles') + 'Mecânicas (vazio = desligada)</h3><div class="grid3">' + (api.me.mechanics || []).map((m) => '<label class="field money-field"><span>' + esc(m.name) + '</span><b>R$</b><input name="m_' + m.id + '" inputmode="decimal" value="' + (mech[m.id] ? U.centsInput(mech[m.id].cents) : '') + '"></label>').join('') + '</div>' +
+        '<label class="field"><span>Regras</span><textarea name="rules" rows="3">' + esc(t.rules) + '</textarea></label>' +
+        '<label class="switch"><input type="checkbox" name="official_only"' + (t.official_only ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span>Exclusivo das salas oficiais</span></label>' +
+        '<label class="switch"><input type="checkbox" name="active"' + (t.active ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span>Ativo</span></label>' +
+        '<button class="btn primary block">' + I('check') + 'Salvar modelo</button></form>'
+    });
+  };
+  forms.aTpl = async function (f) {
+    const g = (n) => f.querySelector('[name="' + n + '"]');
+    const p = { id: g('id').value, tier: g('tier').value, title: g('title').value, description: g('description').value, team_size: Number(g('team_size').value), max_players: Number(g('max_players').value),
+      entry_cents: U.toCents(g('entry').value), rules: g('rules').value, official_only: g('official_only').checked, active: g('active').checked,
+      prizes: g('prizes').value.split(';').map((x) => x.trim()).filter(Boolean).map((x, i) => ({ place: i + 1, cents: U.toCents(x) })).filter((z) => z.cents > 0),
+      mechanics: (api.me.mechanics || []).map((m) => ({ type: m.id, cents: U.toCents(g('m_' + m.id).value) })).filter((m) => m.cents > 0) };
+    if (await U.run(f.querySelector('button'), () => api.rpc('admin_template_save', { p }), 'Modelo salvo.')) { U.closeAll(); app().refresh(); }
+  };
+  actions.aTplDel = async function (el) {
+    if (!(await U.confirm({ title: 'Apagar modelo?', body: 'As salas já criadas com ele não mudam.', ok: 'Apagar', danger: true }))) return;
+    if (await U.run(el, () => api.rpc('admin_template_delete', { p_id: el.dataset.id }), 'Modelo apagado.')) app().refresh();
+  };
+
   /* ---------- configurações ---------- */
   SECTION.settings = async function () {
     const s = await api.rpc('admin_get_settings');
@@ -342,10 +464,13 @@ window.BH = window.BH || {};
         '<label class="field"><span>Chave Pix</span><input id="st-pix" name="pix_key" maxlength="80" value="' + esc(s.pix_key) + '" placeholder="CNPJ, e-mail, telefone ou chave aleatória"></label>' +
         '<div class="grid2"><label class="field"><span>Nome do recebedor</span><input id="st-pixname" name="pix_name" maxlength="25" value="' + esc(s.pix_name) + '"></label><label class="field"><span>Cidade</span><input id="st-pixcity" name="pix_city" maxlength="15" value="' + esc(s.pix_city) + '"></label></div></section>' +
         '<section class="card"><h3 class="card-h">' + I('percent') + 'Taxas e limites</h3>' +
-        '<label class="field"><span>Taxa da plataforma sobre a sobra das salas: <b id="st-fee-v">' + s.platform_fee_pct + '%</b></span><input id="st-fee" name="platform_fee_pct" type="range" min="0" max="50" step="1" value="' + s.platform_fee_pct + '"></label>' +
+        '<label class="field"><span>Parte da plataforma na arrecadação das salas dos organizadores: <b id="st-fee-v">' + s.platform_fee_pct + '%</b></span><input id="st-fee" name="platform_fee_pct" type="range" min="0" max="50" step="1" value="' + s.platform_fee_pct + '"></label>' +
+        '<p class="muted small">Ex.: sala de 48 × R$ 5 = R$ 240. Com ' + s.platform_fee_pct + '%, a plataforma recebe ' + U.cents(Math.floor(24000 * s.platform_fee_pct / 100)) + ' quando a sala acaba. Nunca passa da sobra, então o prêmio dos jogadores vem sempre primeiro. Dá para combinar uma taxa diferente com cada organizador em Usuários.</p>' +
+        '<label class="field"><span>Mínimo que os jogadores precisam poder receber: <b id="st-mp-v">' + s.min_player_pct + '%</b> da arrecadação</span><input id="st-mp" name="min_player_pct" type="range" min="0" max="90" step="5" value="' + s.min_player_pct + '"></label>' +
         '<label class="field"><span>Máximo que uma guilda pode guardar dos prêmios: <b id="st-gc-v">' + s.max_guild_cut_pct + '%</b></span><input id="st-gc" name="max_guild_cut_pct" type="range" min="0" max="50" step="1" value="' + s.max_guild_cut_pct + '"></label>' +
         '<div class="grid2">' + money('min_deposit', 'Depósito mínimo', s.min_deposit_cents) + money('max_deposit', 'Depósito máximo', s.max_deposit_cents) + money('min_withdraw', 'Saque mínimo', s.min_withdraw_cents) + money('max_withdraw', 'Saque máximo', s.max_withdraw_cents) + '</div>' +
         money('max_entry', 'Inscrição máxima por sala', s.max_entry_cents) + '</section>' +
+        themesEditor(s) +
         '<section class="card"><h3 class="card-h">' + I('sparkles') + 'XP por ação</h3><div class="grid3">' + [['participar', 'Participar'], ['abate', 'Abate'], ['top3', 'Top 3'], ['vitoria', 'Vitória'], ['first_blood', 'Primeiro abate'], ['rei', 'Eliminar o Rei'], ['premio', 'Receber prêmio']]
           .map((x) => '<label class="field"><span>' + x[1] + '</span><input id="st-xp-' + x[0] + '" name="xp_' + x[0] + '" type="number" inputmode="numeric" min="0" max="1000" value="' + (xp[x[0]] || 0) + '"></label>').join('') + '</div></section>' +
         '<section class="card"><h3 class="card-h">' + I('sliders') + 'Regras</h3>' +
@@ -354,7 +479,7 @@ window.BH = window.BH || {};
         '<label class="switch warn"><input id="st-mt" type="checkbox" name="maintenance"' + (s.maintenance ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span>Modo manutenção <small>Só a equipe entra no app</small></span></label></section>' +
         '<button class="btn primary block lg">' + I('check') + 'Salvar configurações</button></form>',
       onMount(root) {
-        [['st-fee', 'st-fee-v'], ['st-gc', 'st-gc-v']].forEach(([a, b]) => { const r = root.querySelector('#' + a); if (r) r.addEventListener('input', () => { root.querySelector('#' + b).textContent = r.value + '%'; }); });
+        [['st-fee', 'st-fee-v'], ['st-gc', 'st-gc-v'], ['st-mp', 'st-mp-v']].forEach(([a, b]) => { const r = root.querySelector('#' + a); if (r) r.addEventListener('input', () => { root.querySelector('#' + b).textContent = r.value + '%'; }); });
       }
     };
   };
@@ -362,7 +487,8 @@ window.BH = window.BH || {};
     const g = (n) => f.querySelector('[name="' + n + '"]');
     const p = {
       pix_key: g('pix_key').value.trim(), pix_name: g('pix_name').value.trim(), pix_city: g('pix_city').value.trim(),
-      platform_fee_pct: Number(g('platform_fee_pct').value), max_guild_cut_pct: Number(g('max_guild_cut_pct').value),
+      platform_fee_pct: Number(g('platform_fee_pct').value), max_guild_cut_pct: Number(g('max_guild_cut_pct').value), min_player_pct: Number(g('min_player_pct').value),
+      daily_themes: readThemes(f), daily_base: readBase(f),
       min_deposit_cents: U.toCents(g('min_deposit').value), max_deposit_cents: U.toCents(g('max_deposit').value),
       min_withdraw_cents: U.toCents(g('min_withdraw').value), max_withdraw_cents: U.toCents(g('max_withdraw').value), max_entry_cents: U.toCents(g('max_entry').value),
       require_verified_withdraw: g('require_verified_withdraw').checked, require_verified_paid: g('require_verified_paid').checked, maintenance: g('maintenance').checked,

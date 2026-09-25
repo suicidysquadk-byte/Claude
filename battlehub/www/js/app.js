@@ -190,6 +190,7 @@ window.BH = window.BH || {};
       open: () => {
         U.closeAll();
         if (d.room_id) push('room', { id: d.room_id });
+        else if (d.event_id) push('event', { id: d.event_id });
         else if (d.guild_id) push('guild', { id: d.guild_id });
         else if (n.kind === 'amizade') { BH.state.chatTab = 'amigos'; go('chat'); }
         else BH.actions.notifications();

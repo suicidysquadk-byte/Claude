@@ -55,12 +55,20 @@ window.BH = window.BH || {};
       '<div class="t-meta"><span>' + I('users') + g.members + ' membros</span><span>' + I('crosshair') + U.int(g.month_kills) + ' abates no mês</span>' + (g.min_level > 1 ? '<span>' + I('star') + 'Nível ' + g.min_level + '+</span>' : '') + '</div></div><span class="chev">' + I('right') + '</span></article>';
   }
   pages.guildas = async function () {
-    const list = await api.rpc('list_guilds', { p_q: st.guildQ || null });
+    const [list, gr] = await Promise.all([api.rpc('list_guilds', { p_q: st.guildQ || null }), api.rpc('guild_ranking', { p_period: 'semana' }).catch(() => ({ rows: [] }))]);
     const mine = api.me.guild;
+    const champ = gr.champion_last_week;
+    const weekly = (gr.rows || []).length || champ
+      ? '<section class="card g-week"><header class="card-row"><h3 class="card-h">' + I('trophy') + 'Ranking de guildas da semana</h3><button type="button" class="link" data-act="page" data-v="events">Eventos' + I('right') + '</button></header>' +
+        (champ ? '<div class="g-champ">' + I('crown') + '<span><small>Guilda campeã da semana passada</small><b>' + gTag(champ, 'xs') + ' ' + esc(champ.name) + '</b></span><b class="pts">' + champ.points + '<small>pts</small></b></div>' : '') +
+        '<ol class="stand">' + (gr.rows || []).slice(0, 5).map((x, i) => '<li><span class="rk">' + (i + 1) + 'º</span><div class="grow"><b>' + gTag(x.guild, 'xs') + ' ' + esc(x.guild.name) + '</b><span class="st-mem"><small>' + U.plural(x.events, 'evento', 'eventos') + ' · ' + x.guild.members + ' membros</small></span></div><b class="pts">' + x.points + '<small>pts</small></b></li>').join('') + '</ol>' +
+        '<p class="muted small">Pontos dos intensivos e guerras de guildas: 1º 10 · 2º 7 · 3º 5 · 4º 3 · 5º 1.</p></section>'
+      : '';
     return {
       html: '<section class="page"><header class="page-head"><div><h1 class="h1">Guildas</h1><p class="muted">Famílias com líder, vice e cofre próprio</p></div>' +
         (mine ? '' : '<button type="button" class="fab ripple" data-act="createGuild" aria-label="Criar guilda">' + I('plus') + '</button>') + '</header>' +
         (mine ? '<button type="button" class="my-guild ripple" data-act="openGuild" data-id="' + mine.id + '">' + gTag(mine) + '<div class="grow"><small>Sua guilda</small><b>' + esc(mine.name) + '</b><span>' + ({ lider: 'Líder', vice: 'Vice-líder', membro: 'Membro' }[mine.role]) + '</span></div>' + I('right') + '</button>' : '') +
+        weekly +
         '<label class="search">' + I('search') + '<input id="g-search" type="search" placeholder="Buscar por nome ou tag" value="' + esc(st.guildQ) + '" data-input="guildQ" autocomplete="off"></label>' +
         '<div class="stack stagger">' + (list.length ? list.map(guildCard).join('') : U.empty('shield', 'Nenhuma guilda ainda', 'Crie a primeira no botão +.')) + '</div></section>'
     };

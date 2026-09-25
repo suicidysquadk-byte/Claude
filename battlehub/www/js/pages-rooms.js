@@ -1,4 +1,4 @@
-/* Início, lista de salas e a sala (inscrição, cofre, roleta, resultado e chat) */
+/* Início, lista de salas e a sala (inscrição, cofre, divisão do dinheiro, roleta, resultado e chat) */
 window.BH = window.BH || {};
 (function () {
   const U = BH.ui, I = BH.icon, api = BH.api, esc = U.esc;
@@ -8,44 +8,81 @@ window.BH = window.BH || {};
   st.roomQ = st.roomQ || '';
 
   const MECH = {
-    first_blood: { icon: 'droplet', short: 'Primeiro abate' },
+    first_blood: { icon: 'droplet', short: 'Primeira kill' },
     rei: { icon: 'crown', short: 'Player Rei' },
-    por_kill: { icon: 'crosshair', short: 'Por abate' },
-    mvp: { icon: 'trophy', short: 'MVP' },
-    sorteio: { icon: 'dice', short: 'Sorteio' }
+    por_kill: { icon: 'crosshair', short: 'Kill paga', unit: '/abate' },
+    mvp: { icon: 'trophy', short: 'Líder de abates' },
+    sorteio: { icon: 'dice', short: 'Sorteio' },
+    booyah: { icon: 'medal', short: 'Booyah' },
+    rei_lobby: { icon: 'crown', short: 'Rei do lobby' },
+    destaque: { icon: 'star', short: 'Destaque' },
+    sobrevivente: { icon: 'heart', short: 'Top 5 vivo', unit: '/cada' },
+    meta_abates: { icon: 'target', short: 'Meta de abates', unit: '/cada' },
+    clutch: { icon: 'zap', short: 'Clutch' },
+    line_agressiva: { icon: 'flame', short: 'Line agressiva' },
+    line_tatica: { icon: 'map', short: 'Line tática' },
+    dominio: { icon: 'gem', short: 'Domínio absoluto' },
+    evento_premio: { icon: 'trophy', short: 'Prêmio do evento' },
+    evento_bonus: { icon: 'medal', short: 'Bônus do evento' }
   };
   const mechInfo = (id) => ((api.me && api.me.mechanics) || []).find((m) => m.id === id) || { id, name: (MECH[id] || {}).short || id, description: '' };
   const TEAM = { 1: 'Solo', 2: 'Dupla', 4: 'Squad' };
+  const LINE = { 2: 'dupla', 4: 'squad' };
   const MODES = ['Battle Royale', 'Contra Squad', 'X1', 'Personalizado'];
   const MAPS = ['Bermuda', 'Purgatório', 'Kalahari', 'Alpine', 'Nova Terra', 'Bermuda Remasterizada'];
-  BH.MECH = MECH;
+  const TIERS = { base: ['Base', 'slate'], intermediaria: ['Intermediária', 'green'], elite: ['Elite', 'violet'], dominio: ['Domínio', 'red'], ancestral: ['Ancestral', 'gold'] };
+  const DOW = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+  BH.MECH = MECH; BH.TIERS = TIERS; BH.MAPS = MAPS; BH.DOW = DOW;
+
+  BH.tierTag = (t) => (t && TIERS[t] ? '<span class="tier t-' + t + '">' + I('gem') + TIERS[t][0] + '</span>' : '');
+  BH.offTag = () => '<span class="off-tag">' + I('shieldCheck') + 'Oficial</span>';
+  // quem organiza: nas salas oficiais aparece a marca da plataforma
+  const hostHtml = (r, size) => (r.official
+    ? '<span class="off-host"><span class="logo-mark sm">' + I('crown') + '</span><span>Organização <b>BattleHub</b></span></span>'
+    : U.av(r.creator, size || 'xs') + U.nick(r.creator));
+  const mechUnit = (m) => (m.type === 'meta_abates' ? ' (' + (m.n || 5) + '+)' : '') + ((MECH[m.type] || {}).unit || '');
+  const mechChips = (list) => (list || []).map((m) => '<span class="mech-chip" title="' + esc(mechInfo(m.type).name) + '">' + I((MECH[m.type] || {}).icon || 'star') + esc((MECH[m.type] || {}).short || m.type) + ' <b>' + U.centsShort(m.cents) + '<small>' + esc(mechUnit(m)) + '</small></b></span>').join('');
+  BH.mechChips = mechChips;
+  const entryLabel = (r) => (r.entry_cents ? U.cents(r.entry_cents) : 'Grátis');
+  const entryLine = (r) => (r.entry_cents && r.team_size > 1 ? '<small class="per-line">' + U.cents(r.entry_cents * r.team_size) + ' por ' + LINE[r.team_size] + '</small>' : '');
 
   function statusTag(r) {
     if (r.status === 'em_andamento') return '<span class="live"><i></i>Ao vivo</span>';
     if (r.status === 'finalizada') return '<span class="tag tone-muted">' + I('flag') + 'Finalizada</span>';
     if (r.status === 'cancelada') return '<span class="tag tone-red">' + I('ban') + 'Cancelada</span>';
+    if (r.restricted) return '<span class="tag tone-cyan">' + I('lock') + 'Exclusiva do evento</span>';
     if (r.players >= r.max_players) return '<span class="tag tone-gold">' + I('users') + 'Lotada · fila</span>';
     return '<span class="tag tone-green">' + I('zap') + 'Inscrições abertas</span>';
   }
-  const mechChips = (list) => (list || []).map((m) => '<span class="mech-chip" title="' + esc(mechInfo(m.type).name) + '">' + I((MECH[m.type] || {}).icon || 'star') + esc((MECH[m.type] || {}).short || m.type) + ' <b>' + U.centsShort(m.cents) + '</b></span>').join('');
   function roomCard(r) {
     const full = r.players >= r.max_players;
-    return '<article class="room-card ripple' + (r.featured ? ' featured' : '') + '" data-act="openRoom" data-id="' + r.id + '" tabindex="0">' +
-      '<header><span class="room-code">#' + r.code + '</span>' + statusTag(r) + (r.joined ? '<span class="tag tone-violet">' + I('check') + 'Inscrito</span>' : r.in_waitlist ? '<span class="tag tone-gold">Na fila</span>' : '') + (r.is_creator ? '<span class="tag tone-cyan">Sua sala</span>' : '') + '</header>' +
+    return '<article class="room-card ripple' + (r.featured ? ' featured' : '') + (r.official ? ' official' : '') + (r.tier ? ' tier-' + r.tier : '') + '" data-act="openRoom" data-id="' + r.id + '" tabindex="0">' +
+      '<header><span class="room-code">#' + r.code + '</span>' + (r.official ? BH.offTag() : '') + BH.tierTag(r.tier) + statusTag(r) + (r.joined ? '<span class="tag tone-violet">' + I('check') + 'Inscrito</span>' : r.in_waitlist ? '<span class="tag tone-gold">Na fila</span>' : '') + (r.is_creator && !r.official ? '<span class="tag tone-cyan">Sua sala</span>' : '') + '</header>' +
       '<h4>' + esc(r.title) + '</h4>' +
-      '<p class="room-host">' + U.av(r.creator, 'xs') + U.nick(r.creator) + '<span>· ' + esc(r.mode) + ' · ' + (TEAM[r.team_size] || '') + ' · ' + esc(r.map) + '</span></p>' +
-      '<div class="room-money"><div><small>Premiação</small><b class="gold">' + U.cents(r.prize_cents) + '</b></div><div><small>Inscrição</small><b>' + (r.entry_cents ? U.cents(r.entry_cents) : 'Grátis') + '</b></div></div>' +
+      (r.event || r.theme || r.xp_mult > 1 ? '<p class="room-extra">' + (r.event ? '<span>' + I('trophy') + esc(r.event.title) + '</span>' : '') + (r.theme ? '<span>' + I('calendar') + esc(r.theme) + '</span>' : '') + (r.xp_mult > 1 ? '<span class="xp2">' + I('sparkles') + 'XP x' + String(r.xp_mult).replace('.', ',') + '</span>' : '') + '</p>' : '') +
+      '<p class="room-host">' + hostHtml(r) + '<span>· ' + esc(r.mode) + ' · ' + (TEAM[r.team_size] || '') + ' · ' + esc(r.map) + '</span></p>' +
+      '<div class="room-money"><div><small>Premiação</small><b class="gold">' + U.cents(r.prize_cents) + '</b></div><div><small>Inscrição</small><b>' + entryLabel(r) + '</b>' + entryLine(r) + '</div></div>' +
       (r.mechanics && r.mechanics.length ? '<div class="mech-row">' + mechChips(r.mechanics) + '</div>' : '') +
       '<div class="room-foot"><span class="' + (full ? 'gold' : '') + '">' + I('users') + r.players + '/' + r.max_players + '</span>' + U.bar(r.players / r.max_players, full ? 'gold' : '') +
       (r.status === 'aberta' ? '<span class="mono" data-until="' + new Date(r.starts_at).getTime() + '">' + U.until(r.starts_at) + '</span>' : '<span>' + U.date(r.finished_at || r.started_at || r.starts_at) + '</span>') + '</div></article>';
   }
   BH.roomCard = roomCard;
 
+  // tema do dia (segunda a domingo) com a base fixa
+  function themeCard(t) {
+    if (!t || !t.name) return '';
+    return '<section class="theme-card"><span class="theme-glow" aria-hidden="true"></span><div class="theme-top"><p class="eyebrow">' + I('calendar') + 'Evento do dia · ' + DOW[t.dow] + '</p>' +
+      '<h3>' + esc(t.name) + '</h3>' + (t.desc ? '<p class="muted">' + esc(t.desc) + '</p>' : '') + '</div>' +
+      '<div class="mech-row">' + mechChips(t.mechanics) + '</div>' +
+      (t.base && t.base.mechanics ? '<p class="theme-base">' + I('shieldCheck') + '<span>Base fixa todo dia nas salas oficiais: kill paga, top 3 premiado e líder de abates</span></p>' : '') + '</section>';
+  }
+  BH.themeCard = themeCard;
+
   /* ================= INÍCIO ================= */
   pages.home = async function () {
     const me = api.me;
     const [h, rooms] = await Promise.all([api.rpc('home'), api.rpc('list_rooms', { p_tab: st.roomTab, p_q: st.roomQ || null })]);
-    const tabs = [{ id: 'abertas', label: 'Abertas' }, { id: 'ao_vivo', label: 'Ao vivo', badge: h.live || 0 }, { id: 'minhas', label: 'Minhas' }, { id: 'encerradas', label: 'Encerradas' }];
+    const tabs = [{ id: 'abertas', label: 'Abertas' }, { id: 'oficiais', label: 'Oficiais' }, { id: 'ao_vivo', label: 'Ao vivo', badge: h.live || 0 }, { id: 'minhas', label: 'Minhas' }, { id: 'encerradas', label: 'Encerradas' }];
     const hour = new Date().getHours();
     const greet = hour < 5 ? 'Boa madrugada' : hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
     const xpPct = (me.xp - me.xp_level) / Math.max(1, me.xp_next - me.xp_level);
@@ -59,14 +96,18 @@ window.BH = window.BH || {};
         '<div class="stat"><span class="stat-ic tone-red">' + I('radio') + '</span>' + U.num(h.live) + '<small>Ao vivo</small></div>' +
         '<div class="stat"><span class="stat-ic tone-violet">' + I('trophy') + '</span>' + U.num(h.open) + '<small>Salas abertas</small></div>' +
         '<div class="stat"><span class="stat-ic tone-gold">' + I('dollar') + '</span>' + U.num(Math.round(h.prize_cents / 100)) + '<small>Em prêmios (R$)</small></div></div>' +
+        themeCard(h.theme) +
+        (h.events && h.events.length ? '<section class="sect"><header class="sec-head"><h3>' + I('trophy') + 'Eventos oficiais</h3><button type="button" class="link" data-act="page" data-v="events">Ver todos' + I('right') + '</button></header><div class="rail stagger">' + h.events.map((e) => '<div class="rail-item wide">' + BH.eventCard(e) + '</div>').join('') + '</div></section>'
+          : '<button type="button" class="events-link ripple" data-act="page" data-v="events">' + I('trophy') + '<span><b>Eventos oficiais</b><small>Liga semanal, campeonatos de lines e intensivo de guildas</small></span>' + I('right') + '</button>') +
+        (h.official && h.official.length ? '<section class="sect"><header class="sec-head"><h3>' + I('shieldCheck') + 'Salas oficiais</h3><span class="muted small">Prêmio garantido pela plataforma</span></header><div class="rail stagger">' + h.official.map((r) => '<div class="rail-item">' + roomCard(r) + '</div>').join('') + '</div></section>' : '') +
         (h.mine.length ? '<section class="sect"><header class="sec-head"><h3>Suas salas</h3></header><div class="rail stagger">' + h.mine.map((r) => '<div class="rail-item">' + roomCard(r) + '</div>').join('') + '</div></section>' : '') +
         (h.payouts.length ? '<section class="sect"><header class="sec-head"><h3>Pagamentos recentes</h3><span class="muted small">' + U.cents(h.paid_week_cents) + ' em 7 dias</span></header><ul class="payouts stagger">' +
           h.payouts.map((p) => '<li>' + U.av(p.user, 'sm') + '<div class="grow"><b>' + esc(p.user.nick) + '</b><small>Sala #' + p.room_code + ' · ' + esc(p.room_title) + ' · <span data-ago="' + p.at + '">' + U.ago(p.at) + '</span></small></div><b class="pos">+' + U.cents(p.cents) + '</b></li>').join('') + '</ul></section>' : '') +
-        '<section class="sect"><header class="page-head"><div><h2 class="h2">Salas</h2><p class="muted small">Criadas pelos organizadores da comunidade</p></div>' +
+        '<section class="sect"><header class="page-head"><div><h2 class="h2">Salas</h2><p class="muted small">Oficiais da plataforma e dos organizadores autorizados</p></div>' +
         (me.can_create_rooms ? '<button type="button" class="fab ripple" data-act="createRoom" aria-label="Criar sala">' + I('plus') + '</button>' : '') + '</header>' +
         U.seg('rooms', tabs, st.roomTab, 'roomTab') +
-        '<label class="search">' + I('search') + '<input id="r-search" type="search" placeholder="Buscar por nome, número, mapa ou organizador" value="' + esc(st.roomQ) + '" data-input="roomQ" autocomplete="off"></label>' +
-        '<div class="stack stagger">' + (rooms.length ? rooms.map(roomCard).join('') : U.empty('trophy', st.roomTab === 'minhas' ? 'Você ainda não entrou em salas' : 'Nenhuma sala aqui agora', me.can_create_rooms ? 'Crie a primeira no botão +.' : 'Novas salas aparecem aqui assim que os organizadores criarem.')) + '</div></section>' +
+        '<label class="search">' + I('search') + '<input id="r-search" type="search" placeholder="Buscar por nome, número, mapa, nível ou organizador" value="' + esc(st.roomQ) + '" data-input="roomQ" autocomplete="off"></label>' +
+        '<div class="stack stagger">' + (rooms.length ? rooms.map(roomCard).join('') : U.empty('trophy', st.roomTab === 'minhas' ? 'Você ainda não entrou em salas' : 'Nenhuma sala aqui agora', me.can_create_rooms ? 'Crie a primeira no botão +.' : 'Novas salas aparecem aqui assim que forem criadas.')) + '</div></section>' +
         '</section>'
     };
   };
@@ -74,34 +115,57 @@ window.BH = window.BH || {};
   actions.openRoom = (el) => app().push('room', { id: el.dataset.id });
   actions.pinned = () => { const a = api.me.pinned; if (a) U.confirm({ title: a.title, body: esc(a.body), ok: 'Entendi', cancel: 'Fechar', icon: 'megaphone' }); };
 
+  /* divisão do dinheiro (jogadores / organizador / plataforma) */
+  function splitBar(sp, official) {
+    const pot = Math.max(sp.pot_cents, 1), pl = Math.min(sp.players_cents, pot);
+    const parts = [['players', pl, 'Jogadores'], ['creator', sp.creator_cents, 'Organizador'], ['platform', sp.platform_cents, 'Plataforma']].filter((x) => x[1] > 0 && (!official || x[0] !== 'creator'));
+    return '<div class="split-bar" role="img" aria-label="Divisão da arrecadação">' + parts.map((x) => '<i class="sb-' + x[0] + '" style="flex:' + x[1] + '"></i>').join('') + '</div>' +
+      '<ul class="split-legend">' + parts.map((x) => '<li><i class="sb-' + x[0] + '"></i><span>' + x[2] + '</span><b>' + U.cents(x[1]) + '</b><small>' + Math.round(x[1] * 100 / pot) + '%</small></li>').join('') + '</ul>';
+  }
+  BH.splitBar = splitBar;
+  function moneyCard(r) {
+    const sp = r.split_full;
+    if (!sp || !r.entry_cents) {
+      return r.official ? '<section class="card money-card"><h3 class="card-h">' + I('shieldCheck') + 'Prêmio garantido</h3><p class="muted">Sala oficial: a plataforma garante toda a premiação, mesmo sem arrecadação.</p></section>' : '';
+    }
+    return '<section class="card money-card"><h3 class="card-h">' + I('vault') + 'Para onde vai o dinheiro</h3>' +
+      '<p class="muted small">Com a sala cheia (' + sp.players_n + ' jogadores) a arrecadação é <b>' + U.cents(sp.pot_cents) + '</b>. Os jogadores podem receber até <b>' + U.cents(Math.min(sp.players_cents, sp.pot_cents)) + '</b>.</p>' +
+      splitBar(sp, r.official) +
+      '<p class="note-gold">' + I('info') + '<span>' + (r.official
+        ? 'Sala oficial: a plataforma garante a premiação e fica com o que sobrar no cofre.'
+        : 'O prêmio dos jogadores sai primeiro. Da arrecadação, a plataforma fica com ' + Number(r.fee_pct) + '% (nunca mais que a sobra) e o organizador com o resto.') + '</span></p></section>';
+  }
+
   /* ================= SALA ================= */
   pages.room = async function (p) {
     const [r, chat] = await Promise.all([api.rpc('get_room', { p_id: p.id }), api.rpc('room_chat', { p_room: p.id, p_after: 0 })]);
     const me = api.me;
     const full = r.players >= r.max_players;
-    const vaultOk = r.vault_cents >= r.commitment_cents;
+    const vaultOk = r.official || r.vault_cents >= r.commitment_cents;
     const res = r.results;
     const byUser = {};
     if (res) (res.lines || []).forEach((l) => { (byUser[l.user_id] = byUser[l.user_id] || []).push(l); });
     let cta = '';
     if (r.status === 'aberta' && !r.is_creator) {
-      if (r.joined) cta = '<div class="cta-bar"><div><small>Você está inscrito</small><b class="green">' + I('checkCircle') + 'Vaga garantida</b></div><button type="button" class="btn ghost" data-act="leaveRoom" data-id="' + r.id + '">Sair</button></div>';
+      if (r.joined) cta = '<div class="cta-bar"><div><small>Você está inscrito</small><b class="green">' + I('checkCircle') + 'Vaga garantida</b></div>' + (r.restricted ? '' : '<button type="button" class="btn ghost" data-act="leaveRoom" data-id="' + r.id + '">Sair</button>') + '</div>';
       else if (r.in_waitlist) cta = '<div class="cta-bar"><div><small>Fila de espera</small><b class="gold">' + r.waitlist_pos + 'º da fila</b></div><button type="button" class="btn ghost" data-act="leaveRoom" data-id="' + r.id + '">Sair da fila</button></div>';
-      else cta = '<div class="cta-bar"><div><small>' + (full ? 'Sala lotada' : 'Inscrição') + '</small><b>' + (r.entry_cents ? U.cents(r.entry_cents) : 'Grátis') + '</b></div><button type="button" class="btn primary" data-act="joinRoom" data-id="' + r.id + '">' + I(full ? 'clock' : 'zap') + (full ? 'Entrar na fila' : 'Inscrever-se') + '</button></div>';
+      else if (r.restricted) cta = '<div class="cta-bar"><div><small>Queda de evento</small><b>' + I('lock') + 'Só as lines do evento</b></div>' + (r.event ? '<button type="button" class="btn ghost" data-act="openEvent" data-id="' + r.event.id + '">Ver evento</button>' : '') + '</div>';
+      else cta = '<div class="cta-bar"><div><small>' + (full ? 'Sala lotada' : 'Inscrição') + '</small><b>' + entryLabel(r) + '</b></div><button type="button" class="btn primary" data-act="joinRoom" data-id="' + r.id + '">' + I(full ? 'clock' : 'zap') + (full ? 'Entrar na fila' : 'Inscrever-se') + '</button></div>';
     }
     const secrets = r.secrets && r.secrets.game_room_id
       ? '<div class="room-card-secret"><span class="live"><i></i>Sala liberada</span><div class="room-grid"><div><small>ID da sala</small><b class="mono">' + esc(r.secrets.game_room_id) + '</b></div><div><small>Senha</small><b class="mono">' + esc(r.secrets.password) + '</b></div></div><button type="button" class="btn ghost sm" data-act="copy" data-v="' + esc(r.secrets.game_room_id) + '">' + I('copy') + 'Copiar ID</button></div>'
       : (r.status === 'em_andamento' && !r.joined && !r.can_manage ? '<div class="room-card-secret locked">' + I('lock') + '<span>O ID e a senha aparecem só para os inscritos.</span></div>' : '');
+    const drawBtn = (type, icon, label) => (r.mechanics.some((m) => m.type === type) && !(type === 'rei' ? r.king : r.lucky) ? '<button type="button" class="btn outline sm" data-act="roomDraw" data-kind="' + type + '" data-id="' + r.id + '">' + I(icon) + label + '</button>' : '');
     const manage = r.can_manage && (r.status === 'aberta' || r.status === 'em_andamento')
-      ? '<section class="card manage"><h3 class="card-h">' + I('sliders') + 'Painel do organizador</h3>' +
-        '<div class="vault ' + (vaultOk ? 'ok' : 'low') + '"><span class="vault-ic">' + I('vault') + '</span><div class="grow"><small>Cofre da sala</small><b>' + U.cents(r.vault_cents) + '</b><span>A sala promete até ' + U.cents(r.commitment_cents) + ' com ' + Math.max(r.players, 2) + ' jogadores' + (r.guarantee_cents ? ' · garantia ' + U.cents(r.guarantee_cents) : '') + '</span></div>' +
-        (r.is_creator ? '<button type="button" class="btn ghost sm" data-act="roomGuarantee" data-id="' + r.id + '">' + I('plus') + 'Garantia</button>' : '') + '</div>' +
+      ? '<section class="card manage"><h3 class="card-h">' + I('sliders') + (r.official ? 'Painel da sala oficial' : 'Painel do organizador') + '</h3>' +
+        '<div class="vault ' + (vaultOk ? 'ok' : 'low') + '"><span class="vault-ic">' + I('vault') + '</span><div class="grow"><small>Cofre da sala</small><b>' + U.cents(r.vault_cents) + '</b><span>' +
+        (r.official ? 'A plataforma completa se faltar · promete até ' + U.cents(r.commitment_cents) : 'A sala promete até ' + U.cents(r.commitment_cents) + ' com ' + Math.max(r.players, 2) + ' jogadores' + (r.guarantee_cents ? ' · garantia ' + U.cents(r.guarantee_cents) : '')) + '</span></div>' +
+        (r.is_creator && !r.official ? '<button type="button" class="btn ghost sm" data-act="roomGuarantee" data-id="' + r.id + '">' + I('plus') + 'Garantia</button>' : '') + '</div>' +
         (!vaultOk ? '<p class="note-gold">' + I('info') + '<span>O cofre ainda não cobre a premiação. A sala só começa quando cobrir: espere mais inscritos, coloque garantia ou diminua os prêmios.</span></p>' : '') +
         '<div class="btn-row">' +
         (r.status === 'aberta' ? '<button type="button" class="btn primary sm" data-act="roomStart" data-id="' + r.id + '">' + I('play') + 'Iniciar sala</button>' : '<button type="button" class="btn gold sm" data-act="roomResults" data-id="' + r.id + '">' + I('flag') + 'Lançar resultado</button>') +
-        (r.mechanics.some((m) => m.type === 'rei') && !r.king ? '<button type="button" class="btn outline sm" data-act="roomDraw" data-kind="rei" data-id="' + r.id + '">' + I('crown') + 'Sortear Player Rei</button>' : '') +
-        (r.mechanics.some((m) => m.type === 'sorteio') && !r.lucky ? '<button type="button" class="btn outline sm" data-act="roomDraw" data-kind="sorteio" data-id="' + r.id + '">' + I('dice') + 'Girar sorteio</button>' : '') +
-        (r.status === 'aberta' ? '<button type="button" class="btn ghost sm" data-act="roomEdit" data-id="' + r.id + '">' + I('edit') + 'Editar</button>' : '') +
+        drawBtn('rei', 'crown', 'Sortear Player Rei') + drawBtn('sorteio', 'dice', 'Girar sorteio') +
+        (r.status === 'aberta' && !r.event ? '<button type="button" class="btn ghost sm" data-act="roomEdit" data-id="' + r.id + '">' + I('edit') + 'Editar</button>' : '') +
         '<button type="button" class="btn danger-ghost sm" data-act="roomCancel" data-id="' + r.id + '">' + I('ban') + 'Cancelar</button></div>' +
         (r.waitlist_list && r.waitlist_list.length ? '<div class="waitlist"><small>Fila de espera (' + r.waitlist_list.length + ')</small><div class="wl-row">' + r.waitlist_list.map((w) => '<span class="wl-item" title="' + esc(w.nick) + '">' + U.av(w, 'xs') + (w.priority ? '<i class="prio">' + I('zap') + '</i>' : '') + '</span>').join('') + '</div></div>' : '') +
         '</section>'
@@ -114,35 +178,44 @@ window.BH = window.BH || {};
       const lines = byUser[u.id] || [];
       return '<li><button type="button" class="prow ripple" data-act="roomPlayer" data-id="' + u.id + '" data-room="' + r.id + '">' +
         (res ? '<span class="medal m-' + (u.placement === 1 ? 'gold' : u.placement === 2 ? 'silver' : u.placement === 3 ? 'bronze' : 'slate') + '">' + (u.placement ? u.placement + 'º' : '–') + '</span>' : '') +
-        U.av(u, 'sm') + '<div class="grow"><span class="prow-name">' + U.nick(u, { level: true }) + (r.king && r.king.id === u.id ? '<span class="tag tone-gold">' + I('crown') + 'Rei</span>' : '') + '</span>' +
+        U.av(u, 'sm') + '<div class="grow"><span class="prow-name">' + U.nick(u, { level: true }) + (r.king && r.king.id === u.id ? '<span class="tag tone-gold">' + I('crown') + 'Rei</span>' : '') + (u.line ? '<span class="tag tone-violet">' + esc(u.line.name) + '</span>' : '') + '</span>' +
         '<small>' + (u.ff_nick ? esc(u.ff_nick) : '') + (u.ff_id ? ' · ID ' + esc(u.ff_id) : '') + (res ? ' · ' + U.plural(u.kills, 'abate', 'abates') + (u.survival_min ? ' · ' + u.survival_min + ' min' : '') : '') + '</small></div>' +
         (res ? '<div class="prow-side">' + (u.earned_cents ? '<b class="pos">+' + U.cents(u.earned_cents) + '</b>' : '') + '<small>+' + u.xp_earned + ' XP</small></div>' : (u.ff_verified ? '' : '<span class="tag tone-muted" title="ID não verificado">ID ' + I('clock') + '</span>')) +
         '</button>' + (res && lines.length ? '<div class="prow-lines">' + lines.map((l) => '<span>' + I((MECH[l.kind] || { icon: 'trophy' }).icon) + esc(l.note) + ' <b>' + U.cents(l.cents) + '</b></span>').join('') + '</div>' : '') + '</li>';
     }).join('') + '</ul>' : '<p class="muted center pad">Nenhum inscrito ainda.</p>';
 
+    const pts = r.points;
+    const pointsCard = r.event && pts ? '<section class="card"><h3 class="card-h">' + I('hash') + 'Pontos do evento</h3><div class="pts-grid"><span><b>' + pts.kill + '</b><small>por abate</small></span>' +
+      (pts.place || []).slice(0, 10).map((v, i) => '<span><b>' + v + '</b><small>' + (i === 0 ? 'Booyah' : (i + 1) + 'º') + '</small></span>').join('') + '</div></section>' : '';
+
     const canChat = r.joined || r.can_manage;
     return {
       subKey: 'room:' + r.id,
       subscribe: () => { const ch = api.listenRoom(r.id, () => app().refreshSoon()); return () => api.unlisten(ch); },
-      html: '<section class="page room-page">' + BH.backRow() +
-        '<header class="room-hero"><div class="t-tags"><span class="room-code">Sala #' + r.code + '</span>' + statusTag(r) + '</div>' +
+      html: '<section class="page room-page' + (r.tier ? ' tier-' + r.tier : '') + '">' + BH.backRow() +
+        '<header class="room-hero' + (r.official ? ' official' : '') + '"><div class="t-tags"><span class="room-code">Sala #' + r.code + '</span>' + (r.official ? BH.offTag() : '') + BH.tierTag(r.tier) + statusTag(r) + '</div>' +
         '<h1 class="h1">' + esc(r.title) + '</h1>' +
-        '<button type="button" class="room-host ripple" data-act="profile" data-id="' + (r.creator.id || '') + '">' + U.av(r.creator, 'xs') + '<span>Organizador ' + U.nick(r.creator) + '</span></button>' +
+        (r.event ? '<button type="button" class="event-link ripple" data-act="openEvent" data-id="' + r.event.id + '">' + I('trophy') + '<span>' + esc(r.event.title) + (r.group_label ? ' · Grupo ' + esc(r.group_label) : '') + (r.drop_no ? ' · Queda ' + r.drop_no : '') + '</span>' + I('right') + '</button>' : '') +
+        (r.theme || r.xp_mult > 1 ? '<p class="room-extra">' + (r.theme ? '<span>' + I('calendar') + esc(r.theme) + '</span>' : '') + (r.xp_mult > 1 ? '<span class="xp2">' + I('sparkles') + 'XP x' + String(r.xp_mult).replace('.', ',') + '</span>' : '') + '</p>' : '') +
+        (r.official ? '<p class="room-host">' + hostHtml(r) + '</p>' : '<button type="button" class="room-host ripple" data-act="profile" data-id="' + (r.creator.id || '') + '">' + U.av(r.creator, 'xs') + '<span>Organizador ' + U.nick(r.creator) + '</span></button>') +
         '<div class="tiles3 four stagger"><div class="tile"><span>' + I('users') + '</span><b>' + r.players + '/' + r.max_players + '</b><small>Jogadores</small></div>' +
-        '<div class="tile"><span>' + I('coins') + '</span><b>' + (r.entry_cents ? U.centsShort(r.entry_cents) : 'Grátis') + '</b><small>Inscrição</small></div>' +
+        '<div class="tile"><span>' + I('coins') + '</span><b>' + (r.entry_cents ? U.centsShort(r.entry_cents) : 'Grátis') + '</b><small>' + (r.team_size > 1 && r.entry_cents ? U.centsShort(r.entry_cents * r.team_size) + ' por ' + LINE[r.team_size] : 'Inscrição') + '</small></div>' +
         '<div class="tile tone-gold"><span>' + I('trophy') + '</span><b>' + U.centsShort(r.prize_cents) + '</b><small>Premiação</small></div>' +
         '<div class="tile"><span>' + I('gamepad') + '</span><b>' + (TEAM[r.team_size] || '') + '</b><small>' + esc(r.map) + '</small></div></div>' +
-        (r.status === 'aberta' ? '<div class="t-count"><span>' + (new Date(r.starts_at) > new Date() ? 'Começa em' : 'Aguardando o organizador') + '</span><strong class="mono" data-until="' + new Date(r.starts_at).getTime() + '">' + U.until(r.starts_at) + '</strong></div>' : '') +
+        (r.status === 'aberta' ? '<div class="t-count"><span>' + (new Date(r.starts_at) > new Date() ? 'Começa em' : 'Aguardando a organização') + '</span><strong class="mono" data-until="' + new Date(r.starts_at).getTime() + '">' + U.until(r.starts_at) + '</strong></div>' : '') +
         (r.status === 'cancelada' ? '<p class="t-cancel">' + I('alert') + 'Cancelada: ' + esc(r.cancel_reason || '') + '. As inscrições foram devolvidas.</p>' : '') + '</header>' +
         secrets + cta + special + manage +
-        (res ? '<section class="card result-card"><h3 class="card-h">' + I('trophy') + 'Resultado</h3><div class="tiles3"><div class="tile tone-green"><b>' + U.centsShort(res.payout_cents) + '</b><small>Pago em prêmios</small></div><div class="tile"><b>' + U.centsShort(res.creator_cents) + '</b><small>Organizador</small></div><div class="tile"><b>' + U.centsShort(res.fee_cents) + '</b><small>Taxa</small></div></div></section>' : '') +
+        (res ? '<section class="card result-card"><h3 class="card-h">' + I('trophy') + 'Resultado</h3><div class="tiles3"><div class="tile tone-green"><b>' + U.centsShort(res.payout_cents) + '</b><small>Pago em prêmios</small></div>' +
+          (res.official ? '<div class="tile"><b>' + U.centsShort(res.cover_platform_cents || 0) + '</b><small>Plataforma completou</small></div>' : '<div class="tile"><b>' + U.centsShort(res.creator_cents) + '</b><small>Organizador</small></div>') +
+          '<div class="tile"><b>' + U.centsShort(res.fee_cents) + '</b><small>Plataforma</small></div></div></section>' : '') +
         '<section class="card"><h3 class="card-h">' + I('trophy') + 'Premiação</h3><ol class="split">' +
-        (r.prizes.length ? r.prizes.map((z) => '<li><span class="medal m-' + (z.place === 1 ? 'gold' : z.place === 2 ? 'silver' : z.place === 3 ? 'bronze' : 'slate') + '">' + z.place + 'º</span><span class="grow">' + (r.team_size > 1 ? 'Dividido entre o time' : 'Colocação') + '</span><b>' + U.cents(z.cents) + '</b></li>').join('') : '<li class="muted">Sem prêmio por colocação.</li>') + '</ol>' +
-        (r.mechanics.length ? '<h4 class="sub-h">Mecânicas da sala</h4><ul class="mech-list">' + r.mechanics.map((m) => { const info = mechInfo(m.type); return '<li><span class="mech-ic">' + I((MECH[m.type] || {}).icon || 'star') + '</span><div class="grow"><b>' + esc(info.name) + '</b><small>' + esc(info.description) + '</small></div><b class="gold">' + U.cents(m.cents) + (m.type === 'por_kill' ? '<small>/abate</small>' : '') + '</b></li>'; }).join('') + '</ul>' : '') +
-        '<p class="note-gold">' + I('vault') + '<span>As inscrições ficam no cofre da sala até o fim. Prêmios caem na carteira dos vencedores assim que o organizador confirma o resultado; a sobra vai para o organizador' + (r.fee_pct > 0 ? ' (taxa da plataforma de ' + r.fee_pct + '% sobre a sobra)' : '') + '.</span></p></section>' +
+        (r.prizes.length ? r.prizes.map((z) => '<li><span class="medal m-' + (z.place === 1 ? 'gold' : z.place === 2 ? 'silver' : z.place === 3 ? 'bronze' : 'slate') + '">' + z.place + 'º</span><span class="grow">' + (r.team_size > 1 ? 'Dividido na ' + LINE[r.team_size] : 'Colocação') + '</span><b>' + U.cents(z.cents) + '</b></li>').join('') : '<li class="muted">' + (r.event ? 'Prêmios pagos no fim do evento, pela classificação.' : 'Sem prêmio por colocação.') + '</li>') + '</ol>' +
+        (r.mechanics.length ? '<h4 class="sub-h">Mecânicas da sala</h4><ul class="mech-list">' + r.mechanics.map((m) => { const info = mechInfo(m.type); return '<li><span class="mech-ic">' + I((MECH[m.type] || {}).icon || 'star') + '</span><div class="grow"><b>' + esc(info.name) + (m.type === 'meta_abates' ? ' · ' + (m.n || 5) + ' abates' : '') + '</b><small>' + esc(info.description) + '</small></div><b class="gold">' + U.cents(m.cents) + '<small>' + esc((MECH[m.type] || {}).unit || '') + '</small></b></li>'; }).join('') + '</ul>' : '') +
+        '<p class="muted small">Empates dividem o valor. Bônus só é pago se a mecânica acontecer. Pagamento só depois do resultado oficial.</p></section>' +
+        moneyCard(r) + pointsCard +
         '<section class="card"><h3 class="card-h">' + I('users') + 'Jogadores <span class="muted">(' + r.players + ')</span></h3>' + playersHtml + '</section>' +
         '<section class="card chat-card"><h3 class="card-h">' + I('message') + 'Chat da sala' + (r.status === 'em_andamento' ? '<span class="dot-on"></span>' : '') + '</h3>' +
-        '<div class="t-chat" id="r-chat">' + (chat.length ? chat.map((m) => '<div class="t-msg' + (m.sender.id === me.id ? ' me' : '') + '">' + U.av(m.sender, 'xs') + '<div><b>' + esc(m.sender.nick) + (m.is_host ? '<span class="tag tone-cyan">Organizador</span>' : '') + '</b>' + (m.body ? '<p>' + esc(m.body) + '</p>' : '') + (m.image_url ? '<button type="button" class="msg-img" data-act="viewImage" data-v="' + esc(m.image_url) + '"><img src="' + esc(m.image_url) + '" alt="Foto enviada" loading="lazy"></button>' : '') + '<small>' + U.hm(m.created_at) + '</small></div></div>').join('') : '<p class="muted center pad">Nenhuma mensagem ainda.</p>') + '</div>' +
+        '<div class="t-chat" id="r-chat">' + (chat.length ? chat.map((m) => '<div class="t-msg' + (m.sender.id === me.id ? ' me' : '') + '">' + U.av(m.sender, 'xs') + '<div><b>' + esc(m.sender.nick) + (m.is_host ? '<span class="tag tone-cyan">' + (r.official ? 'Organização' : 'Organizador') + '</span>' : '') + '</b>' + (m.body ? '<p>' + esc(m.body) + '</p>' : '') + (m.image_url ? '<button type="button" class="msg-img" data-act="viewImage" data-v="' + esc(m.image_url) + '"><img src="' + esc(m.image_url) + '" alt="Foto enviada" loading="lazy"></button>' : '') + '<small>' + U.hm(m.created_at) + '</small></div></div>').join('') : '<p class="muted center pad">Nenhuma mensagem ainda.</p>') + '</div>' +
         (canChat && r.status !== 'cancelada' && r.status !== 'finalizada' ? '<form class="composer" data-form="roomChat" data-id="' + r.id + '"><label class="attach ripple" aria-label="Enviar foto">' + I('camera') + '<input type="file" accept="image/*" data-send="room" data-id="' + r.id + '"></label><input id="rc-input" name="text" placeholder="Mensagem para a sala" maxlength="1000" autocomplete="off"><button class="send ripple" aria-label="Enviar">' + I('send') + '</button></form>' : '<p class="locked-line">' + I('lock') + (r.status === 'finalizada' ? 'Sala encerrada.' : 'Inscreva-se para falar no chat.') + '</p>') + '</section>' +
         (r.rules ? '<section class="card"><h3 class="card-h">' + I('file') + 'Regras</h3><p class="rules">' + esc(r.rules) + '</p></section>' : '') +
         '</section>',
@@ -158,9 +231,10 @@ window.BH = window.BH || {};
     const after = me.balance_cents - r.entry_cents;
     U.sheet({
       title: full ? 'Entrar na fila' : 'Confirmar inscrição', loading: false,
-      body: '<div class="confirm-t"><h3>' + esc(r.title) + '</h3><p class="muted">Sala #' + r.code + ' · ' + esc(r.mode) + ' · ' + U.when(r.starts_at) + '</p></div>' +
+      body: '<div class="confirm-t"><h3>' + esc(r.title) + '</h3><p class="muted">Sala #' + r.code + (r.official ? ' · oficial' : '') + ' · ' + esc(r.mode) + ' · ' + U.when(r.starts_at) + '</p></div>' +
         (full ? '<p class="note-gold">' + I('clock') + '<span>A sala está lotada. Se alguém sair, você entra na hora e a inscrição é cobrada nesse momento.' + (me.priority ? ' Você tem prioridade na fila.' : ' Com o item Prioridade na fila (loja) você passa na frente.') + '</span></p>' : '') +
-        '<dl class="ledger"><div><dt>Inscrição</dt><dd>' + (r.entry_cents ? U.cents(r.entry_cents) : 'Grátis') + '</dd></div><div><dt>Seu saldo</dt><dd>' + U.cents(me.balance_cents) + '</dd></div>' + (full ? '' : '<div class="total"><dt>Saldo depois</dt><dd class="' + (after < 0 ? 'red' : '') + '">' + U.cents(after) + '</dd></div>') + '</dl>' +
+        (r.team_size > 1 ? '<p class="note-gold">' + I('users') + '<span>Modo ' + TEAM[r.team_size].toLowerCase() + ': cada jogador da ' + LINE[r.team_size] + ' se inscreve e paga a sua parte (' + U.cents(r.entry_cents) + ').</span></p>' : '') +
+        '<dl class="ledger"><div><dt>Inscrição</dt><dd>' + entryLabel(r) + '</dd></div><div><dt>Seu saldo</dt><dd>' + U.cents(me.balance_cents) + '</dd></div>' + (full ? '' : '<div class="total"><dt>Saldo depois</dt><dd class="' + (after < 0 ? 'red' : '') + '">' + U.cents(after) + '</dd></div>') + '</dl>' +
         (after < 0 && !full ? '<p class="note-red">' + I('alert') + '<span>Faltam ' + U.cents(-after) + '. Adicione saldo para se inscrever.</span></p><button type="button" class="btn primary block lg" data-act="deposit" data-v="' + Math.max(me.settings.min_deposit_cents, -after) + '">' + I('plus') + 'Adicionar saldo</button>'
           : '<button type="button" class="btn primary block lg" data-act="joinConfirm" data-id="' + r.id + '">' + I(full ? 'clock' : 'zap') + (full ? 'Entrar na fila' : 'Confirmar inscrição') + '</button><p class="muted small center">Você pode sair enquanto as inscrições estiverem abertas e recebe o valor de volta.</p>')
     });
@@ -283,14 +357,17 @@ window.BH = window.BH || {};
   /* lançamento do resultado */
   actions.roomResults = async function (el) {
     const r = await api.rpc('get_room', { p_id: el.dataset.id });
-    const data = { rows: {}, first_blood: '', king_outcome: r.king ? 'killed' : 'none', king_killer: '', preview: null };
-    r.player_list.forEach((u, i) => { data.rows[u.id] = { kills: 0, placement: '', survival: '' }; });
-    const hasFb = r.mechanics.some((m) => m.type === 'first_blood'), hasKing = r.mechanics.some((m) => m.type === 'rei') && r.king;
-    const opts = (sel) => '<option value="">Escolha o jogador</option>' + r.player_list.map((u) => '<option value="' + u.id + '"' + (sel === u.id ? ' selected' : '') + '>' + esc(u.nick) + '</option>').join('');
+    const has = (t) => r.mechanics.some((m) => m.type === t);
+    const data = { rows: {}, first_blood: '', king_outcome: r.king ? 'killed' : 'none', king_killer: '', survivors: [], picks: { destaque: '', clutch: '', line_tatica: '' }, preview: null };
+    r.player_list.forEach((u) => { data.rows[u.id] = { kills: 0, placement: '', survival: '' }; });
+    const hasKing = has('rei') && r.king;
+    const opts = (sel, ph) => '<option value="">' + (ph || 'Escolha o jogador') + '</option>' + r.player_list.map((u) => '<option value="' + u.id + '"' + (sel === u.id ? ' selected' : '') + '>' + esc(u.nick) + (u.line ? ' · ' + esc(u.line.name) : '') + '</option>').join('');
     const payload = () => ({
       players: r.player_list.map((u) => ({ user_id: u.id, kills: Number(data.rows[u.id].kills) || 0, placement: data.rows[u.id].placement === '' ? null : Number(data.rows[u.id].placement), survival_min: data.rows[u.id].survival === '' ? 0 : Number(data.rows[u.id].survival) })),
-      first_blood: data.first_blood || null, king_outcome: data.king_outcome, king_killer: data.king_killer || null
+      first_blood: data.first_blood || null, king_outcome: data.king_outcome, king_killer: data.king_killer || null,
+      survivors: data.survivors, picks: Object.fromEntries(Object.entries(data.picks).filter((x) => x[1]))
     });
+    const pick = (key, icon, label, help) => (has(key) ? '<label class="field"><span>' + I(icon) + label + '</span><select id="res-' + key + '" data-pick="' + key + '">' + opts(data.picks[key], help) + '</select></label>' : '');
     U.sheet({
       title: 'Resultado da sala #' + r.code, size: 'lg', data, loading: false,
       body: (s) => {
@@ -299,24 +376,34 @@ window.BH = window.BH || {};
           const pv = d.preview, cards = pv.cards || {};
           const group = {};
           pv.lines.forEach((l) => { (group[l.user_id] = group[l.user_id] || []).push(l); });
-          return '<div class="preview"><div class="tiles3"><div class="tile"><b>' + U.centsShort(pv.vault_cents) + '</b><small>Cofre</small></div><div class="tile tone-green"><b>' + U.centsShort(pv.payout_cents) + '</b><small>Prêmios</small></div><div class="tile tone-violet"><b>' + U.centsShort(pv.creator_cents) + '</b><small>Para você</small></div></div>' +
-            (pv.fee_cents ? '<p class="muted small center">Taxa da plataforma: ' + U.cents(pv.fee_cents) + '</p>' : '') +
+          return '<div class="preview"><div class="tiles3"><div class="tile"><b>' + U.centsShort(pv.vault_cents) + '</b><small>Cofre</small></div><div class="tile tone-green"><b>' + U.centsShort(pv.payout_cents) + '</b><small>Prêmios</small></div>' +
+            (pv.official ? '<div class="tile tone-cyan"><b>' + U.centsShort(pv.fee_cents) + '</b><small>Sobra da plataforma</small></div>' : '<div class="tile tone-violet"><b>' + U.centsShort(pv.creator_cents) + '</b><small>Para você</small></div>') + '</div>' +
+            (pv.cover_platform_cents ? '<p class="note-gold">' + I('shieldCheck') + '<span>A plataforma completa ' + U.cents(pv.cover_platform_cents) + ' que faltam no cofre.</span></p>' : '') +
+            (pv.cover_event_cents ? '<p class="muted small center">' + U.cents(pv.cover_event_cents) + ' saem do cofre do evento.</p>' : '') +
+            (!pv.official && pv.fee_cents ? '<p class="muted small center">Plataforma: ' + U.cents(pv.fee_cents) + ' (' + Number(pv.fee_pct) + '% da arrecadação de ' + U.cents(pv.entries_cents) + ')</p>' : '') +
+            (pv.unpaid_cents ? '<p class="muted small center">' + U.cents(pv.unpaid_cents) + ' de bônus não aconteceram e ficam no cofre.</p>' : '') +
             '<ul class="pv-list">' + Object.keys(group).map((uid) => '<li>' + U.av(cards[uid], 'sm') + '<div class="grow"><b>' + esc((cards[uid] || {}).nick || '') + '</b>' + group[uid].map((l) => '<small>' + I((MECH[l.kind] || { icon: 'trophy' }).icon) + esc(l.note) + ' · ' + U.cents(l.cents) + '</small>').join('') + '</div><b class="pos">+' + U.cents(group[uid].reduce((a, l) => a + l.cents, 0)) + '</b></li>').join('') + '</ul>' +
-            '<details class="xp-details"><summary>XP de cada jogador</summary><ul>' + pv.players.map((p) => '<li><span>' + esc((cards[p.user_id] || {}).nick || '') + '</span><b>+' + p.xp + ' XP</b></li>').join('') + '</ul></details>' +
+            '<details class="xp-details"><summary>XP de cada jogador' + (pv.xp_mult > 1 ? ' (x' + String(pv.xp_mult).replace('.', ',') + ')' : '') + '</summary><ul>' + pv.players.map((p) => '<li><span>' + esc((cards[p.user_id] || {}).nick || '') + '</span><b>+' + p.xp + ' XP</b></li>').join('') + '</ul></details>' +
             '<p class="note-gold">' + I('alert') + '<span>Confira com o print do fim da partida. Depois de confirmar, os prêmios caem nas carteiras e não dá para desfazer.</span></p>' +
             '<div class="btn-row two"><button type="button" class="btn ghost" data-act="resBack">' + I('back') + 'Corrigir</button><button type="button" class="btn gold" data-act="resConfirm" data-id="' + r.id + '">' + I('check') + 'Confirmar e pagar</button></div></div>';
         }
-        return '<form class="form results-form" data-form="resPreview" data-id="' + r.id + '"><p class="muted">Lance os abates e a colocação de cada jogador. ' + (r.team_size > 1 ? 'No modo ' + TEAM[r.team_size].toLowerCase() + ', coloque a mesma colocação para quem é do mesmo time.' : '') + '</p>' +
+        return '<form class="form results-form" data-form="resPreview" data-id="' + r.id + '"><p class="muted">Lance os abates e a colocação de cada jogador. ' + (r.team_size > 1 ? 'No modo ' + TEAM[r.team_size].toLowerCase() + ', quem é da mesma ' + LINE[r.team_size] + ' recebe a mesma colocação.' : '') + '</p>' +
           '<div class="res-head"><span>Jogador</span><span>Abates</span><span>Colocação</span><span>Min vivo</span></div>' +
-          '<ul class="res-rows">' + r.player_list.map((u) => { const row = d.rows[u.id]; return '<li>' + U.av(u, 'xs') + '<span class="res-name"><b>' + esc(u.nick) + '</b><small>' + esc(u.ff_nick || '') + '</small></span>' +
+          '<ul class="res-rows">' + r.player_list.map((u) => { const row = d.rows[u.id]; return '<li>' + U.av(u, 'xs') + '<span class="res-name"><b>' + esc(u.nick) + '</b><small>' + esc(u.line ? u.line.name : u.ff_nick || '') + '</small></span>' +
             '<span class="stepper"><button type="button" data-act="resKill" data-id="' + u.id + '" data-d="-1" aria-label="Menos um abate">' + I('minus') + '</button><b id="k-' + u.id + '">' + row.kills + '</b><button type="button" data-act="resKill" data-id="' + u.id + '" data-d="1" aria-label="Mais um abate">' + I('plus') + '</button></span>' +
             '<input type="number" inputmode="numeric" min="1" max="' + r.player_list.length + '" class="res-in" data-res="placement" data-id="' + u.id + '" value="' + esc(row.placement) + '" placeholder="–" aria-label="Colocação de ' + esc(u.nick) + '">' +
             '<input type="number" inputmode="numeric" min="0" max="120" class="res-in" data-res="survival" data-id="' + u.id + '" value="' + esc(row.survival) + '" placeholder="–" aria-label="Minutos vivo de ' + esc(u.nick) + '"></li>'; }).join('') + '</ul>' +
           '<p class="muted small" id="res-sum"></p>' +
-          (hasFb ? '<label class="field"><span>' + I('droplet') + 'Quem fez o primeiro abate?</span><select id="res-fb" data-res="first_blood">' + opts(d.first_blood) + '</select></label>' : '') +
+          (has('first_blood') ? '<label class="field"><span>' + I('droplet') + 'Quem fez a primeira kill?</span><select id="res-fb" data-res="first_blood">' + opts(d.first_blood) + '</select></label>' : '') +
           (hasKing ? '<fieldset class="field king-set"><span>' + I('crown') + 'Player Rei: ' + esc(r.king.nick) + '</span><div class="radio-list">' +
             [['killed', 'Foi eliminado'], ['survived', 'Sobreviveu até o fim (bônus é dele)'], ['none', 'Ninguém eliminou (bônus fica no cofre)']].map((o) => '<label class="radio"><input type="radio" name="king" value="' + o[0] + '"' + (d.king_outcome === o[0] ? ' checked' : '') + ' data-res="king_outcome"><span>' + o[1] + '</span></label>').join('') + '</div>' +
             (d.king_outcome === 'killed' ? '<select id="res-kk" data-res="king_killer">' + opts(d.king_killer) + '</select>' : '') + '</fieldset>' : '') +
+          pick('destaque', 'star', 'Destaque da partida', 'Ninguém (bônus fica no cofre)') +
+          pick('clutch', 'zap', 'Quem fez o clutch?', 'Não teve clutch') +
+          pick('line_tatica', 'map', 'Line mais tática (escolha um jogador da line)', 'Nenhuma') +
+          (has('sobrevivente') ? (r.team_size === 1
+            ? '<p class="note-gold">' + I('heart') + '<span>Sobrevivente top 5: os 5 primeiros colocados recebem automaticamente.</span></p>'
+            : '<fieldset class="field"><span>' + I('heart') + 'Últimos 5 vivos (' + d.survivors.length + '/5)</span><div class="check-list">' + r.player_list.map((u) => '<label class="check"><input type="checkbox" data-surv="' + u.id + '"' + (d.survivors.includes(u.id) ? ' checked' : '') + (d.survivors.length >= 5 && !d.survivors.includes(u.id) ? ' disabled' : '') + '><span>' + esc(u.nick) + '</span></label>').join('') + '</div></fieldset>') : '') +
           '<button class="btn gold block lg">' + I('eye') + 'Ver prévia do pagamento</button></form>';
       },
       onMount(s) {
@@ -330,8 +417,17 @@ window.BH = window.BH || {};
           if (t.dataset.id) s.data.rows[t.dataset.id][t.dataset.res] = t.value; else s.data[t.dataset.res] = t.value;
         });
         s.body.addEventListener('change', (e) => {
-          const t = e.target.closest('[data-res]'); if (!t) return;
-          if (!t.dataset.id) { s.data[t.dataset.res] = t.value; if (t.dataset.res === 'king_outcome') s.render('static'); }
+          const t = e.target;
+          if (t.dataset.pick) { s.data.picks[t.dataset.pick] = t.value; return; }
+          if (t.dataset.surv) {
+            const id = t.dataset.surv, list = s.data.survivors;
+            if (t.checked && !list.includes(id) && list.length < 5) list.push(id);
+            if (!t.checked) s.data.survivors = list.filter((x) => x !== id);
+            s.render('static');
+            return;
+          }
+          const x = t.closest('[data-res]'); if (!x) return;
+          if (!x.dataset.id) { s.data[x.dataset.res] = x.value; if (x.dataset.res === 'king_outcome') s.render('static'); }
         });
       }
     });
@@ -358,7 +454,7 @@ window.BH = window.BH || {};
     if (!r) return;
     U.closeAll();
     U.confetti();
-    U.toast(U.cents(r.payout_cents) + ' pagos. Você recebeu ' + U.cents(r.creator_cents) + '.', 'money');
+    U.toast(U.cents(r.payout_cents) + ' pagos.' + (r.official ? '' : ' Você recebeu ' + U.cents(r.creator_cents) + '.'), 'money');
     await api.refreshMe();
     app().refresh();
   };
@@ -366,59 +462,92 @@ window.BH = window.BH || {};
   /* criar / editar sala */
   actions.createRoom = () => flows.roomForm(null);
   actions.roomEdit = async (el) => flows.roomForm(await api.rpc('get_room', { p_id: el.dataset.id }));
-  flows.roomForm = function (room) {
-    const me = api.me, fee = room ? room.fee_pct : me.settings.fee_pct;
+  // promessa máxima da sala (igual ao servidor)
+  function commitOf(d, n) {
+    let total = d.prizes.reduce((a, z) => a + U.toCents(z.value), 0);
+    Object.keys(d.mech).forEach((k) => {
+      const v = U.toCents(d.mech[k]);
+      if (k === 'por_kill') total += v * Math.max(n - 1, 0);
+      else if (k === 'sobrevivente') total += v * Math.min(5, n);
+      else if (k === 'meta_abates') total += v * Math.floor(Math.max(n - 1, 0) / Math.max(Number(d.mechN[k]) || 5, 1));
+      else total += v;
+    });
+    return total;
+  }
+  flows.roomForm = async function (room) {
+    const me = api.me, staff = me.role_level >= 2;
+    const templates = await api.rpc('room_templates').catch(() => []);
     const d = room ? {
       title: room.title, mode: room.mode, team_size: room.team_size, map: room.map, max_players: room.max_players, entry: U.centsInput(room.entry_cents),
       starts: U.localInput(room.starts_at), rules: room.rules, prizes: room.prizes.map((z) => ({ place: z.place, value: U.centsInput(z.cents) })),
-      mech: Object.fromEntries(room.mechanics.map((m) => [m.type, U.centsInput(m.cents)])), guarantee: ''
-    } : { title: '', mode: 'Battle Royale', team_size: 1, map: 'Bermuda', max_players: 48, entry: '2,00', starts: U.localInput(Date.now() + 2 * 3600e3), rules: '', prizes: [{ place: 1, value: '60,00' }], mech: {}, guarantee: '' };
+      mech: Object.fromEntries(room.mechanics.map((m) => [m.type, U.centsInput(m.cents)])), mechN: Object.fromEntries(room.mechanics.filter((m) => m.n).map((m) => [m.type, m.n])),
+      guarantee: '', official: room.official, tier: room.tier || '', theme: room.theme || '', xp_mult: String(room.xp_mult || 1), template_id: room.template_id || ''
+    } : { title: '', mode: 'Battle Royale', team_size: 1, map: 'Bermuda', max_players: 48, entry: '2,00', starts: U.localInput(Date.now() + 2 * 3600e3), rules: '', prizes: [{ place: 1, value: '60,00' }], mech: {}, mechN: {}, guarantee: '', official: staff, tier: '', theme: '', xp_mult: '1', template_id: '' };
     const locked = room && room.players > 0;
+    const fee = () => (room ? Number(room.fee_pct) : Number(me.settings.creator_fee_pct != null ? me.settings.creator_fee_pct : me.settings.fee_pct));
     const calc = () => {
-      const entry = U.toCents(d.entry), n = Number(d.max_players) || 0, g = U.toCents(d.guarantee) + (room ? room.guarantee_cents : 0);
-      const prizes = d.prizes.reduce((a, z) => a + U.toCents(z.value), 0);
-      let fixed = prizes, perKill = 0;
-      Object.keys(d.mech).forEach((k) => { if (d.mech[k] == null) return; if (k === 'por_kill') perKill = U.toCents(d.mech[k]); else fixed += U.toCents(d.mech[k]); });
-      const vault = entry * n + g, commit = fixed + perKill * Math.max(n - 1, 0);
+      const entry = U.toCents(d.entry), n = Number(d.max_players) || 0, g = d.official ? 0 : U.toCents(d.guarantee) + (room ? room.guarantee_cents : 0);
+      const pot = entry * n, commit = commitOf(d, n);
+      const left = Math.max(pot + g - commit, 0);
+      const platform = d.official ? left : Math.min(left, Math.floor(pot * fee() / 100));
       let minN = null;
-      for (let k = 2; k <= n; k++) if (entry * k + g >= fixed + perKill * (k - 1)) { minN = k; break; }
-      const profit = Math.max(0, vault - commit), feeC = Math.floor(profit * fee / 100);
-      return { vault, commit, profit: profit - feeC, feeC, minN, ok: vault >= commit };
+      for (let k = 2; k <= n; k++) if (entry * k + g >= commitOf(d, k)) { minN = k; break; }
+      const minPct = Number(me.settings.min_player_pct) || 0;
+      const balanced = d.official || !entry || commit * 100 >= pot * minPct;
+      return { pot, commit, platform, creator: d.official ? 0 : left - platform, minN, ok: d.official || pot + g >= commit, balanced, minPct, players_n: n };
     };
     const summary = () => {
       const c = calc();
-      return '<div class="calc ' + (c.ok ? '' : 'bad') + '"><span>Com a sala cheia (' + d.max_players + ' jogadores)</span><b>' + U.cents(c.vault) + ' no cofre</b>' +
-        '<small>Premiação máxima: ' + U.cents(c.commit) + ' · sobra para você: ' + U.cents(c.profit) + (c.feeC ? ' (taxa ' + U.cents(c.feeC) + ')' : '') + '</small>' +
-        (c.ok ? '<small>' + (c.minN ? 'A sala pode começar a partir de ' + c.minN + ' inscritos.' : '') + '</small>' : '<small class="red">O cofre não cobre a premiação nem com a sala cheia. Aumente a inscrição, diminua os prêmios ou coloque garantia.</small>') + '</div>';
+      const sp = { pot_cents: c.pot, players_cents: Math.min(c.commit, c.pot), platform_cents: c.platform, creator_cents: c.creator, players_n: c.players_n };
+      return '<div class="calc ' + (c.ok && c.balanced ? '' : 'bad') + '"><span>Com a sala cheia (' + d.max_players + ' jogadores)</span><b>' + U.cents(c.pot) + ' de arrecadação</b>' +
+        (c.pot ? splitBar(sp, d.official) : '') +
+        '<small>Premiação máxima: ' + U.cents(c.commit) + (d.official ? ' · a plataforma garante e fica com a sobra' : ' · plataforma ' + fee() + '% da arrecadação (' + U.cents(c.platform) + ') · você ' + U.cents(c.creator)) + '</small>' +
+        (!c.balanced ? '<small class="red">Os jogadores precisam poder receber pelo menos ' + c.minPct + '% da arrecadação. Aumente a premiação.</small>' : '') +
+        (d.official ? '' : c.ok ? '<small>' + (c.minN ? 'A sala pode começar a partir de ' + c.minN + ' inscritos.' : '') + '</small>' : '<small class="red">O cofre não cobre a premiação nem com a sala cheia. Aumente a inscrição, diminua os prêmios ou coloque garantia.</small>') + '</div>';
     };
     const opt = (list, v) => list.map((x) => '<option' + (String(x) === String(v) ? ' selected' : '') + '>' + esc(x) + '</option>').join('');
+    const lineHint = () => (Number(d.team_size) > 1 && U.toCents(d.entry) ? '= ' + U.cents(U.toCents(d.entry) * Number(d.team_size)) + ' por ' + LINE[d.team_size] + ' · ' + Math.floor(Number(d.max_players) / Number(d.team_size)) + ' ' + LINE[d.team_size] + 's' : '');
+    const todayTheme = () => { const t = (me.settings.daily_themes || []).find((x) => x.dow === new Date().getDay()); return t; };
     U.sheet({
       title: room ? 'Editar sala #' + room.code : 'Criar sala', size: 'lg', data: d, loading: false,
-      body: () => '<form class="form room-form" data-form="roomSave" data-id="' + (room ? room.id : '') + '">' +
-        '<label class="field"><span>Nome da sala</span><input id="rf-title" data-rf="title" maxlength="60" required placeholder="Ex.: Copa da Quebrada #1" value="' + esc(d.title) + '"></label>' +
+      body: () => {
+        const mechs = (me.mechanics || []).filter((m) => !m.team_only || Number(d.team_size) > 1);
+        const th = todayTheme();
+        return '<form class="form room-form" data-form="roomSave" data-id="' + (room ? room.id : '') + '">' +
+        (!room && templates.length ? '<div class="field"><span>Começar de um modelo</span><div class="tpl-row">' + templates.map((t) => '<button type="button" class="tpl ripple t-' + esc(t.tier) + (d.template_id === t.id ? ' on' : '') + '" data-act="rfTpl" data-v="' + esc(t.id) + '"><b>' + esc(t.name) + '</b><small>' + (t.entry_cents ? U.cents(t.entry_cents) : 'Grátis') + ' · ' + (TEAM[t.team_size] || '') + '</small></button>').join('') + '</div></div>' : '') +
+        (staff && !room ? '<label class="switch"><input type="checkbox" data-rfb="official"' + (d.official ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span>Sala oficial da plataforma <small>A plataforma garante o prêmio e fica com a sobra</small></span></label>' : '') +
+        '<label class="field"><span>Nome da sala</span><input id="rf-title" data-rf="title" maxlength="60" required placeholder="Ex.: Sala Elite das 21h" value="' + esc(d.title) + '"></label>' +
         '<div class="grid2"><label class="field"><span>Modo</span><select id="rf-mode" data-rf="mode">' + opt(MODES, d.mode) + '</select></label>' +
         '<label class="field"><span>Mapa</span><select id="rf-map" data-rf="map">' + opt(MAPS, d.map) + '</select></label></div>' +
+        (d.official ? '<div class="grid2"><label class="field"><span>Nível</span><select id="rf-tier" data-rf="tier"><option value="">Sem nível</option>' + Object.keys(TIERS).map((k) => '<option value="' + k + '"' + (d.tier === k ? ' selected' : '') + '>' + TIERS[k][0] + '</option>').join('') + '</select></label>' +
+          '<label class="field"><span>XP</span><select id="rf-xp" data-rf="xp_mult">' + [['1', 'Normal'], ['1.5', 'XP x1,5'], ['2', 'XP em dobro']].map((x) => '<option value="' + x[0] + '"' + (d.xp_mult === x[0] ? ' selected' : '') + '>' + x[1] + '</option>').join('') + '</select></label></div>' : '') +
         '<div class="field"><span>Formato</span>' + U.seg('rf-team', [{ id: '1', label: 'Solo' }, { id: '2', label: 'Dupla' }, { id: '4', label: 'Squad' }], String(d.team_size), 'rfTeam') + '</div>' +
-        '<div class="grid2"><label class="field"><span>Vagas</span><input id="rf-max" data-rf="max_players" type="number" inputmode="numeric" min="2" max="100" value="' + esc(d.max_players) + '"></label>' +
+        '<div class="grid2"><label class="field"><span>Vagas (jogadores)</span><input id="rf-max" data-rf="max_players" type="number" inputmode="numeric" min="2" max="100" value="' + esc(d.max_players) + '"></label>' +
         '<label class="field money-field"><span>Inscrição por jogador</span><b>R$</b><input id="rf-entry" data-rf="entry" inputmode="decimal" value="' + esc(d.entry) + '"></label></div>' +
+        '<p class="muted small" id="rf-line">' + lineHint() + '</p>' +
         '<label class="field"><span>Início</span><input id="rf-start" data-rf="starts" type="datetime-local" required value="' + esc(d.starts) + '"></label>' +
         '<h3 class="form-h">' + I('trophy') + 'Premiação por colocação</h3>' +
         '<ul class="prize-rows">' + d.prizes.map((z, i) => '<li><span class="medal m-' + (z.place === 1 ? 'gold' : z.place === 2 ? 'silver' : z.place === 3 ? 'bronze' : 'slate') + '">' + z.place + 'º</span><label class="field money-field grow"><b>R$</b><input id="rf-prize-' + i + '" data-prize="' + i + '" inputmode="decimal" value="' + esc(z.value) + '" aria-label="Prêmio do ' + z.place + 'º lugar"></label>' +
           (d.prizes.length > 1 ? '<button type="button" class="icon-btn" data-act="rfPrizeDel" data-v="' + i + '" aria-label="Remover">' + I('trash') + '</button>' : '') + '</li>').join('') + '</ul>' +
         (d.prizes.length < 10 ? '<button type="button" class="btn ghost sm" data-act="rfPrizeAdd">' + I('plus') + 'Adicionar ' + (d.prizes.length + 1) + 'º lugar</button>' : '') +
-        '<h3 class="form-h">' + I('sparkles') + 'Mecânicas</h3><ul class="mech-pick">' + ((me.mechanics) || []).map((m) => {
+        '<header class="form-h row"><span>' + I('sparkles') + 'Mecânicas</span>' + (th ? '<button type="button" class="btn outline sm" data-act="rfTheme">' + I('calendar') + 'Usar evento do dia: ' + esc(th.name) + '</button>' : '') + '</header>' +
+        (d.theme ? '<p class="chip-line">' + I('calendar') + esc(d.theme) + ' <button type="button" class="link" data-act="rfThemeOff">tirar</button></p>' : '') +
+        '<ul class="mech-pick">' + mechs.map((m) => {
           const on = d.mech[m.id] != null;
-          return '<li class="' + (on ? 'on' : '') + '"><label class="switch"><input type="checkbox" data-mech="' + m.id + '"' + (on ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span><b>' + I((MECH[m.id] || {}).icon || 'star') + esc(m.name) + '</b><small>' + esc(m.description) + '</small></span></label>' +
-            (on ? '<label class="field money-field"><b>R$</b><input id="rf-mech-' + m.id + '" data-mechv="' + m.id + '" inputmode="decimal" value="' + esc(d.mech[m.id]) + '" aria-label="Valor de ' + esc(m.name) + '"><em>' + (m.id === 'por_kill' ? 'por abate' : 'bônus') + '</em></label>' : '') + '</li>';
+          return '<li class="' + (on ? 'on' : '') + '"><label class="switch"><input type="checkbox" data-mech="' + m.id + '"' + (on ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span><b>' + I((MECH[m.id] || {}).icon || 'star') + esc(m.name) + (m.manual ? '<em class="chip">você escolhe</em>' : '') + '</b><small>' + esc(m.description) + '</small></span></label>' +
+            (on ? '<div class="mech-vals"><label class="field money-field"><b>R$</b><input id="rf-mech-' + m.id + '" data-mechv="' + m.id + '" inputmode="decimal" value="' + esc(d.mech[m.id]) + '" aria-label="Valor de ' + esc(m.name) + '"><em>' + (m.unit === 'abate' ? 'por abate' : m.unit === 'jogador' ? 'por jogador' : 'bônus') + '</em></label>' +
+              (m.has_n ? '<label class="field"><span>Meta</span><input id="rf-mechn-' + m.id + '" data-mechn="' + m.id + '" type="number" inputmode="numeric" min="1" max="30" value="' + esc(d.mechN[m.id] || 5) + '" aria-label="Meta de abates"></label>' : '') + '</div>' : '') + '</li>';
         }).join('') + '</ul>' +
-        '<h3 class="form-h">' + I('vault') + 'Cofre</h3>' +
-        '<label class="field money-field"><span>Garantia (opcional, sai da sua carteira)</span><b>R$</b><input id="rf-guar" data-rf="guarantee" inputmode="decimal" placeholder="0,00" value="' + esc(d.guarantee) + '"></label>' +
+        '<h3 class="form-h">' + I('vault') + 'Cofre e divisão</h3>' +
+        (d.official ? '' : '<label class="field money-field"><span>Garantia (opcional, sai da sua carteira)</span><b>R$</b><input id="rf-guar" data-rf="guarantee" inputmode="decimal" placeholder="0,00" value="' + esc(d.guarantee) + '"></label>') +
         '<div id="rf-calc">' + summary() + '</div>' +
         '<label class="field"><span>Regras</span><textarea id="rf-rules" data-rf="rules" rows="3" maxlength="1500" placeholder="Ex.: proibido emulador, print do resultado no chat da sala">' + esc(d.rules) + '</textarea></label>' +
-        (locked ? '<p class="note-gold">' + I('info') + '<span>Já há inscritos: a premiação só pode aumentar. Quem já pagou mantém o valor pago.</span></p>' : '') +
-        '<button class="btn primary block lg">' + I(room ? 'check' : 'plus') + (room ? 'Salvar alterações' : 'Publicar sala') + '</button></form>',
+        (locked ? '<p class="note-gold">' + I('info') + '<span>Já há inscritos: a premiação só pode aumentar e o valor da inscrição não muda.</span></p>' : '') +
+        '<button class="btn primary block lg">' + I(room ? 'check' : 'plus') + (room ? 'Salvar alterações' : d.official ? 'Publicar sala oficial' : 'Publicar sala') + '</button></form>';
+      },
       onMount(s) {
-        const upd = () => { const c = s.body.querySelector('#rf-calc'); if (c) c.innerHTML = summary(); };
+        const upd = () => { const c = s.body.querySelector('#rf-calc'); if (c) c.innerHTML = summary(); const l = s.body.querySelector('#rf-line'); if (l) l.textContent = lineHint(); };
+        s._upd = upd;
         if (s._wired) return;
         s._wired = true;
         s.body.addEventListener('input', (e) => {
@@ -426,27 +555,66 @@ window.BH = window.BH || {};
           if (t.dataset.rf) d[t.dataset.rf] = t.value;
           if (t.dataset.prize != null) d.prizes[Number(t.dataset.prize)].value = t.value;
           if (t.dataset.mechv) d.mech[t.dataset.mechv] = t.value;
+          if (t.dataset.mechn) d.mechN[t.dataset.mechn] = t.value;
           upd();
         });
         s.body.addEventListener('change', (e) => {
           const t = e.target;
-          if (t.dataset.rf) d[t.dataset.rf] = t.value;
-          if (t.dataset.mech) { if (t.checked) d.mech[t.dataset.mech] = t.dataset.mech === 'por_kill' ? '1,00' : '10,00'; else delete d.mech[t.dataset.mech]; s.render('static'); }
+          if (t.dataset.rf) { d[t.dataset.rf] = t.value; upd(); }
+          if (t.dataset.rfb) { d[t.dataset.rfb] = t.checked; s.render('static'); }
+          if (t.dataset.mech) {
+            const m = (me.mechanics || []).find((x) => x.id === t.dataset.mech) || {};
+            if (t.checked) d.mech[t.dataset.mech] = m.unit === 'abate' ? '1,00' : m.unit === 'jogador' ? '3,00' : '10,00'; else delete d.mech[t.dataset.mech];
+            s.render('static');
+          }
         });
       }
     });
   };
-  actions.rfTeam = (el) => { const s = U.topSheet(); s.data.team_size = Number(el.dataset.v); s.render('static'); };
+  actions.rfTeam = (el) => {
+    const s = U.topSheet(), d = s.data;
+    d.team_size = Number(el.dataset.v);
+    if (d.team_size === 1) (api.me.mechanics || []).filter((m) => m.team_only).forEach((m) => { delete d.mech[m.id]; });
+    s.render('static');
+  };
   actions.rfPrizeAdd = () => { const s = U.topSheet(); s.data.prizes.push({ place: s.data.prizes.length + 1, value: '10,00' }); s.render('static'); };
   actions.rfPrizeDel = (el) => { const s = U.topSheet(); s.data.prizes.splice(Number(el.dataset.v), 1); s.data.prizes.forEach((z, i) => { z.place = i + 1; }); s.render('static'); };
+  actions.rfTpl = async function (el) {
+    const s = U.topSheet(), d = s.data;
+    const list = await api.rpc('room_templates');
+    const t = list.find((x) => x.id === el.dataset.v);
+    if (!t) return;
+    Object.assign(d, {
+      template_id: t.id, title: d.title || t.name, mode: t.mode, team_size: t.team_size, map: t.map, max_players: t.max_players, entry: U.centsInput(t.entry_cents),
+      rules: t.rules, tier: t.tier, xp_mult: String(t.xp_mult || 1),
+      prizes: t.prizes.length ? t.prizes.map((z) => ({ place: z.place, value: U.centsInput(z.cents) })) : [{ place: 1, value: '0,00' }],
+      mech: Object.fromEntries(t.mechanics.map((m) => [m.type, U.centsInput(m.cents)])), mechN: Object.fromEntries(t.mechanics.filter((m) => m.n).map((m) => [m.type, m.n]))
+    });
+    if (t.official_only) d.official = true;
+    s.render('static');
+    U.toast('Modelo ' + t.name + ' aplicado. Ajuste o que quiser.', 'info');
+  };
+  // evento do dia: soma a base fixa com as mecânicas do tema de hoje
+  actions.rfTheme = function () {
+    const s = U.topSheet(), d = s.data, set = api.me.settings;
+    const t = (set.daily_themes || []).find((x) => x.dow === new Date().getDay());
+    if (!t) return;
+    const base = set.daily_base || {};
+    (base.mechanics || []).concat(t.mechanics || []).forEach((m) => { d.mech[m.type] = U.centsInput(m.cents); });
+    if (base.prizes && base.prizes.length && d.official) d.prizes = base.prizes.map((z) => ({ place: z.place, value: U.centsInput(z.cents) }));
+    d.theme = DOW[t.dow] + ' · ' + t.name;
+    s.render('static');
+  };
+  actions.rfThemeOff = () => { const s = U.topSheet(); s.data.theme = ''; s.render('static'); };
   forms.roomSave = async function (f) {
     const s = U.topSheet(), d = s.data, id = f.dataset.id;
     const p = {
       title: d.title, mode: d.mode, team_size: Number(d.team_size), map: d.map, max_players: Number(d.max_players), entry_cents: U.toCents(d.entry),
       starts_at: new Date(d.starts).toISOString(), rules: d.rules,
       prizes: d.prizes.map((z) => ({ place: z.place, cents: U.toCents(z.value) })).filter((z) => z.cents > 0),
-      mechanics: Object.keys(d.mech).map((k) => ({ type: k, cents: U.toCents(d.mech[k]) })).filter((m) => m.cents > 0),
-      guarantee_cents: U.toCents(d.guarantee)
+      mechanics: Object.keys(d.mech).map((k) => Object.assign({ type: k, cents: U.toCents(d.mech[k]) }, d.mechN[k] ? { n: Number(d.mechN[k]) } : {})).filter((m) => m.cents > 0),
+      guarantee_cents: d.official ? 0 : U.toCents(d.guarantee),
+      official: !!d.official, tier: d.tier || null, theme: d.theme || null, xp_mult: Number(d.xp_mult) || 1, template_id: d.template_id || null
     };
     const r = await U.run(f.querySelector('button.primary'), async () => {
       const room = id ? await api.rpc('update_room', { p_id: id, p }) : await api.rpc('create_room', { p });

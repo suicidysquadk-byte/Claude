@@ -9,7 +9,10 @@ window.BH = window.BH || {};
   const LEDGER = {
     deposito: ['Depósito', 'arrowIn'], saque: ['Saque', 'arrowOut'], saque_estorno: ['Saque devolvido', 'refresh'], inscricao: ['Inscrição', 'gamepad'],
     reembolso: ['Reembolso', 'refresh'], premio: ['Prêmio', 'trophy'], first_blood: ['Primeiro abate', 'droplet'], rei: ['Player Rei', 'crown'],
-    por_kill: ['Abates', 'crosshair'], mvp: ['MVP', 'trophy'], sorteio: ['Sorteio', 'dice'], lucro_sala: ['Sobra da sala', 'vault'], garantia: ['Garantia', 'vault'],
+    por_kill: ['Abates', 'crosshair'], mvp: ['Líder de abates', 'trophy'], sorteio: ['Sorteio', 'dice'], lucro_sala: ['Sobra da sala', 'vault'], garantia: ['Garantia', 'vault'],
+    booyah: ['Booyah', 'medal'], rei_lobby: ['Rei do lobby', 'crown'], destaque: ['Destaque', 'star'], sobrevivente: ['Top 5 vivo', 'heart'], meta_abates: ['Meta de abates', 'target'],
+    clutch: ['Clutch', 'zap'], line_agressiva: ['Line agressiva', 'flame'], line_tatica: ['Line tática', 'map'], dominio: ['Domínio absoluto', 'gem'],
+    evento_premio: ['Prêmio de evento', 'trophy'], evento_bonus: ['Bônus de evento', 'medal'], inscricao_evento: ['Inscrição em evento', 'trophy'],
     cofre_guilda: ['Cofre da guilda', 'shield'], salario_guilda: ['Salário da guilda', 'shield'], compra: ['Loja', 'bag'], ajuste: ['Ajuste', 'sliders']
   };
   BH.ledgerRow = function (l) {
