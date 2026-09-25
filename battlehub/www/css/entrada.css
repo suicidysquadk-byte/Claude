@@ -1,0 +1,141 @@
+/* BattleHub · entrada do app
+   1) Abertura: um ponto vira linha, a linha desenha a coroa com os pontos de construção, a coroa ganha cor,
+      o nome aparece em itálico e a coroa dá um zoom para dentro da tela, abrindo o login.
+   2) Boas-vindas (primeira vez): mural inclinado com telas do app correndo devagar.
+   3) Login: título em itálico, raio de vez em quando no alto e o cartão claro subindo de baixo. */
+
+/* ---------------- abertura ---------------- */
+#splash.intro { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; background: radial-gradient(120% 80% at 50% 40%, #18181c, #0b0b0d 70%); transition: background-color .4s; }
+.intro-stage { display: grid; justify-items: center; gap: 10px; transform: translateY(18px); animation: intro-up .5s var(--ease-out) 1.75s forwards; }
+.intro-mark { width: 128px; height: 128px; overflow: visible; transform-origin: 50% 55%; }
+.intro-mark .base-line, .intro-mark .outline { fill: none; stroke: #e9e4d8; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.intro-mark .base-line { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw-line .35s ease-out .35s forwards; }
+.intro-mark .outline { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw-line .8s cubic-bezier(.5, 0, .3, 1) .65s forwards, fade-out .35s ease 1.55s forwards; }
+.intro-mark .dot { fill: #fff; opacity: 0; animation: dot-in .3s ease-out .1s forwards, fade-out .2s ease .7s forwards; filter: drop-shadow(0 0 4px rgba(255, 255, 255, .9)); }
+.intro-mark .node { fill: #0b0b0d; stroke: #cfc9bb; stroke-width: 1; opacity: 0; animation: node-in .25s ease-out forwards, fade-out .3s ease 1.55s forwards; animation-delay: var(--d), 1.55s; }
+.intro-mark .fill { opacity: 0; animation: fill-in .45s ease-out 1.35s forwards; }
+.intro-mark .gem { opacity: 0; transform-box: fill-box; transform-origin: center; animation: gem-in .35s var(--spring) forwards; animation-delay: var(--d); }
+.intro-word { font: 700 italic 38px/1 'Playfair Display', Georgia, serif; color: #f4f2ee; opacity: 0; transform: translateY(8px); animation: rise-in .5s var(--ease-out) 1.85s forwards; }
+.intro-word b { color: var(--gold); font-weight: 700; }
+.intro-rule { width: 38px; height: 2px; border-radius: 2px; background: var(--gold); transform: scaleX(0); animation: grow-x .4s var(--ease-out) 2.1s forwards; }
+.intro-tag { font-size: 13.5px; color: var(--muted); opacity: 0; animation: fade-in-to .5s ease 2.2s forwards; }
+@keyframes draw-line { to { stroke-dashoffset: 0; } }
+@keyframes dot-in { from { opacity: 0; transform: scale(.2); } to { opacity: 1; transform: none; } }
+@keyframes node-in { from { opacity: 0; transform: scale(.3); } to { opacity: 1; transform: none; } }
+@keyframes fill-in { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+@keyframes gem-in { from { opacity: 0; transform: scale(.2); } to { opacity: 1; transform: none; } }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes fade-in-to { to { opacity: 1; } }
+@keyframes rise-in { to { opacity: 1; transform: none; } }
+@keyframes intro-up { to { transform: none; } }
+.intro-mark .fill, .intro-mark .node { transform-box: fill-box; transform-origin: center; }
+/* abertura curta (quem já viu): só a coroa aparece e dá o zoom */
+#splash.intro.intro-fast .intro-stage { animation-delay: .5s; animation-duration: .35s; }
+#splash.intro.intro-fast .base-line { animation-delay: 0s; animation-duration: .2s; }
+#splash.intro.intro-fast .outline { animation-duration: .45s, .25s; animation-delay: .15s, .6s; }
+#splash.intro.intro-fast .dot { animation-delay: 0s, .25s; }
+#splash.intro.intro-fast .node { animation-delay: calc(var(--d) * .5 - .2s), .6s; }
+#splash.intro.intro-fast .fill { animation-delay: .5s; animation-duration: .3s; }
+#splash.intro.intro-fast .gem { animation-delay: calc(var(--d) * .5 - .2s); }
+#splash.intro.intro-fast .intro-word { animation-delay: .55s; animation-duration: .35s; }
+#splash.intro.intro-fast .intro-rule { animation-delay: .65s; }
+#splash.intro.intro-fast .intro-tag { animation-delay: .7s; }
+/* saída: a coroa entra na tela e revela o app */
+#splash.intro.zoom { background: transparent; pointer-events: none; transition: background .45s ease .3s; }
+#splash.intro.zoom .intro-stage > :not(.intro-mark) { opacity: 0 !important; transition: opacity .2s; animation: none; }
+#splash.intro.zoom .intro-mark { transform: scale(16); opacity: 0; transition: transform .7s cubic-bezier(.55, 0, .7, .25), opacity .28s ease .42s; }
+body.intro-wait .auth-anim, body.intro-wait .auth-anim * { animation-play-state: paused !important; }
+
+/* ---------------- boas-vindas: mural de telas ---------------- */
+.welcome { position: fixed; inset: 0; overflow: hidden; background: #0b0b0d; }
+.wall { position: absolute; left: 50%; top: 42%; width: 190%; display: flex; gap: 14px; justify-content: center; transform: translate(-50%, -50%) rotate(-14deg); opacity: .9; }
+.wall-col { display: grid; gap: 14px; flex: none; width: 31%; max-width: 230px; animation: wall-up 40s linear infinite; will-change: transform; }
+.wall-col:nth-child(2) { animation-name: wall-down; animation-duration: 46s; margin-top: -120px; }
+.wall-col:nth-child(3) { animation-duration: 52s; margin-top: -40px; }
+.wall-col img { width: 100%; height: auto; border-radius: 18px; border: 1px solid rgba(255, 255, 255, .08); box-shadow: 0 18px 30px -18px rgba(0, 0, 0, .9); display: block; }
+@keyframes wall-up { from { transform: translateY(0); } to { transform: translateY(-50%); } }
+@keyframes wall-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
+.welcome-fade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11, 11, 13, .35) 0%, rgba(11, 11, 13, .15) 30%, rgba(11, 11, 13, .88) 62%, #0b0b0d 78%); }
+.welcome-body { position: absolute; left: 0; right: 0; bottom: 0; display: grid; gap: 14px; padding: 24px 22px calc(26px + var(--safe-b)); max-width: 520px; margin: 0 auto; text-align: center; }
+.welcome-body h1 { font: 700 italic 32px/1.1 'Playfair Display', Georgia, serif; color: #f4f2ee; text-wrap: balance; animation: rise-in .6s var(--ease-out) .15s backwards; opacity: 1; transform: none; }
+.welcome-body h1 b { color: var(--gold); font-weight: 700; }
+.welcome-body p { color: var(--text-2); font-size: 15px; line-height: 1.5; animation: fade-up .6s var(--ease-out) .25s backwards; }
+.welcome-body .btn { animation: fade-up .6s var(--ease-out) .35s backwards; }
+.welcome-body small { color: var(--muted); font-size: 12.5px; animation: fade-up .6s var(--ease-out) .45s backwards; }
+
+/* ---------------- login ---------------- */
+.auth { position: fixed; inset: 0; display: flex; flex-direction: column; overflow-y: auto; background: radial-gradient(120% 60% at 50% 0%, #1c1c21, #0b0b0d 70%); }
+.auth-top { position: relative; flex: none; display: grid; justify-items: center; gap: 10px; padding: calc(56px + var(--safe-t)) 24px 34px; text-align: center; overflow: hidden; }
+.auth-brand { display: inline-flex; align-items: center; gap: 10px; animation: fade-up .5s var(--ease-out) .05s backwards; }
+.auth-brand .logo-mark { width: 34px; height: 34px; border-radius: 10px; }
+.auth-brand .logo-mark .ic { width: 18px; height: 18px; }
+.auth-word { font: 700 italic 22px/1 'Playfair Display', Georgia, serif; color: #f4f2ee; }
+.auth-word b { color: var(--gold); font-weight: 700; }
+.auth-title { margin-top: 14px; font: 700 italic 36px/1.05 'Playfair Display', Georgia, serif; color: #fff; animation: fade-up .55s var(--ease-out) .15s backwards; }
+.auth-sub { color: var(--muted); font-size: 14.5px; max-width: 32ch; animation: fade-up .55s var(--ease-out) .25s backwards; }
+.auth-bolt { position: absolute; left: 6%; top: -10px; width: 70px; height: 230px; opacity: 0; pointer-events: none; animation: bolt-flash 7s linear 1.2s infinite; }
+.auth-bolt path { fill: none; stroke: #e9ecff; stroke-width: 1.6; stroke-linejoin: round; filter: drop-shadow(0 0 6px rgba(190, 205, 255, .9)); }
+.auth-top::after { content: ''; position: absolute; inset: 0; background: radial-gradient(60% 80% at 15% 0%, rgba(200, 210, 255, .22), transparent 70%); opacity: 0; pointer-events: none; animation: sky-flash 7s linear 1.2s infinite; }
+@keyframes bolt-flash { 0%, 80%, 100% { opacity: 0; } 81%, 84% { opacity: 1; } 82.5% { opacity: .2; } 86% { opacity: 0; } }
+@keyframes sky-flash { 0%, 80%, 100% { opacity: 0; } 81%, 84% { opacity: 1; } 82.5% { opacity: .3; } 88% { opacity: 0; } }
+
+.auth-card {
+  /* cores do cartão: escuro no tema Preto, claro no tema Branco */
+  --ac-bg: #141417; --ac-text: #f4f2ee; --ac-muted: #8f8c86; --ac-soft: #6f6c66; --ac-input: #1c1c21; --ac-input-focus: #202026;
+  --ac-tabs: #1c1c21; --ac-tab: #8f8c86; --ac-tab-on: #f1ede4; --ac-tab-on-text: #141417; --ac-line: #2a2a30; --ac-btn: #c9a24d; --ac-btn-text: #17130b;
+  --ac-btn-hover: #d3ad5b; --ac-link: #dcbd78; --ac-sent: rgba(201, 162, 77, .1); --ac-sent-text: #c9c6bf; --ac-google: #1c1c21; --ac-google-text: #f4f2ee; --ac-google-line: #2f2f36;
+  flex: 1; display: grid; align-content: start; gap: 16px; width: 100%; max-width: 520px; margin: 0 auto;
+  padding: 22px 20px calc(24px + var(--safe-b)); border-radius: 30px 30px 0 0; background: var(--ac-bg); color: var(--ac-text);
+  border-top: 1px solid var(--ac-line); box-shadow: 0 -20px 40px -20px rgba(0, 0, 0, .7);
+  animation: card-up .7s cubic-bezier(.2, .9, .25, 1) .3s backwards;
+}
+:root[data-theme="light"] .auth-card {
+  --ac-bg: #ffffff; --ac-text: #17171a; --ac-muted: #6b6962; --ac-soft: #8a877f; --ac-input: #f0ede6; --ac-input-focus: #ffffff;
+  --ac-tabs: #eeebe4; --ac-tab: #5b5953; --ac-tab-on: #141417; --ac-tab-on-text: #ffffff; --ac-line: #e6e2d9; --ac-btn: #17171a; --ac-btn-text: #ffffff;
+  --ac-btn-hover: #26262b; --ac-link: #8c6d2c; --ac-sent: #f3eddf; --ac-sent-text: #4a473f; --ac-google: #ffffff; --ac-google-text: #17171a; --ac-google-line: #e2dfd7;
+  box-shadow: 0 -20px 40px -24px rgba(60, 50, 30, .35);
+}
+@keyframes card-up { from { transform: translateY(100%); } }
+.auth-card .muted, .auth-card small { color: var(--ac-muted); }
+.auth-tabs { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 14px; background: var(--ac-tabs); }
+.auth-tabs button { height: 42px; border-radius: 11px; font-weight: 700; font-size: 14px; color: var(--ac-tab); transition: background .25s, color .25s; }
+.auth-tabs button.on { background: var(--ac-tab-on); color: var(--ac-tab-on-text); box-shadow: 0 6px 14px -8px rgba(0, 0, 0, .7); }
+.auth-field { position: relative; display: block; }
+.auth-field > .ic { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--ac-soft); pointer-events: none; }
+.auth-field input { width: 100%; height: 56px; padding: 0 16px 0 46px; border-radius: 16px; border: 1.5px solid transparent; background: var(--ac-input); color: var(--ac-text); font-size: 16px; outline: none; transition: border-color .2s, background .2s; }
+.auth-field input::placeholder { color: var(--ac-soft); }
+.auth-field input:focus { border-color: #c9a24d; background: var(--ac-input-focus); }
+.auth-card .btn.primary { background: var(--ac-btn); color: var(--ac-btn-text); height: 54px; border-radius: 16px; box-shadow: none; }
+.auth-card .btn.primary:hover { background: var(--ac-btn-hover); }
+:root[data-theme="light"] .auth-card .btn.primary .ic { color: var(--gold); }
+.auth-card .btn.primary.is-busy::after { border-color: rgba(128, 128, 128, .35); border-top-color: var(--ac-btn-text); }
+.auth-or { display: flex; align-items: center; gap: 12px; color: var(--ac-soft); font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.auth-or::before, .auth-or::after { content: ''; flex: 1; height: 1px; background: var(--ac-line); }
+.auth-card .btn.google { background: var(--ac-google); color: var(--ac-google-text); border: 1.5px solid var(--ac-google-line); height: 52px; border-radius: 16px; box-shadow: none; }
+.auth-foot { text-align: center; font-size: 13.5px; color: var(--ac-muted); }
+.auth-foot .link, .auth-card .link { color: var(--ac-link); }
+.auth-terms { text-align: center; font-size: 11.5px; line-height: 1.45; color: var(--ac-soft); }
+.auth-sent { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: var(--ac-sent); color: var(--ac-sent-text); font-size: 13.5px; }
+.auth-sent b { color: var(--ac-text); }
+.auth-sent .ic { color: var(--ac-link); margin-top: 2px; flex: none; }
+.auth-card .field > span { color: var(--ac-sent-text); }
+.auth-card .login-links { display: flex; justify-content: space-between; gap: 10px; }
+.auth-card .login-links .link:disabled { color: var(--ac-soft); }
+
+/* trocar de aba ou de passo não repete a entrada */
+.auth.no-enter .auth-card, .auth.no-enter .auth-brand, .auth.no-enter .auth-title, .auth.no-enter .auth-sub { animation: none; }
+.auth.no-enter .auth-bolt, .auth.no-enter .auth-top::after { animation-delay: 0s; }
+
+@media (min-width: 720px) {
+  .auth-card { border-radius: 30px; margin-bottom: 40px; flex: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #splash.intro *, .wall-col, .auth-bolt, .auth-top::after, .auth-card, .auth-anim * { animation: none !important; }
+  #splash.intro .intro-word, #splash.intro .intro-tag, #splash.intro .fill, #splash.intro .gem { opacity: 1; transform: none; }
+  #splash.intro .outline, #splash.intro .node, #splash.intro .dot { opacity: 0; }
+  #splash.intro .intro-rule { transform: none; }
+}
+
+/* verificação depois do login: mesmo título da entrada */
+.vs-title { font: 700 italic 28px/1.1 'Playfair Display', Georgia, serif; }
+.vs-shield { background: #16161a; color: var(--gold); box-shadow: inset 0 0 0 1.5px rgba(201, 162, 77, .55); animation: none; }

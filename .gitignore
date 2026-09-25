@@ -18,3 +18,6 @@ tmp/
 # Python
 __pycache__/
 *.pyc
+
+# Dependências do app BattleHub
+node_modules/

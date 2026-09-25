@@ -1,0 +1,18 @@
+{
+  "appId": "gg.battlehub.app",
+  "appName": "BattleHub",
+  "webDir": "www",
+  "backgroundColor": "#070605",
+  "android": {
+    "backgroundColor": "#070605",
+    "allowMixedContent": false,
+    "captureInput": true
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css",
+      "style": "DARK",
+      "initialViewportFitValueHint": "cover"
+    }
+  }
+}
