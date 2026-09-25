@@ -53,13 +53,26 @@ window.BH = window.BH || {};
   api.session = async () => (sb ? (await sb.auth.getSession()).data.session : null);
   api.onAuth = (cb) => (sb ? sb.auth.onAuthStateChange((event, session) => cb(event, session)) : null);
   api.sendCode = async function (email) {
-    const { error } = await sb.auth.signInWithOtp({ email: String(email || '').trim().toLowerCase(), options: { shouldCreateUser: true } });
+    // o e-mail traz um código ou um botão "Entrar"; o botão volta direto para o app (gg.battlehub.app://auth)
+    const back = native ? (C.appScheme || 'gg.battlehub.app') + '://auth' : location.origin + location.pathname;
+    const { error } = await sb.auth.signInWithOtp({ email: String(email || '').trim().toLowerCase(), options: { shouldCreateUser: true, emailRedirectTo: back } });
     if (error) throw fail(error);
   };
   api.verifyCode = async function (email, code) {
     const { data, error } = await sb.auth.verifyOtp({ email: String(email || '').trim().toLowerCase(), token: String(code || '').replace(/\D/g, ''), type: 'email' });
     if (error) throw fail(error);
     return data.session;
+  };
+  // quais formas de login estão ligadas no servidor (o botão do Google só aparece se estiver ativo)
+  let providers = null;
+  api.providers = async function () {
+    if (providers) return providers;
+    try {
+      const r = await fetch(C.supabaseUrl + '/auth/v1/settings', { headers: { apikey: C.supabaseAnonKey } });
+      const d = await r.json();
+      providers = { google: !!(d.external && d.external.google), email: !(d.external && d.external.email === false) };
+    } catch (e) { return { google: true, email: true }; }
+    return providers;
   };
   api.signInGoogle = async function () {
     if (native) {

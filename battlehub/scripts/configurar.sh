@@ -48,6 +48,7 @@ cfg = {
   'site_url': url,
   'uri_allow_list': 'gg.battlehub.app://auth,' + url,
   'mailer_otp_exp': 600,
+  'mailer_otp_length': 6,
   'mailer_subjects_magic_link': 'Seu código do BattleHub',
   'mailer_templates_magic_link_content': code,
   'mailer_subjects_confirmation': 'Seu código do BattleHub',

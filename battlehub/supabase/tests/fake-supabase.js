@@ -98,6 +98,7 @@ http.createServer(async (req, res) => {
       return send(res, 200, { id: c.sub, aud: 'authenticated', role: 'authenticated', email: c.email, email_confirmed_at: new Date().toISOString(), app_metadata: { provider: 'email' }, user_metadata: {} });
     }
     if (p === '/auth/v1/logout') return send(res, 204, null);
+    if (p === '/auth/v1/settings') return send(res, 200, { external: { email: true, google: true }, disable_signup: false });
     if (p.startsWith('/functions/v1/')) { await readBody(req); return send(res, 501, { error: 'mp_nao_configurado' }); }
     if (p.startsWith('/storage/v1/object/sign/') && req.method === 'POST') {
       await readBody(req);

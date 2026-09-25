@@ -21,19 +21,20 @@ window.BH = window.BH || {};
   };
 
   /* ---------------- login ---------------- */
-  pages.login = function () {
+  pages.login = async function () {
     const a = st.auth;
+    const pv = await api.providers();
     const wait = Math.max(0, 60 - Math.floor((Date.now() - a.sentAt) / 1000));
     const body = a.step === 'code'
-      ? '<form class="form" data-form="code"><p class="login-sent">' + I('mail') + '<span>Enviamos um código para <b>' + esc(a.email) + '</b>. Olhe também o spam.</span></p>' +
-        '<label class="field"><span>Código</span><input id="lg-code" class="code-input" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required placeholder="••••••"></label>' +
+      ? '<form class="form" data-form="code"><p class="login-sent">' + I('mail') + '<span>Enviamos um e-mail para <b>' + esc(a.email) + '</b>. Abra <b>neste celular</b> e toque no botão de entrar, ou digite abaixo o código, se vier um. Olhe também o spam.</span></p>' +
+        '<label class="field"><span>Código (se o e-mail trouxer)</span><input id="lg-code" class="code-input" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required placeholder="••••••"></label>' +
         '<button class="btn primary block lg">' + I('login') + 'Entrar</button>' +
         '<div class="login-links"><button type="button" class="link" data-act="authEmail">Trocar e-mail</button>' +
-        '<button type="button" class="link" data-act="resendCode"' + (wait ? ' disabled' : '') + '>' + (wait ? 'Reenviar em <span id="lg-wait">' + wait + '</span>s' : 'Reenviar código') + '</button></div></form>'
-      : '<button type="button" class="btn google block lg" data-act="google">' + BH.googleLogo + 'Continuar com Google</button>' +
-        '<div class="or"><span>ou use seu e-mail</span></div>' +
+        '<button type="button" class="link" data-act="resendCode"' + (wait ? ' disabled' : '') + '>' + (wait ? 'Reenviar em <span id="lg-wait">' + wait + '</span>s' : 'Reenviar e-mail') + '</button></div></form>'
+      : (pv.google ? '<button type="button" class="btn google block lg" data-act="google">' + BH.googleLogo + 'Continuar com Google</button>' +
+        '<div class="or"><span>ou use seu e-mail</span></div>' : '') +
         '<form class="form" data-form="email"><label class="field"><span>E-mail</span><input id="lg-email" name="email" type="email" inputmode="email" autocomplete="email" required placeholder="voce@email.com" value="' + esc(a.email) + '"></label>' +
-        '<button class="btn outline block lg">' + I('mail') + 'Receber código de acesso</button></form>';
+        '<button class="btn outline block lg">' + I('mail') + 'Entrar com e-mail</button></form>';
     return {
       hideNav: true, bare: true,
       html: '<section class="login"><div class="login-bg" aria-hidden="true"><i></i><i></i><i></i></div>' +
@@ -67,7 +68,7 @@ window.BH = window.BH || {};
   };
   actions.authEmail = () => { st.auth.step = 'start'; app().rerender('soft'); };
   actions.resendCode = async (el) => {
-    if (await U.run(el, () => api.sendCode(st.auth.email), 'Código reenviado.')) { st.auth.sentAt = Date.now(); app().refresh(); }
+    if (await U.run(el, () => api.sendCode(st.auth.email), 'E-mail reenviado.')) { st.auth.sentAt = Date.now(); app().refresh(); }
   };
   forms.code = async function (f) {
     const btn = f.querySelector('button.btn');

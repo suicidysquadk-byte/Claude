@@ -305,9 +305,10 @@ window.BH = window.BH || {};
     const App = Cap.Plugins && Cap.Plugins.App;
     if (!App) return;
     App.addListener('backButton', hardwareBack);
-    App.addListener('appUrlOpen', (ev) => {
-      api.handleDeepLink(ev.url).then((ok) => { if (ok) return api.session().then((s) => BH.flows.afterLogin(s)); return null; }).catch(U.err);
-    });
+    const openLink = (url) => api.handleDeepLink(url).then((ok) => { if (ok) return api.session().then((s) => BH.flows.afterLogin(s)); return null; }).catch(U.err);
+    App.addListener('appUrlOpen', (ev) => openLink(ev.url));
+    // app estava fechado e foi aberto pelo link do e-mail ou do Google
+    if (App.getLaunchUrl) App.getLaunchUrl().then((r) => { if (r && r.url) openLink(r.url); }).catch(() => {});
     App.addListener('appStateChange', (s) => { if (s.isActive && api.me) api.refreshMe().then(header).catch(() => {}); });
   }
 
