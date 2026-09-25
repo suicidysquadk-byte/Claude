@@ -14,11 +14,16 @@ O passo a passo do que **você** precisa fazer (contas, chaves, loja) está em
 ## O que o app faz
 
 **Conta e perfil**
-- Login com Google ou código de 6 dígitos no e-mail, com animação de verificação.
+- Login com Google ou pelo e-mail (link de entrada ou código de 6 dígitos que abre em leque de cartas), com
+  animação de verificação.
+- **Convite de testador**: a administração gera um link de entrada e manda pelo WhatsApp (só para quem ainda
+  não entrou no app).
 - Cadastro com nick, foto e **print do perfil do Free Fire** (nick + ID). A equipe confere no painel.
   Mudança de nick ou ID volta para a fila de verificação. Saque só com ID verificado.
 - XP por participação, abates, top 3, vitória e prêmios; níveis liberam banners, molduras e títulos.
-- Loja (visual do perfil e **prioridade na fila** de salas lotadas).
+- Loja: banners animados (inclusive discretos e em estilo anime), **acessórios de avatar** (chapéu de bruxa,
+  chapéu de palha, coroa, auréola, elmo samurai…), **fundos animados** do perfil, molduras, títulos, cor do
+  nick e **prioridade na fila** de salas lotadas. Toda a arte é desenhada no próprio app (SVG e CSS).
 - Opção de ficar anônimo no ranking (o valor ganho continua visível).
 - **Excluir minha conta** (exigência da Play Store): apaga os dados pessoais e guarda só o histórico de pagamentos.
 
@@ -29,6 +34,9 @@ O passo a passo do que **você** precisa fazer (contas, chaves, loja) está em
   - Salas de organizador: a plataforma recebe `X%` da arrecadação (padrão 10%, dá para combinar uma taxa com
     cada organizador), **nunca mais que a sobra**. O prêmio dos jogadores vem sempre primeiro.
   - Piso de premiação: com a sala cheia, os jogadores precisam poder receber pelo menos `Y%` (padrão 50%).
+  - **Teto de premiação** (todas as salas pagas, inclusive as oficiais): com a sala cheia, prêmios e mecânicas no
+    pior caso não passam de `Z%` da arrecadação (padrão 70%). Na criação da sala o app mostra quanto ainda cabe,
+    trava as mecânicas que não cabem e tem **Sortear mecânicas** (escolhe ao acaso só as que cabem).
   - **Salas oficiais** (da plataforma): a plataforma garante o prêmio (completa se faltar) e fica com a sobra.
 - Guildas: cada membro manda uma parte dos prêmios para o cofre da guilda; o líder paga salário mensal
   (sugestão por desempenho ou divisão igual).
@@ -76,9 +84,11 @@ www/                  o app (index.html, css/, js/, fonts/, vendor/)
   js/config.js        endereço do Supabase e chave pública (gerado pelo script)
   js/api.js           conversa com o Supabase (login, RPC, fotos, Pix, tempo real)
   js/pages-*.js       telas (entrada, salas, eventos, social, perfil, admin)
+  js/cosmetics.js     arte da loja: acessórios, fundos e banners animados
+  css/ouro.css        visual preto e dourado e as animações
 supabase/
   migrations/         banco: tabelas, regras de dinheiro, API, admin, fotos, competitivo, eventos, conta
-  functions/          pix-criar e pix-webhook (Mercado Pago)
+  functions/          pix-criar e pix-webhook (Mercado Pago), convite (link de entrada para testador)
   tests/              testes das regras de dinheiro e servidor de teste para rodar o app sem internet
 scripts/configurar.sh conecta tudo ao seu Supabase (lê scripts/conexao.env)
 android/              projeto Android gerado pelo Capacitor
@@ -123,9 +133,9 @@ Precisa de um Postgres local vazio (não usa o Supabase):
 
 ```bash
 PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh ./supabase/tests/reset.sh
-PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh node supabase/tests/money.test.js        # 196 verificações
+PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh node supabase/tests/money.test.js        # cerca de 208 verificações
 PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh ./supabase/tests/reset.sh
-PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh node supabase/tests/competitivo.test.js  # 216 verificações
+PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh node supabase/tests/competitivo.test.js  # 267 verificações
 ```
 
 Para abrir o app no navegador sem internet: `node supabase/tests/fake-supabase.js 8790` e acesse

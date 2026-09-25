@@ -282,7 +282,7 @@ window.BH = window.BH || {};
     const mine = uid === api.me.id;
     U.sheet({
       title: p.nick || 'Jogador', loading: false,
-      body: '<div class="pp"><div class="pp-banner" style="background:' + esc(p.banner_bg || '') + '"><span class="p-pattern"></span></div>' + U.av(p, 'lg', 'pop') +
+      body: '<div class="pp">' + (p.background_data && p.background_data.fx ? BH.cos.fx(p.background_data.fx, p.id, 'p-fx') : '') + BH.cos.banner(p.banner_data || { bg: p.banner_bg }, 'pp-banner', '', p.id) + U.av(p, 'lg', 'pop') +
         '<h3>' + U.nick(p, { level: true }) + '</h3>' + U.title(p) +
         '<div class="tiles3 four"><div class="tile"><b>' + U.int(p.stats.kills) + '</b><small>Abates</small></div><div class="tile"><b>' + U.int(p.stats.matches) + '</b><small>Salas</small></div><div class="tile"><b>' + U.int(p.stats.wins) + '</b><small>Vitórias</small></div><div class="tile"><b>' + (p.stats.earnings_cents == null ? '–' : U.centsShort(p.stats.earnings_cents)) + '</b><small>Ganhos</small></div></div>' +
         (mine ? '' : '<div class="btn-row two"><button type="button" class="btn outline" data-act="profile" data-id="' + uid + '">' + I('user') + 'Ver perfil</button><button type="button" class="btn ghost" data-act="dm" data-id="' + uid + '">' + I('message') + 'Mensagem</button></div>') +
@@ -462,17 +462,64 @@ window.BH = window.BH || {};
   /* criar / editar sala */
   actions.createRoom = () => flows.roomForm(null);
   actions.roomEdit = async (el) => flows.roomForm(await api.rpc('get_room', { p_id: el.dataset.id }));
+  // quantas vezes a mecânica pode pagar com n jogadores (pior caso, igual ao servidor)
+  function mechMult(d, k, n) {
+    if (k === 'por_kill') return Math.max(n - 1, 0);
+    if (k === 'sobrevivente') return Math.min(5, n);
+    if (k === 'meta_abates') return Math.floor(Math.max(n - 1, 0) / Math.max(Number(d.mechN[k]) || 5, 1));
+    return 1;
+  }
   // promessa máxima da sala (igual ao servidor)
   function commitOf(d, n) {
     let total = d.prizes.reduce((a, z) => a + U.toCents(z.value), 0);
-    Object.keys(d.mech).forEach((k) => {
-      const v = U.toCents(d.mech[k]);
-      if (k === 'por_kill') total += v * Math.max(n - 1, 0);
-      else if (k === 'sobrevivente') total += v * Math.min(5, n);
-      else if (k === 'meta_abates') total += v * Math.floor(Math.max(n - 1, 0) / Math.max(Number(d.mechN[k]) || 5, 1));
-      else total += v;
-    });
+    Object.keys(d.mech).forEach((k) => { total += U.toCents(d.mech[k]) * mechMult(d, k, n); });
     return total;
+  }
+  const MECH_DEF = { abate: 100, jogador: 300 };
+  // arredonda para baixo em passos de R$ 0,50 (ou R$ 1,00 a partir de R$ 10)
+  const niceDown = (c) => (c >= 1000 ? Math.floor(c / 100) * 100 : Math.floor(c / 50) * 50);
+  const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  // teto: com a sala cheia os jogadores recebem no máximo max_player_pct da arrecadação
+  function budgetOf(d) {
+    const entry = U.toCents(d.entry), n = Number(d.max_players) || 0, pot = entry * n;
+    const pct = Number(api.me.settings.max_player_pct) || 70;
+    const cap = entry ? Math.floor(pot * pct / 100) : null;
+    const prizes = d.prizes.reduce((a, z) => a + U.toCents(z.value), 0);
+    const commit = commitOf(d, n);
+    return { n, pot, pct, cap, prizes, commit, free: cap == null ? Infinity : cap - commit };
+  }
+  // maior valor que a mecânica k pode ter sem passar do teto (null = sem teto)
+  function roomFor(d, k) {
+    const b = budgetOf(d), mult = mechMult(d, k, b.n);
+    if (b.cap == null) return null;
+    if (!mult) return 0;
+    const own = d.mech[k] != null ? U.toCents(d.mech[k]) * mult : 0;
+    return Math.max(0, Math.floor((b.free + own) / mult));
+  }
+  BH.roomBudget = budgetOf;
+  // sorteia mecânicas que cabem no que sobra do teto
+  function drawMechs(d) {
+    const me = api.me, b = budgetOf(Object.assign({}, d, { mech: {} }));
+    const pool = shuffle((me.mechanics || []).filter((m) => !m.team_only || Number(d.team_size) > 1));
+    let free = b.cap != null ? b.cap - b.prizes : d.official ? Math.max(2000, Math.floor(b.prizes / 2)) : Math.max(U.toCents(d.guarantee) - b.prizes, 0);
+    if (free < 50 || !pool.length) return false;
+    const want = Math.min(pool.length, 2 + Math.floor(Math.random() * 4));
+    const spend = Math.floor(free * (0.65 + Math.random() * 0.35));
+    const picks = pool.slice(0, want), w = picks.map(() => 0.5 + Math.random());
+    const tot = w.reduce((a, x) => a + x, 0);
+    const mech = {}, mechN = {};
+    picks.forEach((m, i) => {
+      if (m.has_n) mechN[m.id] = Math.max(1, Math.min(5, b.n - 1));
+      const mult = mechMult({ mechN }, m.id, b.n);
+      if (!mult) return;
+      const v = niceDown(Math.min(spend * w[i] / tot, free) / mult);
+      if (v < 50) return;
+      mech[m.id] = U.centsInput(v);
+      free -= v * mult;
+    });
+    if (!Object.keys(mech).length) return false;
+    d.mech = mech; d.mechN = mechN;
+    return true;
   }
   flows.roomForm = async function (room) {
     const me = api.me, staff = me.role_level >= 2;
@@ -494,15 +541,28 @@ window.BH = window.BH || {};
       for (let k = 2; k <= n; k++) if (entry * k + g >= commitOf(d, k)) { minN = k; break; }
       const minPct = Number(me.settings.min_player_pct) || 0;
       const balanced = d.official || !entry || commit * 100 >= pot * minPct;
-      return { pot, commit, platform, creator: d.official ? 0 : left - platform, minN, ok: d.official || pot + g >= commit, balanced, minPct, players_n: n };
+      const b = budgetOf(d);
+      return { pot, commit, platform, creator: d.official ? 0 : left - platform, minN, ok: d.official || pot + g >= commit, balanced, minPct, players_n: n, b, capOk: b.cap == null || b.commit <= b.cap };
+    };
+    // medidor do teto: quanto da parte dos jogadores já foi prometido
+    const meter = () => {
+      const b = budgetOf(d);
+      if (b.cap == null) return '<div class="budget free"><p>' + I('info') + '<span>Sala grátis: sem teto. ' + (d.official ? 'A plataforma paga os prêmios.' : 'Os prêmios saem da sua garantia.') + '</span></p></div>';
+      const used = Math.min(b.commit / Math.max(b.cap, 1), 1), over = b.commit - b.cap;
+      return '<div class="budget' + (over > 0 ? ' over' : used > 0.9 ? ' near' : '') + '"><div class="budget-top"><span>Teto dos jogadores <b>' + b.pct + '%</b></span><b>' + U.cents(b.cap) + '</b></div>' +
+        '<div class="budget-bar"><i style="width:' + Math.round(used * 100) + '%"></i></div>' +
+        '<div class="budget-foot"><small>Prometido: ' + U.cents(b.commit) + '</small>' + (over > 0
+          ? '<small class="red">Passou ' + U.cents(over) + ' do teto</small>'
+          : '<small class="gold">Cabe mais ' + U.cents(b.free) + '</small>') + '</div></div>';
     };
     const summary = () => {
       const c = calc();
       const sp = { pot_cents: c.pot, players_cents: Math.min(c.commit, c.pot), platform_cents: c.platform, creator_cents: c.creator, players_n: c.players_n };
-      return '<div class="calc ' + (c.ok && c.balanced ? '' : 'bad') + '"><span>Com a sala cheia (' + d.max_players + ' jogadores)</span><b>' + U.cents(c.pot) + ' de arrecadação</b>' +
+      return '<div class="calc ' + (c.ok && c.balanced && c.capOk ? '' : 'bad') + '"><span>Com a sala cheia (' + d.max_players + ' jogadores)</span><b>' + U.cents(c.pot) + ' de arrecadação</b>' +
         (c.pot ? splitBar(sp, d.official) : '') +
         '<small>Premiação máxima: ' + U.cents(c.commit) + (d.official ? ' · a plataforma garante e fica com a sobra' : ' · plataforma ' + fee() + '% da arrecadação (' + U.cents(c.platform) + ') · você ' + U.cents(c.creator)) + '</small>' +
         (!c.balanced ? '<small class="red">Os jogadores precisam poder receber pelo menos ' + c.minPct + '% da arrecadação. Aumente a premiação.</small>' : '') +
+        (!c.capOk ? '<small class="red">Com a sala cheia os jogadores podem receber no máximo ' + c.b.pct + '% (' + U.cents(c.b.cap) + '). O resto fica para ' + (d.official ? 'a plataforma' : 'você e a plataforma') + '. Tire alguma mecânica ou diminua os valores.</small>' : '') +
         (d.official ? '' : c.ok ? '<small>' + (c.minN ? 'A sala pode começar a partir de ' + c.minN + ' inscritos.' : '') + '</small>' : '<small class="red">O cofre não cobre a premiação nem com a sala cheia. Aumente a inscrição, diminua os prêmios ou coloque garantia.</small>') + '</div>';
     };
     const opt = (list, v) => list.map((x) => '<option' + (String(x) === String(v) ? ' selected' : '') + '>' + esc(x) + '</option>').join('');
@@ -531,10 +591,14 @@ window.BH = window.BH || {};
           (d.prizes.length > 1 ? '<button type="button" class="icon-btn" data-act="rfPrizeDel" data-v="' + i + '" aria-label="Remover">' + I('trash') + '</button>' : '') + '</li>').join('') + '</ul>' +
         (d.prizes.length < 10 ? '<button type="button" class="btn ghost sm" data-act="rfPrizeAdd">' + I('plus') + 'Adicionar ' + (d.prizes.length + 1) + 'º lugar</button>' : '') +
         '<header class="form-h row"><span>' + I('sparkles') + 'Mecânicas</span>' + (th ? '<button type="button" class="btn outline sm" data-act="rfTheme">' + I('calendar') + 'Usar evento do dia: ' + esc(th.name) + '</button>' : '') + '</header>' +
+        '<div id="rf-budget">' + meter() + '</div>' +
+        '<div class="rand-row"><label class="check rand"><input type="checkbox" id="rf-rand" data-rfrand' + (d.random ? ' checked' : '') + '><span>' + I('dice') + '<b>Sortear mecânicas</b><small>O app escolhe as que cabem nesta sala</small></span></label>' +
+          (d.random ? '<button type="button" class="btn outline sm" data-act="rfReroll">' + I('dice') + 'Sortear de novo</button>' : '') + '</div>' +
         (d.theme ? '<p class="chip-line">' + I('calendar') + esc(d.theme) + ' <button type="button" class="link" data-act="rfThemeOff">tirar</button></p>' : '') +
         '<ul class="mech-pick">' + mechs.map((m) => {
-          const on = d.mech[m.id] != null;
-          return '<li class="' + (on ? 'on' : '') + '"><label class="switch"><input type="checkbox" data-mech="' + m.id + '"' + (on ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span><b>' + I((MECH[m.id] || {}).icon || 'star') + esc(m.name) + (m.manual ? '<em class="chip">você escolhe</em>' : '') + '</b><small>' + esc(m.description) + '</small></span></label>' +
+          const on = d.mech[m.id] != null, room = on ? null : roomFor(d, m.id), full = room != null && room < 50;
+          return '<li class="' + (on ? 'on' : full ? 'no-room' : '') + '" data-ml="' + m.id + '"><label class="switch"><input type="checkbox" data-mech="' + m.id + '"' + (on ? ' checked' : '') + (full ? ' disabled' : '') + '><span class="sw" aria-hidden="true"></span><span><b>' + I((MECH[m.id] || {}).icon || 'star') + esc(m.name) + (m.manual ? '<em class="chip">você escolhe</em>' : '') + '</b><small>' + esc(m.description) + '</small>' +
+            '<small class="no-room-note">' + I('lock') + 'Não cabe no teto desta sala</small></span></label>' +
             (on ? '<div class="mech-vals"><label class="field money-field"><b>R$</b><input id="rf-mech-' + m.id + '" data-mechv="' + m.id + '" inputmode="decimal" value="' + esc(d.mech[m.id]) + '" aria-label="Valor de ' + esc(m.name) + '"><em>' + (m.unit === 'abate' ? 'por abate' : m.unit === 'jogador' ? 'por jogador' : 'bônus') + '</em></label>' +
               (m.has_n ? '<label class="field"><span>Meta</span><input id="rf-mechn-' + m.id + '" data-mechn="' + m.id + '" type="number" inputmode="numeric" min="1" max="30" value="' + esc(d.mechN[m.id] || 5) + '" aria-label="Meta de abates"></label>' : '') + '</div>' : '') + '</li>';
         }).join('') + '</ul>' +
@@ -546,7 +610,18 @@ window.BH = window.BH || {};
         '<button class="btn primary block lg">' + I(room ? 'check' : 'plus') + (room ? 'Salvar alterações' : d.official ? 'Publicar sala oficial' : 'Publicar sala') + '</button></form>';
       },
       onMount(s) {
-        const upd = () => { const c = s.body.querySelector('#rf-calc'); if (c) c.innerHTML = summary(); const l = s.body.querySelector('#rf-line'); if (l) l.textContent = lineHint(); };
+        const upd = () => {
+          const c = s.body.querySelector('#rf-calc'); if (c) c.innerHTML = summary();
+          const l = s.body.querySelector('#rf-line'); if (l) l.textContent = lineHint();
+          const bm = s.body.querySelector('#rf-budget'); if (bm) bm.innerHTML = meter();
+          s.body.querySelectorAll('.mech-pick li[data-ml]').forEach((li) => {
+            const k = li.dataset.ml;
+            if (d.mech[k] != null) return;
+            const room = roomFor(d, k), full = room != null && room < 50;
+            li.classList.toggle('no-room', full);
+            const cb = li.querySelector('input[data-mech]'); if (cb) cb.disabled = full;
+          });
+        };
         s._upd = upd;
         if (s._wired) return;
         s._wired = true;
@@ -562,9 +637,26 @@ window.BH = window.BH || {};
           const t = e.target;
           if (t.dataset.rf) { d[t.dataset.rf] = t.value; upd(); }
           if (t.dataset.rfb) { d[t.dataset.rfb] = t.checked; s.render('static'); }
+          if (t.dataset.rfrand != null) {
+            if (t.checked) {
+              d._before = { mech: Object.assign({}, d.mech), mechN: Object.assign({}, d.mechN) };
+              if (!drawMechs(d)) { t.checked = false; U.toast('Não sobra espaço no teto para mecânicas. Diminua a premiação ou aumente a inscrição.', 'error'); return; }
+              d.random = true;
+            } else {
+              if (d._before) { d.mech = d._before.mech; d.mechN = d._before.mechN; }
+              d.random = false;
+            }
+            s.render('static');
+          }
           if (t.dataset.mech) {
-            const m = (me.mechanics || []).find((x) => x.id === t.dataset.mech) || {};
-            if (t.checked) d.mech[t.dataset.mech] = m.unit === 'abate' ? '1,00' : m.unit === 'jogador' ? '3,00' : '10,00'; else delete d.mech[t.dataset.mech];
+            const k = t.dataset.mech, m = (me.mechanics || []).find((x) => x.id === k) || {};
+            if (t.checked) {
+              const room = roomFor(d, k), def = MECH_DEF[m.unit] || 1000;
+              const v = room == null ? def : Math.min(def, niceDown(room));
+              if (v < 50) { t.checked = false; U.toast('Essa mecânica não cabe no teto desta sala.', 'error'); return; }
+              d.mech[k] = U.centsInput(v);
+              if (v < def) U.toast('Valor ajustado para caber no teto: ' + U.cents(v) + '.', 'info');
+            } else delete d.mech[k];
             s.render('static');
           }
         });
@@ -577,6 +669,7 @@ window.BH = window.BH || {};
     if (d.team_size === 1) (api.me.mechanics || []).filter((m) => m.team_only).forEach((m) => { delete d.mech[m.id]; });
     s.render('static');
   };
+  actions.rfReroll = () => { const s = U.topSheet(); if (drawMechs(s.data)) s.render('static'); else U.toast('Não sobra espaço no teto para mecânicas.', 'error'); };
   actions.rfPrizeAdd = () => { const s = U.topSheet(); s.data.prizes.push({ place: s.data.prizes.length + 1, value: '10,00' }); s.render('static'); };
   actions.rfPrizeDel = (el) => { const s = U.topSheet(); s.data.prizes.splice(Number(el.dataset.v), 1); s.data.prizes.forEach((z, i) => { z.place = i + 1; }); s.render('static'); };
   actions.rfTpl = async function (el) {
@@ -600,8 +693,19 @@ window.BH = window.BH || {};
     const t = (set.daily_themes || []).find((x) => x.dow === new Date().getDay());
     if (!t) return;
     const base = set.daily_base || {};
-    (base.mechanics || []).concat(t.mechanics || []).forEach((m) => { d.mech[m.type] = U.centsInput(m.cents); });
+    const team = Number(d.team_size) > 1;
+    const known = Object.fromEntries((api.me.mechanics || []).map((m) => [m.id, m]));
+    const added = (base.mechanics || []).concat(t.mechanics || []).filter((m) => known[m.type] && (!known[m.type].team_only || team));
+    added.forEach((m) => { d.mech[m.type] = U.centsInput(m.cents); });
     if (base.prizes && base.prizes.length && d.official) d.prizes = base.prizes.map((z) => ({ place: z.place, value: U.centsInput(z.cents) }));
+    // se passar do teto, diminui só as mecânicas do tema na mesma proporção
+    const b = budgetOf(d);
+    if (b.cap != null && b.commit > b.cap) {
+      const cost = added.reduce((a, m) => a + U.toCents(d.mech[m.type]) * mechMult(d, m.type, b.n), 0);
+      const k = Math.max(0, (cost - (b.commit - b.cap)) / Math.max(cost, 1));
+      added.forEach((m) => { const v = niceDown(U.toCents(d.mech[m.type]) * k); if (v >= 50) d.mech[m.type] = U.centsInput(v); else delete d.mech[m.type]; });
+      U.toast('Valores do evento do dia ajustados para caber no teto de ' + b.pct + '%.', 'info');
+    }
     d.theme = DOW[t.dow] + ' · ' + t.name;
     s.render('static');
   };

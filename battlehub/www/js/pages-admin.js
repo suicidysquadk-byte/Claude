@@ -87,7 +87,8 @@ window.BH = window.BH || {};
   SECTION.users = async function () {
     const list = await api.rpc('admin_users', { p_q: sa.uQ || null, p_filter: sa.uFilter });
     return {
-      html: '<label class="search">' + I('search') + '<input id="au-q" type="search" placeholder="Buscar por nick, e-mail, número, ID do Free Fire" value="' + esc(sa.uQ) + '" data-input="adm.uQ" autocomplete="off"></label>' +
+      html: (api.me.role_level >= 2 ? '<div class="a-toolbar"><p class="muted small grow">Para alguém testar antes do e-mail próprio ficar pronto, gere um link de entrada e mande pelo WhatsApp.</p><button type="button" class="btn primary" data-act="aInvite">' + I('userPlus') + 'Convidar testador</button></div>' : '') +
+        '<label class="search">' + I('search') + '<input id="au-q" type="search" placeholder="Buscar por nick, e-mail, número, ID do Free Fire" value="' + esc(sa.uQ) + '" data-input="adm.uQ" autocomplete="off"></label>' +
         U.chips([['todos', 'Todos'], ['verificar', 'ID em análise'], ['verificados', 'Verificados'], ['criadores', 'Criadores de sala'], ['staff', 'Equipe'], ['banidos', 'Suspensos']], sa.uFilter, 'aUFilter') +
         '<p class="muted small">' + U.plural(list.length, 'conta', 'contas') + '</p>' +
         '<div class="u-grid stagger">' + (list.length ? list.map((u) => '<article class="u-card' + (u.banned ? ' banned' : '') + '"><header>' + U.av(u, 'md') + '<div class="grow"><b>' + U.nick(u, { level: true }) + '</b><small>' + esc(u.email || '') + '</small>' +
@@ -96,6 +97,26 @@ window.BH = window.BH || {};
           '<button type="button" class="btn outline block sm" data-act="aUser" data-id="' + u.id + '">' + I('sliders') + 'Gerenciar conta</button></article>').join('') : U.empty('search', 'Nenhuma conta encontrada', 'Tente outro termo ou filtro.')) + '</div>'
     };
   };
+  // convite: link de entrada para quem ainda não tem conta ativa
+  actions.aInvite = function () {
+    U.sheet({
+      title: 'Convidar testador', loading: false,
+      body: '<form class="form" data-form="aInvite"><p class="muted">A pessoa instala o APK, depois toca no link <b>no mesmo celular</b>. O link vale por 24 horas e só funciona uma vez.</p>' +
+        '<label class="field"><span>E-mail da pessoa</span><input id="inv-email" name="email" type="email" inputmode="email" required placeholder="amigo@email.com" autocomplete="off"></label>' +
+        '<button class="btn primary block">' + I('link') + 'Gerar link de entrada</button><div id="inv-out"></div></form>'
+    });
+  };
+  forms.aInvite = async function (f) {
+    const r = await U.run(f.querySelector('button.primary'), () => api.invite(f.email.value.trim()));
+    if (!r) return;
+    const msg = 'Oi! Você foi convidado para testar o BattleHub. 1) Instale o app que eu te mandei. 2) Toque neste link no mesmo celular para entrar: ' + r.link;
+    f.querySelector('#inv-out').innerHTML = '<div class="invite-out"><p class="note-gold">' + I('check') + '<span>Link para <b>' + esc(r.email) + '</b> pronto' + (r.new_account ? ' (conta nova criada)' : '') + '.</span></p>' +
+      '<textarea id="inv-link" rows="4" readonly>' + esc(r.link) + '</textarea>' +
+      '<div class="btn-row two"><button type="button" class="btn outline" data-act="aInviteCopy">' + I('copy') + 'Copiar link</button>' +
+      '<button type="button" class="btn primary" data-act="aInviteWa" data-v="' + esc('https://wa.me/?text=' + encodeURIComponent(msg)) + '">' + I('send') + 'Mandar no WhatsApp</button></div></div>';
+  };
+  actions.aInviteWa = (el) => api.openExternal(el.dataset.v).catch(U.err);
+  actions.aInviteCopy = () => { const i = document.getElementById('inv-link'); U.copy(i.value, i); };
   actions.aUFilter = (el) => { sa.uFilter = el.dataset.v; app().rerender('soft'); };
   actions.aUser = function (el) {
     const id = el.dataset.id;
@@ -312,10 +333,10 @@ window.BH = window.BH || {};
   /* ---------- loja ---------- */
   SECTION.shop = async function () {
     const list = await api.rpc('admin_shop');
-    const kinds = { banner: 'Banner', moldura: 'Moldura', titulo: 'Título', cor: 'Cor', prioridade: 'Prioridade' };
+    const kinds = { banner: 'Banner', acessorio: 'Acessório', fundo: 'Fundo animado', moldura: 'Moldura', titulo: 'Título', cor: 'Cor', prioridade: 'Prioridade' };
     return {
       html: '<div class="a-toolbar"><p class="muted small grow">Itens com preço aparecem na loja. Sem preço, só saem como recompensa de nível.</p><button type="button" class="btn primary" data-act="aItem">' + I('plus') + 'Novo item</button></div>' +
-        '<div class="u-grid stagger">' + list.map((it) => '<article class="u-card' + (it.active ? '' : ' banned') + '"><header>' + (it.kind === 'banner' ? '<span class="banner-sw sm" style="background:' + esc(it.data.bg) + '"></span>' : '<span class="kpi-ic tone-violet">' + I({ moldura: 'user', titulo: 'hash', cor: 'palette', prioridade: 'zap' }[it.kind] || 'bag') + '</span>') +
+        '<div class="u-grid stagger">' + list.map((it) => '<article class="u-card' + (it.active ? '' : ' banned') + '"><header>' + (it.kind === 'banner' ? BH.cos.banner(it.data, 'banner-sw sm', '', it.id) : it.kind === 'acessorio' ? U.av({ id: it.id, nick: it.name, accessory: (it.data || {}).acc }, 'sm') : '<span class="kpi-ic tone-violet">' + I({ moldura: 'user', titulo: 'hash', cor: 'palette', prioridade: 'zap', fundo: 'sparkles' }[it.kind] || 'bag') + '</span>') +
           '<div class="grow"><b>' + esc(it.name) + '</b><small>' + kinds[it.kind] + ' · ' + (it.price_cents != null ? U.cents(it.price_cents) : 'recompensa' + (it.reward_level ? ' do nível ' + it.reward_level : '')) + (it.active ? '' : ' · desativado') + '</small></div></header>' +
           '<dl class="kv"><div><dt>Donos</dt><dd>' + it.owners + '</dd></div><div><dt>Receita</dt><dd>' + U.centsShort(it.revenue_cents) + '</dd></div></dl>' +
           '<button type="button" class="btn ghost block sm" data-act="aItem" data-id="' + esc(it.id) + '">' + I('edit') + 'Editar</button></article>').join('') + '</div>'
@@ -323,16 +344,16 @@ window.BH = window.BH || {};
   };
   actions.aItem = async function (el) {
     const list = el.dataset.id ? await api.rpc('admin_shop') : [];
-    const it = list.find((x) => x.id === el.dataset.id) || { id: '', kind: 'banner', name: '', description: '', price_cents: 490, duration_days: null, data: { bg: 'linear-gradient(120deg,#3b0f7a,#7c3aed 50%,#c084fc)' }, active: true };
+    const it = list.find((x) => x.id === el.dataset.id) || { id: '', kind: 'banner', name: '', description: '', price_cents: 490, duration_days: null, data: { bg: 'linear-gradient(120deg,#0b0906,#6b4a0b 50%,#f6c453)' }, active: true };
     U.sheet({
       title: it.id ? 'Editar item' : 'Novo item', loading: false,
       body: '<form class="form" data-form="aItem"><div class="grid2"><label class="field"><span>Código</span><input id="it-id" name="id" required value="' + esc(it.id) + '"' + (it.id ? ' readonly' : '') + ' placeholder="banner-verao"></label>' +
-        '<label class="field"><span>Tipo</span><select id="it-kind" name="kind">' + ['banner', 'moldura', 'titulo', 'cor', 'prioridade'].map((k) => '<option' + (it.kind === k ? ' selected' : '') + '>' + k + '</option>').join('') + '</select></label></div>' +
+        '<label class="field"><span>Tipo</span><select id="it-kind" name="kind">' + ['banner', 'acessorio', 'fundo', 'moldura', 'titulo', 'cor', 'prioridade'].map((k) => '<option' + (it.kind === k ? ' selected' : '') + '>' + k + '</option>').join('') + '</select></label></div>' +
         '<label class="field"><span>Nome</span><input id="it-name" name="name" required value="' + esc(it.name) + '"></label>' +
         '<label class="field"><span>Descrição</span><input id="it-desc" name="description" value="' + esc(it.description) + '"></label>' +
         '<div class="grid2"><label class="field money-field"><span>Preço (vazio = só recompensa)</span><b>R$</b><input id="it-price" name="price" inputmode="decimal" value="' + (it.price_cents != null ? U.centsInput(it.price_cents) : '') + '"></label>' +
         '<label class="field"><span>Dias (prioridade)</span><input id="it-days" name="days" type="number" inputmode="numeric" value="' + esc(it.duration_days || '') + '"></label></div>' +
-        '<label class="field"><span>Visual (JSON): bg para banner, ring e glow para moldura, text para título, color para cor</span><textarea id="it-data" name="data" rows="3">' + esc(JSON.stringify(it.data || {})) + '</textarea></label>' +
+        '<label class="field"><span>Visual (JSON): bg, anim (' + ['shimmer', 'goldline', 'grain', 'embers', 'lightning', 'sakura', 'flames', 'rain', 'moon', 'waves'].join(', ') + ') e art (torii, kitsune, city, samurai, wave, dragon) para banner; acc (' + BH.cos.ACC_KEYS.join(', ') + ') para acessório; fx (' + BH.cos.FX_KEYS.join(', ') + ') para fundo; ring e glow para moldura; text para título; color para cor</span><textarea id="it-data" name="data" rows="3">' + esc(JSON.stringify(it.data || {})) + '</textarea></label>' +
         '<label class="switch"><input id="it-active" type="checkbox" name="active"' + (it.active ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span>Ativo</span></label>' +
         '<button class="btn primary block">' + I('check') + 'Salvar item</button></form>'
     });
@@ -454,6 +475,7 @@ window.BH = window.BH || {};
   };
 
   /* ---------- configurações ---------- */
+  const capExample = (pct) => 'Ex.: 10 jogadores × R$ 10 = R$ 100. Prêmios e mecânicas somados podem prometer até ' + U.cents(Math.floor(10000 * pct / 100)) + '; os outros ' + U.cents(10000 - Math.floor(10000 * pct / 100)) + ' ficam para o organizador e a plataforma. Vale para todas as salas pagas, inclusive as oficiais.';
   SECTION.settings = async function () {
     const s = await api.rpc('admin_get_settings');
     const xp = s.xp || {};
@@ -467,6 +489,8 @@ window.BH = window.BH || {};
         '<label class="field"><span>Parte da plataforma na arrecadação das salas dos organizadores: <b id="st-fee-v">' + s.platform_fee_pct + '%</b></span><input id="st-fee" name="platform_fee_pct" type="range" min="0" max="50" step="1" value="' + s.platform_fee_pct + '"></label>' +
         '<p class="muted small">Ex.: sala de 48 × R$ 5 = R$ 240. Com ' + s.platform_fee_pct + '%, a plataforma recebe ' + U.cents(Math.floor(24000 * s.platform_fee_pct / 100)) + ' quando a sala acaba. Nunca passa da sobra, então o prêmio dos jogadores vem sempre primeiro. Dá para combinar uma taxa diferente com cada organizador em Usuários.</p>' +
         '<label class="field"><span>Mínimo que os jogadores precisam poder receber: <b id="st-mp-v">' + s.min_player_pct + '%</b> da arrecadação</span><input id="st-mp" name="min_player_pct" type="range" min="0" max="90" step="5" value="' + s.min_player_pct + '"></label>' +
+        '<label class="field"><span>Teto: máximo que os jogadores podem receber com a sala cheia: <b id="st-xp-v">' + s.max_player_pct + '%</b></span><input id="st-xpct" name="max_player_pct" type="range" min="10" max="95" step="5" value="' + s.max_player_pct + '"></label>' +
+        '<p class="muted small" id="st-xp-ex">' + capExample(s.max_player_pct) + '</p>' +
         '<label class="field"><span>Máximo que uma guilda pode guardar dos prêmios: <b id="st-gc-v">' + s.max_guild_cut_pct + '%</b></span><input id="st-gc" name="max_guild_cut_pct" type="range" min="0" max="50" step="1" value="' + s.max_guild_cut_pct + '"></label>' +
         '<div class="grid2">' + money('min_deposit', 'Depósito mínimo', s.min_deposit_cents) + money('max_deposit', 'Depósito máximo', s.max_deposit_cents) + money('min_withdraw', 'Saque mínimo', s.min_withdraw_cents) + money('max_withdraw', 'Saque máximo', s.max_withdraw_cents) + '</div>' +
         money('max_entry', 'Inscrição máxima por sala', s.max_entry_cents) + '</section>' +
@@ -479,7 +503,8 @@ window.BH = window.BH || {};
         '<label class="switch warn"><input id="st-mt" type="checkbox" name="maintenance"' + (s.maintenance ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span>Modo manutenção <small>Só a equipe entra no app</small></span></label></section>' +
         '<button class="btn primary block lg">' + I('check') + 'Salvar configurações</button></form>',
       onMount(root) {
-        [['st-fee', 'st-fee-v'], ['st-gc', 'st-gc-v'], ['st-mp', 'st-mp-v']].forEach(([a, b]) => { const r = root.querySelector('#' + a); if (r) r.addEventListener('input', () => { root.querySelector('#' + b).textContent = r.value + '%'; }); });
+        [['st-fee', 'st-fee-v'], ['st-gc', 'st-gc-v'], ['st-mp', 'st-mp-v'], ['st-xpct', 'st-xp-v']].forEach(([a, b]) => { const r = root.querySelector('#' + a); if (r) r.addEventListener('input', () => { root.querySelector('#' + b).textContent = r.value + '%'; }); });
+        const xr = root.querySelector('#st-xpct'); if (xr) xr.addEventListener('input', () => { root.querySelector('#st-xp-ex').textContent = capExample(Number(xr.value)); });
       }
     };
   };
@@ -487,7 +512,7 @@ window.BH = window.BH || {};
     const g = (n) => f.querySelector('[name="' + n + '"]');
     const p = {
       pix_key: g('pix_key').value.trim(), pix_name: g('pix_name').value.trim(), pix_city: g('pix_city').value.trim(),
-      platform_fee_pct: Number(g('platform_fee_pct').value), max_guild_cut_pct: Number(g('max_guild_cut_pct').value), min_player_pct: Number(g('min_player_pct').value),
+      platform_fee_pct: Number(g('platform_fee_pct').value), max_guild_cut_pct: Number(g('max_guild_cut_pct').value), min_player_pct: Number(g('min_player_pct').value), max_player_pct: Number(g('max_player_pct').value),
       daily_themes: readThemes(f), daily_base: readBase(f),
       min_deposit_cents: U.toCents(g('min_deposit').value), max_deposit_cents: U.toCents(g('max_deposit').value),
       min_withdraw_cents: U.toCents(g('min_withdraw').value), max_withdraw_cents: U.toCents(g('max_withdraw').value), max_entry_cents: U.toCents(g('max_entry').value),

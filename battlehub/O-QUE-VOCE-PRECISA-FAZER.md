@@ -1,33 +1,62 @@
 # O que você precisa fazer para o BattleHub funcionar
 
-O app, o banco, as regras de dinheiro, os eventos e o painel estão prontos e testados. O que falta são as
-contas nos serviços, que só você pode criar (elas ficam no seu nome e no seu CPF/CNPJ). Faça **na ordem**:
-cada passo usa algo do anterior. Onde está escrito **"me mande"**, cole a informação no chat que eu conecto.
+**Onde estamos:**
+- O servidor (Supabase) está no ar, com todas as regras de dinheiro, eventos, loja e painel.
+- A sua conta já é a **dona**.
+- O app da versão **2.1.0** aponta para ele.
+
+O que falta são contas nos serviços, que só você pode criar (ficam no seu nome e no seu CPF/CNPJ). Faça **na
+ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu conecto.
 
 > **Nunca poste as chaves em lugar público.** Mande só aqui no chat ou coloque direto no arquivo
 > `scripts/conexao.env` (ele não vai para o GitHub).
 
 ---
 
-## 1. Supabase: o servidor (grátis para começar) · 10 min
+## Já dá para mandar para alguém testar (sem fazer nada antes)
 
-1. Crie a conta em **supabase.com** (dá para entrar com o GitHub).
-2. **New project**:
-   - Nome: `battlehub`.
-   - Região: **South America (São Paulo)**.
-   - Crie uma **senha do banco** forte e guarde (fica só com você).
-3. Espere o projeto ficar pronto (uns 2 minutos).
-4. **Me mande**:
-   - O **Reference ID**: *Project Settings → General*. São umas 20 letras, por exemplo `abcdefghijklmnopqrst`.
-   - Um **Access Token**: clique no seu avatar (canto de baixo à esquerda) → *Access Tokens* → *Generate new token*.
+No plano grátis, o e-mail padrão do Supabase **só entrega para os e-mails da sua equipe no Supabase**. Um
+amigo não receberia o e-mail de entrada. Enquanto o passo 3 não fica pronto, use o **convite**:
 
-Com isso eu rodo o `scripts/configurar.sh`, que:
-- cria as tabelas, as regras de dinheiro e os lugares das fotos;
-- publica as funções do Pix;
-- liga o login por código no e-mail;
-- gera o app apontando para o seu servidor.
+1. Mande o arquivo **BattleHub-2.1.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
+2. No app: **Perfil → Painel administrativo → Usuários → Convidar testador**.
+3. Digite o e-mail da pessoa e toque em **Gerar link de entrada**.
+4. Toque em **Mandar no WhatsApp**. A pessoa instala o app e depois toca no link no mesmo celular.
 
-## 2. Login com Google · 15 min
+Sobre o link:
+- Vale por **24 horas** e funciona **uma vez**.
+- Por segurança, só funciona para quem **ainda não entrou** no app. Ninguém da equipe consegue usar o convite
+  para entrar na conta de um jogador.
+
+## 1. Supabase: o servidor · ✅ feito
+
+- Projeto `tjaqjirsayclexzaycti` (São Paulo) configurado.
+- Guarde a **senha do banco** que você criou.
+- O **Access Token** que você me mandou ainda é usado para eu publicar as atualizações. Quando o projeto estiver
+  pronto, apague-o em *supabase.com/dashboard/account/tokens*. Se precisar de mim depois, é só gerar outro.
+
+## 2. E-mail que manda o link de entrada · 10 min (necessário antes de abrir para o público)
+
+Sem isso, só a sua equipe recebe o e-mail de entrada. Escolha **uma** opção.
+
+**Opção A: Gmail (mais rápida, sem domínio)**
+1. Use uma conta Gmail do app, por exemplo `battlehub.app@gmail.com`.
+2. Ligue a **verificação em duas etapas** em *myaccount.google.com → Segurança*.
+3. Em *myaccount.google.com/apppasswords*, crie uma **senha de app** com o nome `BattleHub`. São 16 letras.
+4. **Me mande**: o endereço do Gmail e a senha de app.
+   - Eu ligo o e-mail próprio no Supabase e o código de 6 dígitos volta a aparecer no e-mail.
+   - O Gmail manda até cerca de 500 e-mails por dia.
+
+**Opção B: Resend (profissional, precisa de domínio)**
+1. Crie uma conta em **resend.com** (grátis até 3.000 e-mails por mês).
+2. Adicione o seu domínio (ex.: `battlehub.com.br`) e siga os registros DNS que eles mostram.
+3. Crie uma **API Key**.
+4. **Me mande** a API Key e o domínio.
+
+Se ainda não tiver domínio, compre um em **registro.br** (cerca de R$ 40 por ano). Ele também serve para o
+site e para o e-mail de suporte que a Play Store pede.
+
+## 3. Login com Google · 15 min (opcional, recomendado)
 
 1. Entre em **console.cloud.google.com** com a conta Google da empresa e crie um projeto chamado `BattleHub`.
 2. Vá em *APIs e serviços → Tela de consentimento OAuth*:
@@ -36,33 +65,11 @@ Com isso eu rodo o `scripts/configurar.sh`, que:
    - Publique a tela ("Em produção").
 3. Vá em *APIs e serviços → Credenciais → Criar credenciais → ID do cliente OAuth*:
    - Tipo: **Aplicativo da Web**.
-   - Em **URIs de redirecionamento autorizados**, coloque `https://SEU-REFERENCE-ID.supabase.co/auth/v1/callback`
-     (troque pelo Reference ID do passo 1).
+   - Em **URIs de redirecionamento autorizados**, coloque
+     `https://tjaqjirsayclexzaycti.supabase.co/auth/v1/callback`.
 4. **Me mande** o **ID do cliente** e a **Chave secreta do cliente**.
 
-Sem esse passo o app funciona só com o código por e-mail.
-
-## 3. E-mail que manda o código · 10 min (recomendado antes de lançar)
-
-O Supabase manda poucos e-mails por hora no plano grátis, o que dá para testar mas não para lançar.
-
-1. Crie uma conta em **resend.com** (grátis até 3.000 e-mails por mês).
-2. Adicione o seu domínio (ex.: `battlehub.com.br`) e siga os registros DNS que eles mostram.
-3. Crie uma **API Key**.
-4. No Supabase: *Project Settings → Authentication → SMTP Settings → Enable custom SMTP*:
-
-   | Campo | Valor |
-   |---|---|
-   | Host | `smtp.resend.com` |
-   | Porta | `465` |
-   | Usuário | `resend` |
-   | Senha | a API Key |
-   | Remetente | `nao-responda@seudominio` |
-
-   Se preferir, **me mande** a API Key e o domínio que eu te passo o passo a passo exato.
-
-Se ainda não tiver domínio, compre um em **registro.br** (cerca de R$ 40 por ano). Ele também serve para o
-site e para o e-mail de suporte que a Play Store pede.
+O botão "Continuar com Google" aparece sozinho no app quando isso estiver ligado.
 
 ## 4. Pix automático: Mercado Pago · 20 min (opcional no começo)
 
@@ -76,24 +83,30 @@ Para confirmar sozinho:
    Transparente).
 3. Em *Credenciais de produção*, copie o **Access Token**.
 4. Em *Webhooks*:
-   - URL de produção: `https://SEU-REFERENCE-ID.supabase.co/functions/v1/pix-webhook`.
+   - URL de produção: `https://tjaqjirsayclexzaycti.supabase.co/functions/v1/pix-webhook`.
    - Evento: **Pagamentos**.
    - Salve e copie a **assinatura secreta**.
 5. **Me mande** o **Access Token** e a **assinatura secreta**.
 
 ## 5. Configurar a plataforma no app · 5 min
 
-Depois que eu gerar o app conectado:
-1. Instale o APK no seu celular e **entre primeiro**. **A primeira conta vira a DONA** (painel admin completo).
+1. Instale o **BattleHub-2.1.0.apk** no seu celular (por cima do anterior, sem desinstalar).
 2. Painel admin → *Configurações*:
    - Coloque a **chave Pix da plataforma**, o nome e a cidade (usados no Pix manual).
-   - Confira a **parte da plataforma** (padrão 10% da arrecadação das salas dos organizadores) e o
-     **piso de premiação** (padrão 50%).
+   - Confira a **parte da plataforma**: padrão 10% da arrecadação das salas dos organizadores.
+   - Confira o **piso** (padrão 50%) e o **teto** (padrão 70%) da premiação:
+     - com a sala cheia, prêmios e mecânicas somados ficam entre o piso e o teto da arrecadação;
+     - o resto fica para o organizador e para a plataforma;
+     - exemplo: 10 × R$ 10 = R$ 100, os jogadores podem receber até R$ 70;
+     - na criação da sala, o app mostra quanto ainda cabe, trava as mecânicas que não cabem e tem o quadradinho
+       **Sortear mecânicas**.
    - Revise o **evento do dia** de cada dia da semana.
 3. Painel → *Usuários*: dê a permissão **"Pode criar salas"** para os organizadores. Se quiser, combine uma
    taxa diferente para cada um.
 4. Crie as **salas oficiais** (botão + → modelo Base, Intermediária, Elite, Domínio ou Ancestral) e os
    **eventos** (painel → Eventos → Novo evento → Liga Semanal, Champions Series, Intensivo de Lines…).
+5. Painel → *Loja*: os itens novos (banners animados, arte estilo anime, chapéus e fundos animados) já estão à
+   venda. Dá para mudar preço, desativar ou criar outros.
 
 ## 6. Play Store · 1 a 3 dias (a análise do Google demora)
 
@@ -109,8 +122,9 @@ Depois que eu gerar o app conectado:
    - Idioma: português (Brasil).
    - Tipo: jogo.
    - Grátis.
-4. Envie o arquivo **`BattleHub-2.0.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
-5. Preencha a ficha com os textos de `loja/descricao.md` e as imagens da pasta `loja/`.
+4. Envie o arquivo **`BattleHub-2.1.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
+5. Preencha a ficha com os textos de `loja/descricao.md` e as imagens da pasta `loja/` (ícone, destaque e as 8
+   telas novas em preto e dourado).
 6. Preencha os formulários:
    - **Segurança dos dados**: as respostas estão em `loja/descricao.md`.
    - **Classificação de conteúdo**.
@@ -136,6 +150,7 @@ Depois que eu gerar o app conectado:
     emissão de nota, impostos sobre prêmios e sobre a receita.
   - Os **termos de uso** (`loja/termos-de-uso.md`) e a **política de privacidade** são modelos para ele revisar.
 - **Garena**: o app diz que não é afiliado à Garena. Não use logos nem artes oficiais do Free Fire na loja.
+  - As artes da loja do app (estilo anime, chapéus, fundos) foram desenhadas do zero, sem imagens de terceiros.
 - **Saques**:
   - Você paga pelo app do banco e marca "pago" no painel.
   - Guarde os comprovantes.
@@ -147,10 +162,6 @@ Depois que eu gerar o app conectado:
 
 | Passo | O que me mandar |
 |---|---|
-| 1 | Reference ID do Supabase e Access Token |
-| 2 | ID do cliente e chave secreta do Google |
-| 3 | (opcional) API Key do Resend e o domínio |
+| 2 | Gmail + senha de app **ou** API Key do Resend + domínio |
+| 3 | (opcional) ID do cliente e chave secreta do Google |
 | 4 | (opcional) Access Token e assinatura secreta do Mercado Pago |
-
-Assim que eu tiver o passo 1, conecto tudo e te devolvo um APK funcionando online para testar com os seus
-amigos.

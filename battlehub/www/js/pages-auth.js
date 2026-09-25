@@ -27,7 +27,8 @@ window.BH = window.BH || {};
     const wait = Math.max(0, 60 - Math.floor((Date.now() - a.sentAt) / 1000));
     const body = a.step === 'code'
       ? '<form class="form" data-form="code"><p class="login-sent">' + I('mail') + '<span>Enviamos um e-mail para <b>' + esc(a.email) + '</b>. Abra <b>neste celular</b> e toque no botão de entrar, ou digite abaixo o código, se vier um. Olhe também o spam.</span></p>' +
-        '<label class="field"><span>Código (se o e-mail trouxer)</span><input id="lg-code" class="code-input" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required placeholder="••••••"></label>' +
+        '<div class="field"><span id="lg-code-l">Código (se o e-mail trouxer)</span><div class="otp" id="lg-otp"><input id="lg-code" class="otp-input" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required aria-labelledby="lg-code-l">' +
+        '<div class="otp-cards" aria-hidden="true">' + [0, 1, 2, 3, 4, 5].map((i) => '<i style="--i:' + i + '"><b></b></i>').join('') + '</div></div></div>' +
         '<button class="btn primary block lg">' + I('login') + 'Entrar</button>' +
         '<div class="login-links"><button type="button" class="link" data-act="authEmail">Trocar e-mail</button>' +
         '<button type="button" class="link" data-act="resendCode"' + (wait ? ' disabled' : '') + '>' + (wait ? 'Reenviar em <span id="lg-wait">' + wait + '</span>s' : 'Reenviar e-mail') + '</button></div></form>'
@@ -54,7 +55,24 @@ window.BH = window.BH || {};
           }, 1000);
         }
         const c = root.querySelector('#lg-code');
-        if (c) { c.focus(); c.addEventListener('input', () => { c.value = c.value.replace(/\D/g, ''); }); }
+        if (c) {
+          // cartas do código: abrem em leque, cada dígito vira uma carta e a faísca corre na próxima
+          const cards = root.querySelectorAll('.otp-cards i');
+          const paint = () => {
+            c.value = c.value.replace(/\D/g, '').slice(0, 6);
+            const v = c.value;
+            cards.forEach((el, i) => {
+              el.querySelector('b').textContent = v[i] || '';
+              el.classList.toggle('filled', i < v.length);
+              el.classList.toggle('active', i === Math.min(v.length, 5) && document.activeElement === c && v.length < 6);
+            });
+            root.querySelector('#lg-otp').classList.toggle('full', v.length === 6);
+          };
+          c.addEventListener('input', paint);
+          c.addEventListener('focus', paint);
+          c.addEventListener('blur', paint);
+          setTimeout(() => { c.focus(); paint(); }, 520);
+        }
       }
     };
   };
@@ -73,7 +91,12 @@ window.BH = window.BH || {};
   forms.code = async function (f) {
     const btn = f.querySelector('button.btn');
     const session = await U.run(btn, () => api.verifyCode(st.auth.email, f.code.value));
-    if (!session) return;
+    const otp = document.getElementById('lg-otp');
+    if (!session) {
+      if (otp) { otp.classList.remove('err'); void otp.offsetWidth; otp.classList.add('err'); setTimeout(() => otp.classList.remove('err'), 700); }
+      return;
+    }
+    if (otp) otp.classList.add('ok');
     st.auth = { step: 'start', email: '', sentAt: 0 };
     flows.afterLogin(session);
   };

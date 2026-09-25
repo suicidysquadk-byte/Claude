@@ -17,6 +17,7 @@ SALAS OFICIAIS E DE ORGANIZADORES
 • Organizadores autorizados criam salas com inscrição, premiação e mecânicas próprias
 • ID e senha da sala liberados para os inscritos na hora do início
 • Cofre da sala: a inscrição fica guardada até o resultado e volta se a sala for cancelada
+• Prêmio que cabe no cofre: com a sala cheia, prêmios e bônus nunca passam do limite da arrecadação
 
 MECÂNICAS
 • Kill paga, Primeira kill, Líder de abates, Booyah e Rei do lobby
@@ -39,6 +40,7 @@ CARTEIRA E PIX
 PERFIL, RANKING E SOCIAL
 • Verificação do ID do Free Fire pelo print do perfil
 • XP, níveis e recompensas: banners, molduras e títulos
+• Loja de visual: banners animados, arte estilo anime, chapéus e acessórios de avatar e fundos animados
 • Ranking de abates, ganhos, salas, sobrevivência e vitórias (com opção anônima)
 • Guildas com líder, vice, cofre e salário mensal
 • Chat privado com fotos, amigos e mensagens do organizador com resposta rápida

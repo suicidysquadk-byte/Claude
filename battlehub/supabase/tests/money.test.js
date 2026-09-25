@@ -107,9 +107,15 @@ async function conservation(label) {
   const start = new Date(Date.now() + 3600e3).toISOString();
   const roomDef = {
     title: 'Copa Teste', mode: 'Battle Royale', team_size: 1, map: 'Bermuda', max_players: 6, entry_cents: 200, starts_at: start,
-    prizes: [{ place: 1, cents: 600 }],
-    mechanics: [{ type: 'first_blood', cents: 100 }, { type: 'rei', cents: 200 }, { type: 'por_kill', cents: 50 }, { type: 'mvp', cents: 100 }, { type: 'sorteio', cents: 50 }]
+    prizes: [{ place: 1, cents: 300 }],
+    mechanics: [{ type: 'first_blood', cents: 60 }, { type: 'rei', cents: 100 }, { type: 'por_kill', cents: 20 }, { type: 'mvp', cents: 60 }, { type: 'sorteio', cents: 40 }]
   };
+  // teto: com a sala cheia (6 × R$ 2 = R$ 12) os jogadores recebem no máximo 70% (R$ 8,40)
+  await must('admin libera criador', call(owner, 'admin_set_creator', { p_user: creator, p_value: true }));
+  await refuse('prêmio igual à arrecadação passa do teto', call(creator, 'create_room', { p: { ...roomDef, prizes: [{ place: 1, cents: 1200 }], mechanics: [] } }), /acima do limite/);
+  await refuse('mecânicas demais passam do teto', call(creator, 'create_room', { p: { ...roomDef, mechanics: [...roomDef.mechanics, { type: 'booyah', cents: 200 }] } }), /acima do limite/);
+  await must('exatamente no teto passa', call(creator, 'create_room', { p: { ...roomDef, title: 'No teto', prizes: [{ place: 1, cents: 840 }], mechanics: [] } }).then((r) => call(creator, 'cancel_room', { p_id: r.id, p_reason: 'teste' })));
+  await must('admin libera criador de novo', call(owner, 'admin_set_creator', { p_user: creator, p_value: false }));
   await refuse('sem permissão não cria sala', call(creator, 'create_room', { p: roomDef }), /permissão/);
   await must('admin libera criador', call(owner, 'admin_set_creator', { p_user: creator, p_value: true }));
   const room = await must('criar sala', call(creator, 'create_room', { p: roomDef }));
@@ -140,9 +146,7 @@ async function conservation(label) {
   const luckyId = lucky && lucky.winner.id;
   ok(players.includes(kingId), 'rei é um inscrito');
 
-  // compromisso: 600 + 100 + 200 + 50×5 + 100 + 50 = 1300 > 1200
-  await refuse('não inicia sem cobrir o prêmio', call(creator, 'start_room', { p_id: rid, p_game_room_id: '12345678', p_password: 'abc' }), /garantia/);
-  await must('garantia no cofre', call(creator, 'add_guarantee', { p_id: rid, p_cents: 100 }));
+  // compromisso: 300 + 60 + 100 + 20×5 + 60 + 40 = 660, cabe no cofre de 1200
   await must('iniciar sala', call(creator, 'start_room', { p_id: rid, p_game_room_id: '12345678', p_password: 'abc' }));
   const secret = await must('inscrito vê a senha', call(P[0], 'get_room', { p_id: rid }));
   ok(secret && secret.secrets && secret.secrets.password === 'abc', 'senha liberada para inscritos');
@@ -166,26 +170,27 @@ async function conservation(label) {
   await refuse('abates impossíveis', call(creator, 'preview_results', { p_id: rid, p_results: { ...results, players: results.players.map((p) => ({ ...p, kills: 9 })) } }), /maior que o possível/);
   await refuse('first blood sem abate', call(creator, 'preview_results', { p_id: rid, p_results: { ...results, first_blood: others[5] } }), /primeiro abate/);
   const prev = await must('prévia do resultado', call(creator, 'preview_results', { p_id: rid, p_results: results }));
-  const expected = 600 + 100 + 200 + 50 * 5 + 100 + 50; // killer: 1º + fb + rei + 3 kills + mvp; + sorteio
+  const expected = 300 + 60 + 100 + 20 * 5 + 60 + 40; // killer: 1º + fb + rei + 3 kills + mvp; + sorteio
+  const creatorCut = 1200 - expected - 120; // taxa da plataforma: 10% da arrecadação
   ok(prev && prev.payout_cents === expected, 'premiação calculada', prev && prev.payout_cents);
-  ok(prev && prev.vault_cents === 1300 && prev.creator_cents === Math.round((1300 - expected) * 0.9), 'sobra vai para o criador (menos taxa)', prev && { v: prev.vault_cents, c: prev.creator_cents, f: prev.fee_cents });
+  ok(prev && prev.vault_cents === 1200 && prev.fee_cents === 120 && prev.creator_cents === creatorCut, 'sobra vai para o criador (menos taxa)', prev && { v: prev.vault_cents, c: prev.creator_cents, f: prev.fee_cents });
 
   const beforeKiller = await bal(killer), beforeCreator = await bal(creator), beforeLucky = await bal(luckyId);
   await must('finalizar sala', call(creator, 'finish_room', { p_id: rid, p_results: results }));
-  const killerGain = 600 + 100 + 200 + 150 + 100 + (luckyId === killer ? 50 : 0);
+  const killerGain = 300 + 60 + 100 + 60 + 60 + (luckyId === killer ? 40 : 0);
   const killerGuild = killer === P[0] || killer === P[1];
   const killerNet = killerGuild ? killerGain - Math.floor(killerGain * 0.1) : killerGain;
   ok((await bal(killer)) - beforeKiller === killerNet, 'vencedor recebe prêmio + mecânicas (menos guilda se tiver)', { got: (await bal(killer)) - beforeKiller, killerNet });
   if (luckyId !== killer) {
-    const lg = (luckyId === P[0] || luckyId === P[1]) ? 50 - Math.floor(50 * 0.1) : 50;
+    const lg = (luckyId === P[0] || luckyId === P[1]) ? 40 - Math.floor(40 * 0.1) : 40;
     // o sorteado pode ter ganho por abate também
     const lp = results.players.find((p) => p.user_id === luckyId);
-    const extra = lp.kills * 50;
-    const gross = 50 + extra;
+    const extra = lp.kills * 20;
+    const gross = 40 + extra;
     const net = (luckyId === P[0] || luckyId === P[1]) ? gross - Math.floor(gross * 0.1) : gross;
     ok((await bal(luckyId)) - beforeLucky === net, 'sorteado recebe o bônus', { got: (await bal(luckyId)) - beforeLucky, net, lg });
   }
-  ok((await bal(creator)) - beforeCreator === Math.round((1300 - expected) * 0.9), 'criador recebe a sobra');
+  ok((await bal(creator)) - beforeCreator === creatorCut, 'criador recebe a sobra', (await bal(creator)) - beforeCreator);
   const rs = await q1('select status, vault_cents from rooms where id = $1', [rid]);
   ok(rs.status === 'finalizada' && Number(rs.vault_cents) === 0, 'sala finalizada com cofre zerado', rs);
   const st = await q1('select kills, wins, matches, xp, first_bloods, kings_killed from profiles where id = $1', [killer]);
@@ -228,9 +233,21 @@ async function conservation(label) {
   ok((await bal(P[3])) - b3 === 1500, 'saque recusado devolve o saldo');
   await conservation('depois dos saques');
 
+  // ---------------- sala que não encheu: o organizador cobre a diferença com garantia
+  const rg = await must('sala garantia', call(creator, 'create_room', { p: { ...roomDef, title: 'Sala Garantia', mechanics: [], prizes: [{ place: 1, cents: 700 }] } }));
+  await must('P5 entra na sala garantia', call(P[5], 'join_room', { p_id: rg && rg.id }));
+  await must('P2 entra na sala garantia', call(P[2], 'join_room', { p_id: rg && rg.id }));
+  await refuse('não inicia sem cobrir o prêmio', call(creator, 'start_room', { p_id: rg && rg.id, p_game_room_id: '11223344', p_password: 'g' }), /garantia/);
+  await must('garantia no cofre', call(creator, 'add_guarantee', { p_id: rg && rg.id, p_cents: 300 }));
+  await must('inicia com garantia', call(creator, 'start_room', { p_id: rg && rg.id, p_game_room_id: '11223344', p_password: 'g' }));
+  const b5g = await bal(P[5]);
+  await must('finaliza sala garantia', call(creator, 'finish_room', { p_id: rg && rg.id, p_results: { players: [{ user_id: P[5], kills: 1, placement: 1 }, { user_id: P[2], kills: 0, placement: 2 }] } }));
+  ok((await bal(P[5])) - b5g === 700, 'prêmio pago com a garantia', (await bal(P[5])) - b5g);
+  await conservation('depois da garantia');
+
   // ---------------- segunda sala: mover, remover, cancelar, banir
-  const r2 = await must('sala 2', call(creator, 'create_room', { p: { ...roomDef, title: 'Sala Dois', mechanics: [], max_players: 4 } }));
-  const r3 = await must('sala 3', call(creator, 'create_room', { p: { ...roomDef, title: 'Sala Três', mechanics: [], entry_cents: 300, max_players: 4 } }));
+  const r2 = await must('sala 2', call(creator, 'create_room', { p: { ...roomDef, title: 'Sala Dois', mechanics: [], prizes: [{ place: 1, cents: 500 }], max_players: 4 } }));
+  const r3 = await must('sala 3', call(creator, 'create_room', { p: { ...roomDef, title: 'Sala Três', mechanics: [], prizes: [{ place: 1, cents: 700 }], entry_cents: 300, max_players: 4 } }));
   await must('P4 entra na sala 2', call(P[4], 'join_room', { p_id: r2.id }));
   await must('P5 entra na sala 2', call(P[5], 'join_room', { p_id: r2.id }));
   const b4 = await bal(P[4]);
@@ -284,7 +301,7 @@ async function conservation(label) {
 
   // ---------------- squad: prêmio dividido, Rei sobrevive, empate no MVP
   const sq = await must('sala de duplas', call(creator, 'create_room', { p: { ...roomDef, title: 'Duplas', team_size: 2, max_players: 4, entry_cents: 500,
-    prizes: [{ place: 1, cents: 1000 }], mechanics: [{ type: 'rei', cents: 300 }, { type: 'mvp', cents: 301 }] } }));
+    prizes: [{ place: 1, cents: 800 }], mechanics: [{ type: 'rei', cents: 300 }, { type: 'mvp', cents: 201 }] } }));
   const duo = [P[0], P[1], P[2], P[3]];
   for (const u of duo) await must('entra na dupla', call(u, 'join_room', { p_id: sq.id }));
   const kg = await must('rei da dupla', call(creator, 'draw_room', { p_id: sq.id, p_kind: 'rei' }));
@@ -299,7 +316,7 @@ async function conservation(label) {
   const pv2 = await must('prévia duplas', call(creator, 'preview_results', { p_id: sq.id, p_results: res2 }));
   const byUser = {};
   (pv2 ? pv2.lines : []).forEach((l) => { byUser[l.user_id] = (byUser[l.user_id] || 0) + l.cents; });
-  ok(pv2 && byUser[winners[0]] + byUser[winners[1]] === 1000 + 300 + 301, 'dupla vencedora divide prêmio, rei e MVP', byUser);
+  ok(pv2 && byUser[winners[0]] + byUser[winners[1]] === 800 + 300 + 201, 'dupla vencedora divide prêmio, rei e MVP', byUser);
   ok(pv2 && pv2.lines.filter((l) => l.kind === 'rei')[0].user_id === kId, 'rei que sobrevive fica com o bônus');
   ok(pv2 && pv2.lines.filter((l) => l.kind === 'mvp').length === 2, 'empate no MVP divide');
   await must('finaliza duplas', call(creator, 'finish_room', { p_id: sq.id, p_results: res2 }));

@@ -47,7 +47,7 @@ window.BH = window.BH || {};
   actions.rkPeriod = (el) => { st.rkPeriod = el.dataset.v; app().rerender('soft'); };
 
   /* ================= GUILDAS ================= */
-  const gTag = (g, cls) => '<span class="g-tag' + (cls ? ' ' + cls : '') + '" style="--g1:' + esc(g.color || '#7c3aed') + '">' + esc(g.tag) + '</span>';
+  const gTag = (g, cls) => '<span class="g-tag' + (cls ? ' ' + cls : '') + '" style="--g1:' + esc(g.color || '#b8841f') + '">' + esc(g.tag) + '</span>';
   function guildCard(g) {
     return '<article class="g-item ripple" data-act="openGuild" data-id="' + g.id + '" tabindex="0">' + gTag(g) +
       '<div class="grow"><h4>' + esc(g.name) + (g.recruiting ? '<span class="chip tone-green">Recrutando</span>' : '<span class="chip tone-muted">Fechada</span>') + '</h4>' +
@@ -98,7 +98,7 @@ window.BH = window.BH || {};
     if (!(await U.confirm({ title: 'Sair da guilda?', body: 'Você pode entrar em outra depois.', ok: 'Sair', danger: true }))) return;
     if (await U.run(null, () => api.rpc('leave_guild'), 'Você saiu da guilda.')) { await api.refreshMe(); app().back(); }
   };
-  const COLORS = ['#7c3aed', '#dc2626', '#ea580c', '#ca8a04', '#16a34a', '#0891b2', '#2563eb', '#db2777'];
+  const COLORS = ['#b8841f', '#7c3aed', '#dc2626', '#ea580c', '#ca8a04', '#16a34a', '#0891b2', '#2563eb', '#db2777'];
   actions.createGuild = function () {
     const max = api.me.settings.max_guild_cut_pct;
     U.sheet({
@@ -293,8 +293,8 @@ window.BH = window.BH || {};
     const u = await api.rpc('get_profile', { p_user: p.id });
     const s = u.stats;
     return {
-      html: '<section class="page profile">' + BH.backRow() +
-        '<div class="p-banner" style="background:' + esc(u.banner_bg || '') + '"><span class="p-pattern"></span></div>' +
+      html: '<section class="page profile' + (u.background_data && u.background_data.fx ? ' with-fx' : '') + '">' + (u.background_data && u.background_data.fx ? BH.cos.fx(u.background_data.fx, u.id, 'p-fx') : '') + BH.backRow() +
+        BH.cos.banner(u.banner_data || { bg: u.banner_bg }, 'p-banner', '', u.id) +
         '<div class="p-id">' + U.av(u, 'xl', 'pop') + '<h1 class="h1">' + U.nick(u) + '</h1>' + U.title(u) +
         '<div class="p-badges"><span class="lvl-tag">Nível ' + u.level + '</span>' + U.role(u.role) + (u.guild ? '<button type="button" class="tag tone-violet" data-act="openGuild" data-id="' + u.guild.id + '">' + I('shield') + esc(u.guild.tag) + '</button>' : '') + '<span class="chip mono">#' + u.code + '</span></div>' +
         (u.bio ? '<p class="p-bio">' + esc(u.bio) + '</p>' : '') + '<p class="muted small">' + (u.online ? 'Online agora' : 'Visto ' + U.ago(u.last_seen_at)) + (u.ff_nick ? ' · Free Fire: ' + esc(u.ff_nick) : '') + '</p></div>' +

@@ -53,19 +53,20 @@ window.BH = window.BH || {};
 
   /* ---------- jogadores ---------- */
   function hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
-  const GRADS = [['#6d28d9', '#a78bfa'], ['#b91c1c', '#fb923c'], ['#0e7490', '#67e8f9'], ['#a16207', '#fde047'], ['#15803d', '#86efac'], ['#be185d', '#f9a8d4'], ['#1d4ed8', '#93c5fd']];
+  const GRADS = [['#7a5410', '#f3d27a'], ['#b91c1c', '#fb923c'], ['#0e7490', '#67e8f9'], ['#3f3a33', '#bdb2a0'], ['#15803d', '#86efac'], ['#be185d', '#f9a8d4'], ['#1d4ed8', '#93c5fd']];
   U.av = function (u, size, extra) {
     const s = size || 'md';
     if (!u) return '<span class="av av-' + s + ' av-anon' + (extra ? ' ' + extra : '') + '">' + I('user') + '</span>';
     const frame = u.frame || null;
     let ring = '', style = '';
     if (frame && frame.ring) { ring = frame.ring === 'conic' ? ' ring-conic' : ' ring-color'; style = frame.ring === 'conic' ? '' : '--ring:' + frame.ring + ';'; if (frame.glow) ring += ' ring-glow'; }
-    const cls = 'av av-' + s + ring + (extra ? ' ' + extra : '');
+    const acc = u.accessory && BH.cos ? BH.cos.acc(u.accessory) : '';
+    const cls = 'av av-' + s + ring + (acc ? ' has-acc' : '') + (extra ? ' ' + extra : '');
     if (!u.id && u.anonymous) return '<span class="' + cls + ' av-anon" role="img" aria-label="Jogador anônimo">' + I('user') + '</span>';
-    if (u.avatar_url) return '<span class="' + cls + '" style="' + style + '"><img src="' + U.esc(u.avatar_url) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>';
+    if (u.avatar_url) return '<span class="' + cls + '" style="' + style + '"><img src="' + U.esc(u.avatar_url) + '" alt="" loading="lazy" referrerpolicy="no-referrer">' + acc + '</span>';
     const g = GRADS[hash(String(u.id || u.nick || '?')) % GRADS.length];
     const letter = String(u.nick || '?').trim().charAt(0).toUpperCase() || '?';
-    return '<span class="' + cls + ' av-letter" style="' + style + '--a1:' + g[0] + ';--a2:' + g[1] + '" role="img" aria-label="' + U.esc(u.nick || 'Jogador') + '">' + U.esc(letter) + '</span>';
+    return '<span class="' + cls + ' av-letter" style="' + style + '--a1:' + g[0] + ';--a2:' + g[1] + '" role="img" aria-label="' + U.esc(u.nick || 'Jogador') + '">' + U.esc(letter) + acc + '</span>';
   };
   U.verified = (u) => (u && u.verified ? '<span class="vbadge" title="ID do Free Fire verificado">' + I('badgeCheck') + '</span>' : '');
   U.nick = function (u, opts) {
@@ -325,7 +326,7 @@ window.BH = window.BH || {};
     document.body.appendChild(c);
     const g = c.getContext('2d'); g.scale(dpr, dpr);
     const ox = x == null ? innerWidth / 2 : x, oy = y == null ? innerHeight * 0.35 : y;
-    const colors = ['#8b5cf6', '#b69cff', '#f6b83c', '#ffd98a', '#ffffff', '#34d399'];
+    const colors = ['#d9a93f', '#fff0c4', '#f6c453', '#ffe4a3', '#ffffff', '#8a6114'];
     const parts = Array.from({ length: 140 }, () => {
       const a = Math.random() * Math.PI * 2, v = 4 + Math.random() * 9;
       return { x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 6, s: 4 + Math.random() * 6, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4, c: colors[Math.floor(Math.random() * colors.length)] };

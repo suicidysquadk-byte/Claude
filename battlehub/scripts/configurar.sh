@@ -24,9 +24,10 @@ auth "$API" > /dev/null || { echo "Não consegui acessar o projeto $REF com esse
 echo "2/6 Criando tabelas, regras de dinheiro e fotos (migrações, pela API)"
 SUPABASE_PROJECT_REF="$REF" node scripts/aplicar-migracoes.js
 
-echo "3/6 Publicando as funções do Pix"
+echo "3/6 Publicando as funções do Pix e do convite de testador"
 $SB functions deploy pix-criar --project-ref "$REF" --use-api
 $SB functions deploy pix-webhook --project-ref "$REF" --no-verify-jwt --use-api
+$SB functions deploy convite --project-ref "$REF" --use-api
 
 echo "4/6 Guardando as chaves do Mercado Pago"
 if [ -n "${MP_ACCESS_TOKEN:-}" ]; then
@@ -40,14 +41,15 @@ echo "5/6 Ligando login com Google e código por e-mail"
 python3 - "$URL" > /tmp/bh-auth.json <<'PY'
 import json, os, sys
 url = sys.argv[1]
-code = ('<div style="font-family:Arial,sans-serif;background:#0a0910;color:#f2effa;padding:28px;border-radius:16px">'
+code = ('<div style="font-family:Arial,sans-serif;background:#070605;color:#f8f2e4;padding:28px;border-radius:16px">'
         '<h2 style="margin:0 0 8px">BattleHub</h2><p>Seu código de acesso:</p>'
-        '<p style="font-size:34px;letter-spacing:8px;font-weight:700;color:#f6b83c;margin:12px 0">{{ .Token }}</p>'
-        '<p style="color:#8d87a7">Vale por 10 minutos. Se não foi você, ignore este e-mail.</p></div>')
+        '<p style="font-size:34px;letter-spacing:8px;font-weight:700;color:#f6c453;margin:12px 0">{{ .Token }}</p>'
+        '<p style="color:#8d87a7">Vale por 24 horas. Se não foi você, ignore este e-mail.</p></div>')
 cfg = {
   'site_url': url,
   'uri_allow_list': 'gg.battlehub.app://auth,' + url,
-  'mailer_otp_exp': 600,
+  # o link de entrada (e-mail ou convite pelo WhatsApp) vale 24 horas; depois do lançamento dá para baixar para 1 hora
+  'mailer_otp_exp': 86400,
   'mailer_otp_length': 6,
   'mailer_subjects_magic_link': 'Seu código do BattleHub',
   'mailer_templates_magic_link_content': code,

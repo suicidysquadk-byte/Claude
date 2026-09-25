@@ -46,12 +46,13 @@ window.BH = window.BH || {};
     const xpPct = (me.xp - me.xp_level) / Math.max(1, me.xp_next - me.xp_level);
     const s = me.stats;
     const fs = ffStatus[me.ff.status] || ffStatus.nao_enviado;
-    const card = { id: me.id, nick: me.nick, avatar_url: me.avatar_url, frame: e.frame_data, color: e.color_hex, verified: me.ff.status === 'aprovado', title: e.title_text };
+    const card = { id: me.id, nick: me.nick, avatar_url: me.avatar_url, frame: e.frame_data, color: e.color_hex, verified: me.ff.status === 'aprovado', title: e.title_text, accessory: e.accessory_key };
+    const bgFx = e.background_data && e.background_data.fx;
     const pend = me.admin_pending;
     const pendN = pend ? (pend.ff || 0) + (pend.reports || 0) + (me.role_level >= 2 ? (pend.deposits || 0) + (pend.withdrawals || 0) : 0) : 0;
     return {
-      html: '<section class="page profile">' +
-        '<div class="p-banner" style="background:' + esc(e.banner_bg || '') + '"><span class="p-pattern"></span><button type="button" class="p-edit icon-btn" data-act="lookSheet" aria-label="Trocar visual">' + I('palette') + '</button></div>' +
+      html: '<section class="page profile' + (bgFx ? ' with-fx' : '') + '">' + (bgFx ? BH.cos.fx(bgFx, me.id, 'p-fx') : '') +
+        BH.cos.banner(e.banner_data || { bg: e.banner_bg }, 'p-banner', '<button type="button" class="p-edit icon-btn" data-act="lookSheet" aria-label="Trocar visual">' + I('palette') + '</button>', me.id) +
         '<div class="p-id"><button type="button" class="p-av" data-act="editProfile" aria-label="Trocar foto">' + U.av(card, 'xl', 'pop') + '<span class="p-cam">' + I('camera') + '</span></button>' +
         '<h1 class="h1">' + U.nick(card) + '</h1>' + U.title(card) +
         '<div class="p-badges"><span class="lvl-tag">Nível ' + me.level + '</span>' + U.role(me.role) + (me.guild ? '<button type="button" class="tag tone-violet" data-act="openGuild" data-id="' + me.guild.id + '">' + I('shield') + esc(me.guild.tag) + '</button>' : '') +
@@ -236,20 +237,25 @@ window.BH = window.BH || {};
   /* ---------- loja, recompensas e visual ---------- */
   function itemPreview(it) {
     const d = it.data || {};
-    if (it.kind === 'banner') return '<span class="banner-sw" style="background:' + esc(d.bg) + '"></span>';
+    if (it.kind === 'banner') return BH.cos.banner(d, 'banner-sw', '', it.id);
     if (it.kind === 'moldura') return U.av({ id: api.me.id, nick: api.me.nick, avatar_url: api.me.avatar_url, frame: d }, 'md');
+    if (it.kind === 'acessorio') return U.av({ id: api.me.id, nick: api.me.nick, avatar_url: api.me.avatar_url, frame: api.me.frame, accessory: d.acc }, 'md', 'acc-pv');
+    if (it.kind === 'fundo') return '<span class="fundo-sw">' + BH.cos.fx(d.fx, it.id) + '</span>';
     if (it.kind === 'titulo') return '<span class="ptitle">' + esc(d.text) + '</span>';
     if (it.kind === 'cor') return '<b class="nk" style="color:' + esc(d.color) + '">' + esc(api.me.nick) + '</b>';
     return '<span class="prio-ic">' + I('zap') + '</span>';
   }
-  const KINDS = [{ id: 'banner', label: 'Banners' }, { id: 'moldura', label: 'Molduras' }, { id: 'titulo', label: 'Títulos' }, { id: 'cor', label: 'Cor' }, { id: 'prioridade', label: 'Fila' }];
+  const KINDS = [{ id: 'banner', label: 'Banners', icon: 'image' }, { id: 'acessorio', label: 'Acessórios', icon: 'crown' }, { id: 'fundo', label: 'Fundos', icon: 'sparkles' }, { id: 'moldura', label: 'Molduras', icon: 'user' },
+    { id: 'titulo', label: 'Títulos', icon: 'hash' }, { id: 'cor', label: 'Cor', icon: 'palette' }, { id: 'prioridade', label: 'Fila', icon: 'zap' }];
+  // abas da loja em fileira que rola (são muitas para um controle segmentado)
+  const shopTabs = (active) => '<div class="shop-tabs" role="tablist">' + KINDS.map((k) => '<button type="button" role="tab" aria-selected="' + (k.id === active) + '" class="chip-btn' + (k.id === active ? ' on' : '') + '" data-act="shopTab" data-v="' + k.id + '">' + I(k.icon) + k.label + '</button>').join('') + '</div>';
   actions.shop = function () {
     U.sheet({
       title: 'Loja', size: 'lg',
       body: async () => {
         const s = await api.rpc('shop');
         const items = s.items.filter((i) => i.kind === st.shopTab && i.price_cents != null);
-        return '<div class="pix-amount"><small>Seu saldo</small><b>' + U.cents(api.me.balance_cents) + '</b></div>' + U.seg('shop', KINDS, st.shopTab, 'shopTab') +
+        return '<div class="pix-amount"><small>Seu saldo</small><b>' + U.cents(api.me.balance_cents) + '</b></div>' + shopTabs(st.shopTab) +
           (st.shopTab === 'prioridade' ? '<p class="note-gold">' + I('zap') + '<span>Quando uma sala lota, você passa na frente da fila de espera. Se abrir vaga, é sua primeiro.</span></p>' : '') +
           '<ul class="shop-grid stagger">' + (items.length ? items.map((it) => '<li class="shop-item' + (it.owned ? ' owned' : '') + '"><div class="shop-pv">' + itemPreview(it) + '</div><b>' + esc(it.name) + '</b><small>' + esc(it.description) + '</small>' +
             (it.kind === 'prioridade'

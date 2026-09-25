@@ -45,6 +45,10 @@ window.BH = window.BH || {};
   };
   api.refreshMe = async function () {
     const me = await api.rpc('me');
+    const e = me.equipped || {};
+    // o próprio avatar mostra moldura e acessório em qualquer tela
+    me.frame = e.frame_data || null;
+    me.accessory = e.accessory_key || null;
     api.me = me;
     return me;
   };
@@ -102,6 +106,12 @@ window.BH = window.BH || {};
       if (error) throw fail(error);
       return true;
     }
+    // link de convite gerado pela administração: volta com a sessão no endereço
+    if (q.get('access_token') && q.get('refresh_token')) {
+      const { error } = await sb.auth.setSession({ access_token: q.get('access_token'), refresh_token: q.get('refresh_token') });
+      if (error) throw fail(error);
+      return true;
+    }
     return false;
   };
   api.signOut = async function () {
@@ -146,6 +156,23 @@ window.BH = window.BH || {};
     try { body = error.context && typeof error.context.json === 'function' ? await error.context.json() : null; } catch (e) { body = null; }
     const status = error.context && error.context.status;
     if (status === 501 || status === 404 || (body && body.error === 'mp_nao_configurado')) return null;
+    throw fail(body && body.error ? body.error : error);
+  };
+
+  // abre um endereço fora do app (WhatsApp, navegador)
+  api.openExternal = function (url) {
+    const Browser = Cap && Cap.Plugins && Cap.Plugins.Browser;
+    if (native && Browser) return Browser.open({ url });
+    window.open(url, '_blank', 'noopener');
+    return Promise.resolve();
+  };
+
+  /* ---------- convite de testador (link de entrada, só a administração) ---------- */
+  api.invite = async function (email) {
+    const { data, error } = await sb.functions.invoke('convite', { body: { email } });
+    if (!error) return data;
+    let body = null;
+    try { body = error.context && typeof error.context.json === 'function' ? await error.context.json() : null; } catch (e) { body = null; }
     throw fail(body && body.error ? body.error : error);
   };
 

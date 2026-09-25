@@ -96,7 +96,7 @@ async function conservation(label) {
   // taxa combinada com o organizador
   await must('taxa especial 5%', call(owner, 'admin_set_creator_fee', { p_user: creator, p_pct: 5 }));
   const r2 = await must('sala com taxa especial', call(creator, 'create_room', { p: {
-    title: 'Sala Taxa 5', max_players: 4, entry_cents: 1000, starts_at: start, prizes: [{ place: 1, cents: 3900 }] } }));
+    title: 'Sala Taxa 5', max_players: 6, entry_cents: 1000, starts_at: start, prizes: [{ place: 1, cents: 3900 }] } }));
   ok(r2 && Number(r2.fee_pct) === 5, 'sala usa a taxa combinada', r2 && r2.fee_pct);
   for (let i = 0; i < 4; i++) await must('entra', call(P[i], 'join_room', { p_id: r2.id }));
   await must('inicia', call(creator, 'start_room', { p_id: r2.id, p_game_room_id: '1', p_password: 'a' }));
@@ -111,7 +111,7 @@ async function conservation(label) {
   const tplC = await must('modelos do criador', call(creator, 'room_templates'));
   ok(tplC && !tplC.find((t) => t.official_only), 'criador não vê modelos exclusivos');
   const ro = await must('sala oficial', call(owner, 'create_room', { p: {
-    title: 'Oficial Domínio', max_players: 6, entry_cents: 500, starts_at: start, official: true, tier: 'dominio', xp_mult: 2,
+    title: 'Oficial Domínio', max_players: 20, entry_cents: 600, starts_at: start, official: true, tier: 'dominio', xp_mult: 2,
     prizes: [{ place: 1, cents: 1500 }, { place: 2, cents: 800 }],
     mechanics: [{ type: 'booyah', cents: 300 }, { type: 'rei_lobby', cents: 400 }, { type: 'destaque', cents: 200 }, { type: 'sobrevivente', cents: 100 },
                 { type: 'meta_abates', cents: 150, n: 2 }, { type: 'clutch', cents: 250 }, { type: 'dominio', cents: 500 }, { type: 'por_kill', cents: 100 }] } }));
@@ -131,7 +131,7 @@ async function conservation(label) {
   ok(L.filter((l) => l.kind === 'sobrevivente').length === 5, 'sobrevivente top 5 paga os 5 primeiros', L.filter((l) => l.kind === 'sobrevivente').length);
   ok(sum(L, P[0], 'meta_abates') === 150 && sum(L, P[1], 'meta_abates') === 150 && sum(L, P[2], 'meta_abates') === 0, 'meta de 2 abates');
   const total = L.reduce((a, l) => a + Number(l.cents), 0);
-  ok(pv && pv.cover_platform_cents === total - 3000 && pv.fee_cents === 0, 'plataforma cobre o que falta na sala oficial', pv && { cover: pv.cover_platform_cents, total });
+  ok(pv && pv.cover_platform_cents === total - 3600 && pv.fee_cents === 0, 'plataforma cobre o que falta na sala oficial', pv && { cover: pv.cover_platform_cents, total });
   const xpP0 = pv && pv.players.find((x) => x.user_id === P[0]).xp;
   ok(xpP0 === (20 + 30 + 40 + 100 + 25) * 2, 'XP em dobro', xpP0);
   await must('finaliza oficial', call(owner, 'finish_room', { p_id: ro.id, p_results: resO }));
@@ -292,6 +292,73 @@ async function conservation(label) {
   ok(home && home.theme && home.theme.name && home.theme.base && Array.isArray(home.official) && Array.isArray(home.events), 'início traz tema do dia, salas oficiais e eventos', home && home.theme);
   const dash = await must('painel extra', call(owner, 'admin_dashboard_extra'));
   ok(dash && dash.prizes_week > 0, 'painel soma prêmios dos eventos', dash);
+
+  // ---------------- teto da premiação: com a sala cheia, no máximo 70% vai para os jogadores
+  const meT = await must('me com teto', call(creator, 'me'));
+  ok(meT && meT.settings.max_player_pct === 70, 'me traz o teto da premiação', meT && meT.settings.max_player_pct);
+  const cap10 = { title: 'Sala Justa', max_players: 10, entry_cents: 1000, starts_at: start, mechanics: [{ type: 'por_kill', cents: 200 }] };
+  await refuse('organizador não passa do teto', call(creator, 'create_room', { p: { ...cap10, prizes: [{ place: 1, cents: 5201 }] } }), /acima do limite/);
+  await refuse('sala oficial também respeita o teto', call(owner, 'create_room', { p: { ...cap10, official: true, prizes: [{ place: 1, cents: 5201 }] } }), /acima do limite/);
+  const rt = await must('sala exatamente no teto', call(creator, 'create_room', { p: { ...cap10, prizes: [{ place: 1, cents: 5200 }] } }));
+  ok(rt && rt.split_full.creator_cents + rt.split_full.platform_cents === 3000, 'sobra de 30% entre organizador e plataforma', rt && rt.split_full);
+  await refuse('editar não passa do teto', call(creator, 'update_room', { p_id: rt && rt.id, p: { ...cap10, prizes: [{ place: 1, cents: 5300 }] } }), /acima do limite/);
+  await refuse('mecânicas que não cabem', call(creator, 'update_room', { p_id: rt && rt.id, p: { ...cap10, prizes: [{ place: 1, cents: 5200 }],
+    mechanics: [...cap10.mechanics, { type: 'booyah', cents: 1 }] } }), /acima do limite/);
+  await must('cancela sala do teto', call(creator, 'cancel_room', { p_id: rt && rt.id, p_reason: 'teste' }));
+  await refuse('teto fora da faixa', call(owner, 'admin_set_settings', { p: { max_player_pct: 99 } }), /10% a 95%/);
+  await refuse('teto abaixo do piso', call(owner, 'admin_set_settings', { p: { max_player_pct: 40 } }), /piso e o teto/);
+  const st80 = await must('dono sobe o teto', call(owner, 'admin_set_settings', { p: { max_player_pct: 80 } }));
+  ok(st80 && Number(st80.max_player_pct) === 80, 'teto salvo', st80 && st80.max_player_pct);
+  const r80 = await must('sala com teto de 80%', call(creator, 'create_room', { p: { ...cap10, prizes: [{ place: 1, cents: 6200 }] } }));
+  await must('cancela', call(creator, 'cancel_room', { p_id: r80 && r80.id, p_reason: 'teste' }));
+  await must('teto volta a 70%', call(owner, 'admin_set_settings', { p: { max_player_pct: 70 } }));
+  await refuse('modelo acima do teto', call(owner, 'admin_template_save', { p: { id: 'guloso', title: 'Gulosa', tier: 'base', max_players: 10, entry_cents: 1000,
+    prizes: [{ place: 1, cents: 7001 }] } }), /acima do limite/);
+  for (const t of tpl || []) {
+    const rr = await must('modelo ' + t.id + ' cabe no teto', call(owner, 'create_room', { p: { title: t.name, template_id: t.id, tier: t.tier, team_size: t.team_size,
+      max_players: t.max_players, entry_cents: t.entry_cents, prizes: t.prizes, mechanics: t.mechanics, starts_at: start, official: true } }));
+    if (rr) await call(owner, 'cancel_room', { p_id: rr.id, p_reason: 'teste' });
+  }
+  await conservation('teto');
+
+  // ---------------- loja nova: banners animados, anime, acessórios e fundos
+  const sh = await must('loja nova', call(P[0], 'shop'));
+  const items = sh ? sh.items : [];
+  ok(items.filter((i) => i.kind === 'acessorio' && i.price_cents).length >= 10 && items.filter((i) => i.kind === 'fundo' && i.price_cents).length >= 8
+     && items.filter((i) => i.kind === 'banner' && i.data && i.data.anim).length >= 12, 'loja com acessórios, fundos e banners animados',
+     { a: items.filter((i) => i.kind === 'acessorio').length, f: items.filter((i) => i.kind === 'fundo').length });
+  const bS = await bal(P[0]);
+  await must('compra chapéu de palha', call(P[0], 'buy_item', { p_item: 'acc-palha' }));
+  await must('compra fundo sakura', call(P[0], 'buy_item', { p_item: 'fundo-sakura' }));
+  await must('compra banner kitsune', call(P[0], 'buy_item', { p_item: 'banner-kitsune' }));
+  ok(bS - (await bal(P[0])) === 490 + 790 + 1290, 'compras debitadas', bS - (await bal(P[0])));
+  const meS = await must('me equipado', call(P[0], 'me'));
+  ok(meS && meS.equipped.accessory_key === 'palha' && meS.equipped.background_data.fx === 'sakura' && meS.equipped.banner_data.art === 'kitsune',
+     'acessório, fundo e banner equipados', meS && meS.equipped);
+  const pf = await must('perfil público', call(P[1], 'get_profile', { p_user: P[0] }));
+  ok(pf && pf.accessory === 'palha' && pf.background_data.fx === 'sakura' && pf.banner_data.anim === 'flames', 'outros veem o visual', pf && { a: pf.accessory, b: pf.banner_data });
+  await must('troca de acessório', call(P[0], 'buy_item', { p_item: 'acc-bruxa' }));
+  const pf2 = await call(P[1], 'get_profile', { p_user: P[0] });
+  ok(pf2.accessory === 'bruxa', 'um acessório por vez', pf2.accessory);
+  await must('tira o acessório', call(P[0], 'unequip_item', { p_kind: 'acessorio' }));
+  await must('tira o fundo', call(P[0], 'unequip_item', { p_kind: 'fundo' }));
+  const pf3 = await call(P[1], 'get_profile', { p_user: P[0] });
+  ok(pf3.accessory === null && pf3.background_data === null, 'sem acessório nem fundo', pf3 && { a: pf3.accessory, b: pf3.background_data });
+  await refuse('recompensa não se compra', call(P[0], 'buy_item', { p_item: 'acc-louros' }), /recompensa/);
+  await must('admin cria acessório', call(owner, 'admin_shop_save', { p: { id: 'acc-teste', kind: 'acessorio', name: 'Teste', price_cents: 100, data: { acc: 'gato' } } }));
+  await conservation('loja nova');
+
+  // ---------------- convite de testador (link de entrada só para quem nunca entrou)
+  await refuse('jogador não gera convite', call(P[0], 'admin_invite_check', { p_email: 'amigo@bh.gg' }), /permissão/);
+  const cv = await must('dono gera convite', call(owner, 'admin_invite_check', { p_email: ' Amigo@BH.gg ' }));
+  ok(cv && cv.email === 'amigo@bh.gg' && cv.exists === false, 'convite para e-mail novo', cv);
+  await refuse('convite com e-mail inválido', call(owner, 'admin_invite_check', { p_email: 'nada' }), /inválido/);
+  await db.query('update auth.users set last_sign_in_at = now() where id = $1', [P[0]]);
+  const e0 = (await q1('select email from auth.users where id = $1', [P[0]])).email;
+  await refuse('não gera link para conta ativa', call(owner, 'admin_invite_check', { p_email: e0 }), /já entrou/);
+  const e1 = (await q1('select email from auth.users where id = $1', [P[1]])).email;
+  const inv2 = await must('conta que nunca entrou', call(owner, 'admin_invite_check', { p_email: e1 }));
+  ok(inv2 && inv2.exists === true, 'convite vale para conta criada que nunca entrou', inv2);
 
   // ---------------- excluir a própria conta
   const quit = P[8];

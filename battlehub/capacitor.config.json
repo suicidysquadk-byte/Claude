@@ -2,9 +2,9 @@
   "appId": "gg.battlehub.app",
   "appName": "BattleHub",
   "webDir": "www",
-  "backgroundColor": "#0a0910",
+  "backgroundColor": "#070605",
   "android": {
-    "backgroundColor": "#0a0910",
+    "backgroundColor": "#070605",
     "allowMixedContent": false,
     "captureInput": true
   },
