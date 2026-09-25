@@ -96,6 +96,19 @@ window.BH = window.BH || {};
     try { await sb.auth.signOut(); } catch (e) { /* sai mesmo sem rede */ }
   };
 
+  // apaga as fotos da própria pasta em cada balde (usado ao excluir a conta)
+  api.removeMyFiles = async function () {
+    const s = await api.session();
+    if (!s) return;
+    for (const bucket of ['avatars', 'chat', 'verificacoes']) {
+      try {
+        const { data } = await sb.storage.from(bucket).list(s.user.id, { limit: 1000 });
+        const paths = (data || []).map((f) => s.user.id + '/' + f.name);
+        if (paths.length) await sb.storage.from(bucket).remove(paths);
+      } catch (e) { /* segue mesmo se um balde falhar */ }
+    }
+  };
+
   /* ---------- fotos ---------- */
   api.upload = async function (bucket, blob) {
     const s = await api.session();

@@ -2,47 +2,74 @@
 
 ## Nome do app (até 30 caracteres)
 
-BattleHub: Torneios e Ranking
+BattleHub: Salas e Eventos
 
 ## Descrição curta (até 80 caracteres)
 
-Torneios de battle royale com premiação, ranking semanal, guildas e chat.
+Salas e eventos de Free Fire valendo prêmio, ranking, guildas e chat.
 
 ## Descrição completa
 
-O BattleHub reúne quem joga battle royale no celular e quer competir de verdade.
+O BattleHub reúne quem joga Free Fire e quer competir valendo prêmio, com tudo registrado e pago pelo app.
 
-TORNEIOS
-• Campeonatos, torneios rápidos, diários e desafios X1
-• Veja vagas, horário, mapa, modo e premiação antes de entrar
+SALAS OFICIAIS E DE ORGANIZADORES
+• Salas oficiais Base, Intermediária, Elite, Domínio e Ancestral, com prêmio garantido pela plataforma
+• Organizadores autorizados criam salas com inscrição, premiação e mecânicas próprias
 • ID e senha da sala liberados para os inscritos na hora do início
-• Chat de cada torneio para combinar e mandar o print do resultado
+• Cofre da sala: a inscrição fica guardada até o resultado e volta se a sala for cancelada
 
-PREMIAÇÃO E CARTEIRA
-• Premiação calculada na hora, com a divisão do 1º ao 5º lugar
-• Prêmio creditado na carteira assim que o torneio é finalizado
-• Depósito e saque via Pix, com extrato completo
+MECÂNICAS
+• Kill paga, Primeira kill, Líder de abates, Booyah e Rei do lobby
+• Player Rei com roleta: quem eliminar o Rei leva o bônus
+• Destaque da partida, Sobrevivente top 5, Meta de abates e Clutch extremo
+• Em dupla e squad: Line mais agressiva, Line mais tática e Domínio absoluto
+• Evento do dia: cada dia da semana com um tema e bônus diferentes
 
-RANKING
-• Ranking por ELO, global, semanal e mensal
-• Pódio, gráfico do top 5 e sua posição sempre à vista
-• Tiers de Bronze a Coroa
+EVENTOS OFICIAIS
+• Liga Semanal com grande final e Campeão da semana
+• Campeonatos de lines com fase de grupos, semifinal e final
+• Intensivo de guildas com ranking de guildas da semana
+• Classificação ao vivo por pontos de abate e colocação
 
-GUILDAS E SOCIAL
-• Crie ou entre em uma guilda e suba no ranking com o seu squad
-• Siga jogadores, converse no chat e acompanhe as notificações
+CARTEIRA E PIX
+• Depósito por Pix: o saldo entra quando o pagamento é confirmado
+• Prêmio na carteira assim que o resultado é confirmado
+• Saque por Pix e extrato completo
 
-PERFIL
-• Avatares e banners que você desbloqueia com vitórias, kills e reputação
-• Verificação da conta do jogo para liberar saques
-• Histórico de partidas com colocação, kills e ganhos
+PERFIL, RANKING E SOCIAL
+• Verificação do ID do Free Fire pelo print do perfil
+• XP, níveis e recompensas: banners, molduras e títulos
+• Ranking de abates, ganhos, salas, sobrevivência e vitórias (com opção anônima)
+• Guildas com líder, vice, cofre e salário mensal
+• Chat privado com fotos, amigos e mensagens do organizador com resposta rápida
 
-O BattleHub é um app independente e não é afiliado, patrocinado ou aprovado pela Garena. Free Fire é marca registrada da Garena.
+O BattleHub é um app independente e não é afiliado, patrocinado ou aprovado pela Garena. Free Fire é marca
+registrada da Garena. Para maiores de 18 anos.
 
-## Categoria
+## Categoria e classificação
 
-Jogos → Ação (ou Esportes, se a categoria de jogos não for aceita para app de comunidade)
+- Categoria: Jogos → Ação (ou Esportes), tipo "Jogo".
+- Público-alvo: 18 anos ou mais.
+- Contém anúncios: não. Compras no app: sim (itens de visual e prioridade na fila, pagos com o saldo).
 
-## Contato
+## Segurança dos dados (respostas para o formulário do Play Console)
 
-Informe um e-mail de suporte e, se tiver, um site.
+| Dado | Coletado | Compartilhado | Para quê | Obrigatório |
+|---|---|---|---|---|
+| E-mail | Sim | Não | Conta, login | Sim |
+| Nome e foto (Google) | Sim | Não | Conta | Não |
+| ID do usuário (nick, ID do Free Fire) | Sim | Não | Funcionalidade, prevenção de fraude | Sim |
+| Fotos (print do Free Fire, foto de perfil, fotos no chat) | Sim | Não | Funcionalidade, prevenção de fraude | Print: sim |
+| Mensagens no app | Sim | Não | Funcionalidade | Não |
+| Informações financeiras (histórico de compras e pagamentos, chave Pix) | Sim | Sim, com o Mercado Pago (processar o Pix) | Pagamentos | Sim para depositar/sacar |
+| Interações no app (salas, resultados) | Sim | Não | Funcionalidade, ranking | Sim |
+
+- Os dados são criptografados em trânsito: **sim** (HTTPS).
+- O usuário pode pedir a exclusão: **sim** (*Perfil → Excluir minha conta* ou pelo e-mail de suporte).
+
+## Imagens (pasta `loja/`)
+
+- Ícone 512×512: `icone-512.png`.
+- Gráfico de destaque 1024×500: `banner-1024x500.png`.
+- Capturas de tela: `tela-*.png`. Tire novas no app conectado, principalmente das salas oficiais, dos eventos e
+  do evento do dia.

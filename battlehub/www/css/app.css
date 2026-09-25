@@ -1557,3 +1557,4 @@ dl, dd { margin: 0; }
 .tpl-card.t-dominio { border-color: rgba(255, 122, 89, .4); }
 .fee-form { margin-top: 8px; }
 @media (prefers-reduced-motion: reduce) { .theme-glow, .champ-crown .ic, .split-bar i { animation: none; } }
+.menu-row.danger { color: var(--red); border-color: rgba(251, 113, 133, .25); }

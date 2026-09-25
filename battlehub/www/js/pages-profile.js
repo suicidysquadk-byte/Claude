@@ -22,6 +22,24 @@ window.BH = window.BH || {};
   };
   const ffStatus = { aprovado: ['tone-cyan', 'badgeCheck', 'ID verificado'], pendente: ['tone-violet', 'clock', 'Em análise'], recusado: ['tone-red', 'alert', 'Recusado'], nao_enviado: ['tone-gold', 'shield', 'Não enviado'] };
 
+  // exclusão da conta (Play Store exige para apps com login)
+  actions.deleteAccount = async function () {
+    const me = await api.refreshMe();
+    const bal = me.balance_cents;
+    const typed = await U.confirm({ title: 'Excluir sua conta?', danger: true, icon: 'userX', ok: 'Excluir para sempre',
+      body: 'Seu nick, foto, e-mail e dados do Free Fire são apagados e você perde o acesso. O histórico de pagamentos fica guardado sem seus dados, como manda a lei.' +
+        (bal > 0 ? '<br><br><b>Você ainda tem ' + U.cents(bal) + ' na carteira.</b> Se continuar, abre mão desse valor. Para receber, faça o saque antes.' : ''),
+      input: { label: 'Digite EXCLUIR para confirmar', placeholder: 'EXCLUIR', required: true, error: 'Digite EXCLUIR.' } });
+    if (!typed) return;
+    if (String(typed).trim().toUpperCase() !== 'EXCLUIR') return U.toast('Digite EXCLUIR para confirmar.', 'bad');
+    const r = await U.run(null, async () => { await api.removeMyFiles(); return api.rpc('delete_my_account', { p_forfeit: bal > 0 }); });
+    if (!r) return;
+    await api.signOut();
+    BH.app.setSession(null);
+    U.toast('Conta excluída. Obrigado por jogar com a gente.', 'info');
+    BH.app.boot(false);
+  };
+
   pages.perfil = async function () {
     const me = await api.refreshMe();
     const e = me.equipped || {};
@@ -55,7 +73,8 @@ window.BH = window.BH || {};
         '<nav class="menu stagger">' +
         '<button type="button" class="menu-row ripple" data-act="editProfile">' + I('settings') + '<span>Editar perfil</span>' + I('right', 'chev') + '</button>' +
         (me.role_level >= 1 ? '<button type="button" class="menu-row admin ripple" data-act="admin" data-v="overview">' + I('crown') + '<span>Painel administrativo</span>' + (pendN ? '<b class="dot-count">' + pendN + '</b>' : '') + I('right', 'chev') + '</button>' : '') +
-        '<button type="button" class="menu-row ripple" data-act="logout">' + I('logout') + '<span>Sair</span></button></nav></section>'
+        '<button type="button" class="menu-row ripple" data-act="logout">' + I('logout') + '<span>Sair</span></button>' +
+        '<button type="button" class="menu-row danger ripple" data-act="deleteAccount">' + I('userX') + '<span>Excluir minha conta</span></button></nav></section>'
     };
   };
 

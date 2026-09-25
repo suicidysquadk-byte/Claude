@@ -293,6 +293,18 @@ async function conservation(label) {
   const dash = await must('painel extra', call(owner, 'admin_dashboard_extra'));
   ok(dash && dash.prizes_week > 0, 'painel soma prêmios dos eventos', dash);
 
+  // ---------------- excluir a própria conta
+  const quit = P[8];
+  await refuse('não exclui com saldo sem abrir mão', call(quit, 'delete_my_account', { p_forfeit: false }), /carteira/);
+  const plQ = await platform(), balQ = await bal(quit);
+  const del = await must('exclui a conta', call(quit, 'delete_my_account', { p_forfeit: true }));
+  ok(del && del.forfeit_cents === balQ && (await platform()) - plQ === balQ, 'saldo deixado vai para a plataforma', del);
+  const gone = await q1('select p.nick, p.ff_id, p.avatar_url, u.email from profiles p join auth.users u on u.id = p.id where p.id = $1', [quit]);
+  ok(gone.ff_id === null && gone.avatar_url === null && /^Conta excluída/.test(gone.nick) && /@battlehub\.invalid$/.test(gone.email), 'dados pessoais apagados', gone);
+  await refuse('conta excluída não entra mais', call(quit, 'home'), /suspensa/);
+  await refuse('dono não se exclui', call(owner, 'delete_my_account', { p_forfeit: true }), /dona/);
+  await conservation('conta excluída');
+
   console.log(`\n${passed} verificações passaram, ${fails.length} falharam`);
   fails.forEach((f) => console.log('  ✗ ' + f));
   await db.end();

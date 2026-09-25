@@ -1,112 +1,132 @@
-# BattleHub (app Android)
+# BattleHub
 
-App de torneios para jogadores de Free Fire: inscrição com saldo, carteira Pix, ranking, guildas, chat e painel administrativo completo. Feito em HTML, CSS e JavaScript e empacotado como app Android nativo com [Capacitor 8](https://capacitorjs.com). Mira o Android 16 (API 36), o nível exigido para apps novos na Play Store.
+App Android de salas e eventos de Free Fire valendo prêmio em dinheiro, **online**: os jogadores entram com
+Google ou código por e-mail, depositam por Pix, entram em salas oficiais ou de organizadores autorizados,
+jogam, e o prêmio cai na carteira assim que o resultado é confirmado.
 
-## Instalar no celular agora
+- **App**: HTML/CSS/JS puro dentro do Capacitor 8 (Android, `gg.battlehub.app`). Pasta `www/`.
+- **Servidor**: Supabase (Postgres com regras de segurança, login, fotos e funções). Pasta `supabase/`.
+- **Pix**: Mercado Pago (automático) ou manual (QR Pix real gerado no app e confirmado pela equipe).
 
-1. Baixe o `BattleHub-1.0.0.apk` (enviado na conversa ou gerado pelo GitHub Actions, veja abaixo).
-2. Abra o arquivo no Android e permita "instalar apps desta fonte" quando o celular pedir.
-3. Abra o BattleHub. Você entra como **SHADOW lock (dono)**, com acesso ao painel admin em Perfil → Painel administrativo.
+O passo a passo do que **você** precisa fazer (contas, chaves, loja) está em
+[`O-QUE-VOCE-PRECISA-FAZER.md`](O-QUE-VOCE-PRECISA-FAZER.md).
 
-Para testar como jogador comum: Perfil → Sair → "Jogadora · Luna.ff".
+## O que o app faz
 
-## Publicar na Play Store
+**Conta e perfil**
+- Login com Google ou código de 6 dígitos no e-mail, com animação de verificação.
+- Cadastro com nick, foto e **print do perfil do Free Fire** (nick + ID). A equipe confere no painel.
+  Mudança de nick ou ID volta para a fila de verificação. Saque só com ID verificado.
+- XP por participação, abates, top 3, vitória e prêmios; níveis liberam banners, molduras e títulos.
+- Loja (visual do perfil e **prioridade na fila** de salas lotadas).
+- Opção de ficar anônimo no ranking (o valor ganho continua visível).
+- **Excluir minha conta** (exigência da Play Store): apaga os dados pessoais e guarda só o histórico de pagamentos.
 
-O arquivo para a loja é o **`.aab`** (Android App Bundle), assinado com a chave de upload.
+**Dinheiro**
+- Carteira em centavos. O saldo só entra depois do pagamento confirmado (webhook do Mercado Pago ou equipe).
+- Inscrição vai para o **cofre da sala** e fica lá até a sala acabar.
+- Ao finalizar: paga os prêmios → a **plataforma** fica com a parte dela → o **organizador** fica com o resto.
+  - Salas de organizador: a plataforma recebe `X%` da arrecadação (padrão 10%, dá para combinar uma taxa com
+    cada organizador), **nunca mais que a sobra**. O prêmio dos jogadores vem sempre primeiro.
+  - Piso de premiação: com a sala cheia, os jogadores precisam poder receber pelo menos `Y%` (padrão 50%).
+  - **Salas oficiais** (da plataforma): a plataforma garante o prêmio (completa se faltar) e fica com a sobra.
+- Guildas: cada membro manda uma parte dos prêmios para o cofre da guilda; o líder paga salário mensal
+  (sugestão por desempenho ou divisão igual).
+- Todo passo de dinheiro é testado: o total dentro do app (carteiras + cofres + receita) sempre bate com o que
+  entrou menos o que saiu.
 
-1. Crie a conta em <https://play.google.com/console> (taxa única de US$ 25).
-2. **Criar app** → nome BattleHub, idioma português (Brasil), tipo App, gratuito.
-3. **Testar e lançar → Teste interno → Criar versão** → envie o `.aab`. Aceite a *Assinatura de apps do Google Play*.
-4. Preencha a **Ficha da loja** com os textos de `loja/descricao.md` e as imagens de `loja/`:
-   - ícone `icone-512.png`, recurso gráfico `banner-1024x500.png`
-   - capturas `tela-1-inicio.png` a `tela-5-admin.png`
-5. Preencha **Conteúdo do app**: política de privacidade (modelo em `loja/politica-de-privacidade.md`, publique numa página pública e cole o link), segurança de dados, classificação etária e público-alvo.
-6. Contas pessoais criadas depois de novembro de 2023 precisam de um **teste fechado com pelo menos 12 testadores por 14 dias seguidos** antes de liberar a produção.
+**Salas**
+- Só quem tem permissão cria sala (o dono dá a permissão em Usuários). A administração cria **salas oficiais**.
+- Modelos prontos: **Treino, Base, Intermediária, Elite, Domínio, Ancestral (solo, dupla e squad)** — a tabela
+  Ancestral é a da imagem de referência (70% da arrecadação em prêmios até o 4º lugar).
+- Mecânicas: Kill paga, Primeira kill, Player Rei (roleta), Líder de abates (top killer), Booyah, Rei do lobby,
+  Destaque da partida, Sobrevivente top 5, Meta de abates, Clutch extremo, Line mais agressiva,
+  Line mais tática, Domínio absoluto e Sorteio. Empate divide. Bônus só paga se a mecânica acontecer.
+- **Evento do dia** (segunda a domingo: Início Forte, Performance, Estratégia, Decisão, Pressão, Premium,
+  Final Boss) com base fixa (kill paga, top 3, líder). Editável no painel.
+- Organizador lança abates e colocação de cada jogador, vê a **prévia do pagamento** e confirma.
+- Fila de espera com prioridade; admin move ou remove jogadores entre salas com reembolso.
 
-## Antes de abrir para o público
+**Eventos oficiais**
+- Formatos prontos: **Liga Semanal** (14 quedas, pontos kill +2 / Booyah +15..., grande final com os 12
+  melhores, campeão da semana), **Champions Series** (32 lines de 4, grupos → semifinal top 16 → final top 8,
+  prêmios e bônus MVP, line mais agressiva, clutch, maior pontuador por mapa, domínio absoluto),
+  **Intensivo de Lines** (treino de guildas com preço progressivo R$ 20/15/12 e pontos de guilda 10/7/5/3/1),
+  **Copa Relâmpago**, **Copa das Duplas** e **Guerra de Guildas**.
+- Inscrição por jogador ou por line (o capitão paga e chama os parceiros pelo número do perfil).
+- A organização cria as quedas (as lines são divididas em grupos e colocadas nas salas sozinhas),
+  a classificação atualiza a cada queda, fecha a fase (os melhores passam), vê a prévia e paga.
+- Campeões ganham o título "Campeão da Semana" e a moldura de campeão; ranking de guildas da semana.
 
-Esta versão é completa nas telas e nas regras, mas **os dados ficam só no celular de cada pessoa** (armazenamento local). Isso serve para testar e apresentar o app. Para jogadores reais se enfrentarem, faltam:
+**Social**
+- Chat privado com fotos, lista de amigos (com sugestões de quem jogou com você).
+- Organizador fala com qualquer inscrito: a mensagem chega numa aba separada do chat e aparece num
+  **balão no topo** (estilo WhatsApp) com resposta rápida.
+- Ranking de abates, salas jogadas, sobrevivência, ganhos, vitórias e XP (semana, mês, geral).
 
-- **Servidor e banco de dados**: contas com login real, torneios, chat e ranking compartilhados. As funções em `www/js/store.js` (`BH.act`) são o ponto de troca: cada uma vira uma chamada à API (Supabase ou Firebase são os caminhos mais rápidos).
-- **Pix de verdade**: um intermediador de pagamento (Mercado Pago, Efí, Asaas) para gerar o QR, confirmar o depósito sozinho e pagar os saques. Hoje o QR é de demonstração e o admin confirma à mão.
-- **Política de jogos com dinheiro real do Google Play**: torneios com inscrição paga e prêmio em dinheiro, e principalmente o modo **X1 apostado**, contam como jogos com dinheiro real. O Google só aceita esse tipo de app com licença e autorização prévia. Para a primeira versão na loja, o caminho mais seguro é tirar o X1 apostado e deixar os torneios gratuitos com prêmio pago pela plataforma ou por patrocinadores. Consulte um advogado antes de cobrar inscrição.
-- **Marca Free Fire**: não use "Free Fire" no nome nem no ícone do app. Na descrição, deixe claro que o BattleHub não é afiliado à Garena.
-
-## Gerar uma versão nova
-
-**Pelo GitHub (sem computador):** cada alteração em `battlehub/` roda o fluxo **BattleHub Android** (aba Actions do repositório). O APK e o AAB ficam em *Artifacts* no fim da execução. O número da versão sobe sozinho a cada execução.
-
-Para o GitHub assinar a versão de loja, cadastre em *Settings → Secrets and variables → Actions*:
-
-| Segredo | Valor |
-|---|---|
-| `BATTLEHUB_KEYSTORE_BASE64` | o arquivo `battlehub-upload.jks` em base64 (`base64 -w0 battlehub-upload.jks`) |
-| `BATTLEHUB_KEYSTORE_PASSWORD` | a senha da chave |
-| `BATTLEHUB_KEY_ALIAS` | `battlehub` |
-| `BATTLEHUB_KEY_PASSWORD` | a senha da chave |
-
-Sem esses segredos, o GitHub gera só o APK de teste (debug).
-
-**No computador** (Node 22, Java 21 e Android SDK):
-
-```bash
-cd battlehub
-npm install
-npm run apk     # APK de teste
-npm run aab     # AAB assinado (precisa de android/keystore.properties)
-```
-
-O `android/keystore.properties` fica fora do git e tem este formato:
-
-```
-storeFile=/caminho/battlehub-upload.jks
-storePassword=SENHA
-keyAlias=battlehub
-keyPassword=SENHA
-```
-
-## Chave de assinatura
-
-A `battlehub-upload.jks` assina todas as versões enviadas à Play Store. **Guarde o arquivo e a senha em dois lugares seguros** (por exemplo, Google Drive e um pendrive). Nunca coloque a chave no repositório. Se ela for perdida, dá para pedir a troca da chave de upload no Play Console, mas o processo leva dias.
-
-## Testar no navegador
-
-```bash
-cd battlehub && npm run web
-```
-
-Abra <http://localhost:8080>. Atalhos: `#admin` abre o painel e `#financeiro` abre o financeiro.
+**Painel administrativo** (dono, admin e moderador)
+- Visão geral, receita por origem, usuários (cargos, permissão de criar sala, taxa do organizador,
+  suspensão com tempo, ajuste de saldo, extrato), verificação de ID, financeiro (depósitos manuais e saques),
+  salas, eventos, modelos de sala, denúncias, guildas, avisos, loja, configurações e auditoria.
 
 ## Estrutura
 
-| Caminho | O que é |
-|---|---|
-| `www/index.html` | Página do app |
-| `www/css/app.css` | Visual, navegação líquida e animações |
-| `www/js/store.js` | Dados de exemplo e todas as regras (inscrição, prêmios, carteira, admin) |
-| `www/js/screens.js` | Telas do jogador |
-| `www/js/admin.js` | Painel administrativo |
-| `www/js/nav.js` | Barra de navegação líquida |
-| `www/js/ui.js` | Componentes: janelas, avisos, gráficos, confete |
-| `www/js/app.js` | Navegação entre telas e botão Voltar do Android |
-| `www/fonts/` | Fontes embutidas (funciona sem internet) |
-| `android/` | Projeto Android nativo gerado pelo Capacitor |
-| `assets/` | Ícone e abertura em alta resolução (fonte dos ícones do Android) |
-| `loja/` | Imagens e textos para a página da Play Store |
+```
+www/                  o app (index.html, css/, js/, fonts/, vendor/)
+  js/config.js        endereço do Supabase e chave pública (gerado pelo script)
+  js/api.js           conversa com o Supabase (login, RPC, fotos, Pix, tempo real)
+  js/pages-*.js       telas (entrada, salas, eventos, social, perfil, admin)
+supabase/
+  migrations/         banco: tabelas, regras de dinheiro, API, admin, fotos, competitivo, eventos, conta
+  functions/          pix-criar e pix-webhook (Mercado Pago)
+  tests/              testes das regras de dinheiro e servidor de teste para rodar o app sem internet
+scripts/configurar.sh conecta tudo ao seu Supabase (lê scripts/conexao.env)
+android/              projeto Android gerado pelo Capacitor
+loja/                 textos, imagens e política de privacidade para a Play Store
+```
 
-Depois de mudar ícone ou abertura em `assets/`, rode `npm run icons`.
+## Conectar ao servidor
 
-## O que o painel admin faz
+```bash
+cp scripts/conexao.exemplo.env scripts/conexao.env   # preencha as chaves
+bash scripts/configurar.sh
+```
 
-- **Visão geral**: pendências, usuários, torneios ativos, depósitos e receita, gráfico de entradas e saídas de 14 dias, jogadores por tier e atividade recente.
-- **Usuários**: busca por ID, nick, e-mail ou ID do Free Fire; cargo (jogador, moderador, admin), verificação, ajuste de saldo e ELO, notificação individual, banimento e exclusão.
-- **Torneios**: criar, editar, iniciar (libera ID e senha da sala para os inscritos), finalizar escolhendo os vencedores (prêmio vai direto para a carteira e a taxa para a plataforma), destacar, cancelar com reembolso e excluir.
-- **Financeiro**: entrou, saiu, líquido e receita; confirmar ou recusar depósitos; pagar ou recusar saques (recusa devolve o saldo); histórico com filtros.
-- **Verificações**: print do perfil do Free Fire com os dados informados; aprovar ou recusar com motivo.
-- **Denúncias**: advertir, banir ou descartar.
-- **Guildas**: abrir e fechar recrutamento, dissolver.
-- **Avisos**: enviar para todos, verificados ou equipe, com opção de fixar no início.
-- **Configurações**: taxa da plataforma, limites de depósito e saque, chave Pix, criação de torneios por jogadores e modo manutenção.
-- **Auditoria**: registro de todas as ações do painel.
+O script liga ao projeto, aplica as migrações, publica as funções do Pix, guarda as chaves do Mercado Pago,
+liga o login com Google e o código por e-mail e grava `www/js/config.js`. **A primeira conta que entrar vira
+a dona do app.**
 
-Moderadores veem usuários, torneios, verificações, denúncias e guildas. Financeiro, avisos, configurações e auditoria são só de admin e dono.
+## Gerar o app
+
+```bash
+npm ci
+npm run apk     # APK de teste (debug)
+npm run aab     # pacote para a Play Store (precisa de android/keystore.properties)
+```
+
+`android/keystore.properties` (fora do git):
+
+```
+storeFile=/caminho/battlehub-upload.jks
+storePassword=...
+keyAlias=battlehub
+keyPassword=...
+```
+
+No GitHub, o workflow **BattleHub Android** gera APK/AAB a cada push. Segredos usados (Settings → Secrets):
+`BATTLEHUB_SUPABASE_URL`, `BATTLEHUB_SUPABASE_ANON_KEY`, `BATTLEHUB_KEYSTORE_BASE64`,
+`BATTLEHUB_KEYSTORE_PASSWORD`, `BATTLEHUB_KEY_ALIAS`, `BATTLEHUB_KEY_PASSWORD`.
+
+## Testes
+
+Precisa de um Postgres local vazio (não usa o Supabase):
+
+```bash
+PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh ./supabase/tests/reset.sh
+PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh node supabase/tests/money.test.js        # 196 verificações
+PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh ./supabase/tests/reset.sh
+PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh node supabase/tests/competitivo.test.js  # 216 verificações
+```
+
+Para abrir o app no navegador sem internet: `node supabase/tests/fake-supabase.js 8790` e acesse
+`http://localhost:8790` (qualquer e-mail, código `123456`).

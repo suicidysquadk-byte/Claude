@@ -1,0 +1,4 @@
+# chaves e senhas nunca vão para o repositório
+scripts/conexao.env
+*.jks
+*.keystore
