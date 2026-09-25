@@ -19,3 +19,10 @@ create policy "trocar fotos da própria pasta" on storage.objects for update to 
 
 create policy "ver print de verificação" on storage.objects for select to authenticated
   using (bucket_id = 'verificacoes' and ((storage.foldername(name))[1] = auth.uid()::text or app.is_staff(auth.uid())));
+
+-- listar e apagar as próprias fotos (usado ao excluir a conta)
+create policy "listar fotos da própria pasta" on storage.objects for select to authenticated
+  using (bucket_id in ('avatars', 'chat') and (storage.foldername(name))[1] = auth.uid()::text);
+
+create policy "apagar fotos da própria pasta" on storage.objects for delete to authenticated
+  using (bucket_id in ('avatars', 'chat', 'verificacoes') and (storage.foldername(name))[1] = auth.uid()::text);
