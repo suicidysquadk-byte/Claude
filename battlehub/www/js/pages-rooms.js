@@ -370,7 +370,7 @@ window.BH = window.BH || {};
     const data = { rows: {}, first_blood: '', king_outcome: r.king ? 'killed' : 'none', king_killer: '', survivors: [], picks: { destaque: '', clutch: '', line_tatica: '' }, preview: null };
     r.player_list.forEach((u) => { data.rows[u.id] = { kills: 0, placement: '', survival: '' }; });
     const hasKing = has('rei') && r.king;
-    const opts = (sel, ph) => '<option value="">' + (ph || 'Escolha o jogador') + '</option>' + r.player_list.map((u) => '<option value="' + u.id + '"' + (sel === u.id ? ' selected' : '') + '>' + esc(u.nick) + (u.line ? ' · ' + esc(u.line.name) : '') + '</option>').join('');
+    const opts = (sel, ph, skip) => '<option value="">' + (ph || 'Escolha o jogador') + '</option>' + r.player_list.filter((u) => u.id !== skip).map((u) => '<option value="' + u.id + '"' + (sel === u.id ? ' selected' : '') + '>' + esc(u.nick) + (u.line ? ' · ' + esc(u.line.name) : '') + '</option>').join('');
     const payload = () => ({
       players: r.player_list.map((u) => ({ user_id: u.id, kills: Number(data.rows[u.id].kills) || 0, placement: data.rows[u.id].placement === '' ? null : Number(data.rows[u.id].placement), survival_min: data.rows[u.id].survival === '' ? 0 : Number(data.rows[u.id].survival) })),
       first_blood: data.first_blood || null, king_outcome: data.king_outcome, king_killer: data.king_killer || null,
@@ -397,7 +397,7 @@ window.BH = window.BH || {};
             '<div class="btn-row two"><button type="button" class="btn ghost" data-act="resBack">' + I('back') + 'Corrigir</button><button type="button" class="btn gold" data-act="resConfirm" data-id="' + r.id + '">' + I('check') + 'Confirmar e pagar</button></div></div>';
         }
         return '<form class="form results-form" data-form="resPreview" data-id="' + r.id + '"><p class="muted">Lance os abates e a colocação de cada jogador. ' + (r.team_size > 1 ? 'No modo ' + TEAM[r.team_size].toLowerCase() + ', quem é da mesma ' + LINE[r.team_size] + ' recebe a mesma colocação.' : '') + '</p>' +
-          '<div class="res-head"><span>Jogador</span><span>Abates</span><span>Colocação</span><span>Min vivo</span></div>' +
+          '<div class="res-head"><span>Jogador</span><span>Abates</span><span>Pos.</span><span>Min</span></div>' +
           '<ul class="res-rows">' + r.player_list.map((u) => { const row = d.rows[u.id]; return '<li>' + U.av(u, 'xs') + '<span class="res-name"><b>' + esc(u.nick) + '</b><small>' + esc(u.line ? u.line.name : u.ff_nick || '') + '</small></span>' +
             '<span class="stepper"><button type="button" data-act="resKill" data-id="' + u.id + '" data-d="-1" aria-label="Menos um abate">' + I('minus') + '</button><b id="k-' + u.id + '">' + row.kills + '</b><button type="button" data-act="resKill" data-id="' + u.id + '" data-d="1" aria-label="Mais um abate">' + I('plus') + '</button></span>' +
             '<input type="number" inputmode="numeric" min="1" max="' + r.player_list.length + '" class="res-in" data-res="placement" data-id="' + u.id + '" value="' + esc(row.placement) + '" placeholder="–" aria-label="Colocação de ' + esc(u.nick) + '">' +
@@ -406,7 +406,7 @@ window.BH = window.BH || {};
           (has('first_blood') ? '<label class="field"><span>' + I('droplet') + 'Quem fez a primeira kill?</span><select id="res-fb" data-res="first_blood">' + opts(d.first_blood) + '</select></label>' : '') +
           (hasKing ? '<fieldset class="field king-set"><span>' + I('crown') + 'Player Rei: ' + esc(r.king.nick) + '</span><div class="radio-list">' +
             [['killed', 'Foi eliminado'], ['survived', 'Sobreviveu até o fim (bônus é dele)'], ['none', 'Ninguém eliminou (bônus fica no cofre)']].map((o) => '<label class="radio"><input type="radio" name="king" value="' + o[0] + '"' + (d.king_outcome === o[0] ? ' checked' : '') + ' data-res="king_outcome"><span>' + o[1] + '</span></label>').join('') + '</div>' +
-            (d.king_outcome === 'killed' ? '<select id="res-kk" data-res="king_killer">' + opts(d.king_killer) + '</select>' : '') + '</fieldset>' : '') +
+            (d.king_outcome === 'killed' ? '<label class="field"><span>Quem eliminou o Rei?</span><select id="res-kk" data-res="king_killer">' + opts(d.king_killer, 'Escolha quem eliminou', r.king.id) + '</select></label>' : '') + '</fieldset>' : '') +
           pick('destaque', 'star', 'Destaque da partida', 'Ninguém (bônus fica no cofre)') +
           pick('clutch', 'zap', 'Quem fez o clutch?', 'Não teve clutch') +
           pick('line_tatica', 'map', 'Line mais tática (escolha um jogador da line)', 'Nenhuma') +

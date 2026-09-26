@@ -67,6 +67,7 @@ jobs:
           PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres PGDATABASE=bh node --experimental-strip-types supabase/tests/asaas.test.js
           PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres PGDATABASE=bh ./supabase/tests/reset.sh
           PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres PGDATABASE=bh node --experimental-strip-types supabase/tests/efi.test.js
+          PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres PGDATABASE=bh node supabase/tests/sem-delete-livre.test.js
           node scripts/cosmeticos/verificar.js
 
       - name: Carimbar o número da versão
