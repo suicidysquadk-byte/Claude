@@ -1,0 +1,27 @@
+{
+  "id": "2026-09-26-decoracoes-02",
+  "formato": "decoracao",
+  "objetivo": "Rodada 2: decorações de avatar premium (orelhas e cauda, criaturas, aros elementais, asas, coroas) no nível da Loja do Discord, só de sites de arte e design",
+  "estilos": ["ANIME_PREMIUM", "FANTASY", "GAMER_PREMIUM", "NEON", "GOLD_PREMIUM", "ICE", "FIRE"],
+  "paginas": [
+    "https://www.artstation.com/artwork/qerwOz",
+    "https://www.artstation.com/artwork/L2xOK5",
+    "https://www.artstation.com/artwork/K3aDnx",
+    "https://www.artstation.com/marketplace/p/BnAxm/gui-frames-for-avatars-icons-rpg-bundle",
+    "https://www.artstation.com/marketplace/p/bjyxd/avatar-frames",
+    "https://www.artstation.com/marketplace/p/K5lNP/avatar-frame",
+    "https://www.behance.net/gallery/120908411/Game-Avatar-Frames",
+    "https://dribbble.com/shots/25259531-3D-Avatar-border"
+  ],
+  "navegador": {
+    "artstation": ["avatar frame", "avatar frame game ui", "profile frame game", "avatar border"],
+    "behance": ["avatar frame game", "discord avatar decoration", "game ui avatar frame"],
+    "dribbble": ["avatar frame", "avatar decoration", "profile frame game"],
+    "pinterest": ["discord avatar decoration", "game avatar frame", "avatar frame fantasy png", "anime avatar frame"]
+  },
+  "ddg": ["discord avatar decoration", "avatar frame game ui artstation", "mobile game avatar frame", "animated avatar frame fantasy"],
+  "deviantart": ["avatar frame", "avatar decoration"],
+  "por_busca": 14,
+  "por_site": 16,
+  "maximo": 120
+}

@@ -30,7 +30,9 @@ jobs:
           python-version: '3.12'
 
       - name: Instalar
-        run: pip install --quiet pillow numpy
+        run: |
+          pip install --quiet pillow numpy playwright ddgs
+          python -m playwright install --with-deps chromium
 
       - name: Escolher o pedido
         id: pedido

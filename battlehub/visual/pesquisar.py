@@ -79,8 +79,10 @@ def de_pagina(url):
     try:
         pag, final = texto(url)
     except Exception as e:
-        log('  página falhou', url, e)
-        return []
+        log('  página falhou', url, e, '- tentando pelo navegador')
+        titulo, imgs = nav().imagens(url, rolar=1)
+        grandes = [i for i in imgs if i.get('alt') == 'og' or (i.get('w', 0) >= 500 and i.get('h', 0) >= 300)]
+        return [{'imagem': i['src'], 'fonte': url, 'titulo': titulo, 'autor': None, 'site': 'pagina'} for i in grandes[:4]]
     titulo = meta(pag, 'og:title') or (re.search(r'<title>([^<]+)', pag) or [None, None])[1]
     autor = meta(pag, 'author') or meta(pag, 'twitter:creator')
     vistos = set()
@@ -117,7 +119,7 @@ def bing(consulta, n=14):
             continue
         if j.get('murl'):
             achados.append({'imagem': j['murl'], 'reserva': j.get('turl'), 'fonte': j.get('purl') or j['murl'],
-                            'titulo': j.get('t'), 'autor': None, 'consulta': consulta})
+                            'titulo': j.get('t'), 'autor': None, 'consulta': consulta, 'site': 'bing'})
         if len(achados) >= n:
             break
     log('  bing', repr(consulta), len(achados))
@@ -164,6 +166,156 @@ def artstation(consulta, n=12):
             achados.append({'imagem': img, 'fonte': p.get('url'), 'titulo': p.get('title'),
                             'autor': (p.get('user') or {}).get('full_name'), 'consulta': consulta})
     log('  artstation', repr(consulta), len(achados))
+    return achados
+
+
+# ---------- navegador (Chromium de verdade, para sites que bloqueiam robô) ----------
+
+class Navegador:
+    def __init__(self):
+        self.pw = self.nav = self.ctx = None
+        try:
+            from playwright.sync_api import sync_playwright
+            self.pw = sync_playwright().start()
+            self.nav = self.pw.chromium.launch(headless=True, executable_path=os.environ.get('PW_CHROMIUM') or None,
+                                              args=['--disable-blink-features=AutomationControlled'])
+            self.ctx = self.nav.new_context(user_agent=UA, viewport={'width': 1440, 'height': 1000}, locale='en-US')
+            self.ctx.add_init_script("Object.defineProperty(navigator,'webdriver',{get:()=>undefined})")
+        except Exception as e:
+            log('  navegador indisponível', e)
+            self.pw = None
+
+    def imagens(self, url, rolar=3):
+        """Abre a página e devolve (título, [ {src, w, h, alt, link} ]) das imagens carregadas."""
+        if not self.pw:
+            return None, []
+        pg = self.ctx.new_page()
+        try:
+            pg.goto(url, wait_until='domcontentloaded', timeout=45000)
+            for _ in range(15):
+                if 'just a moment' not in (pg.title() or '').lower():
+                    break
+                pg.wait_for_timeout(1000)
+            pg.wait_for_timeout(2500)
+            for _ in range(rolar):
+                pg.mouse.wheel(0, 2200)
+                pg.wait_for_timeout(1200)
+            titulo = pg.title()
+            dados = pg.evaluate("""() => {
+              const out = [];
+              for (const i of document.images) {
+                const a = i.closest('a');
+                out.push({src: i.currentSrc || i.src, w: i.naturalWidth, h: i.naturalHeight,
+                          alt: i.alt || '', link: a ? a.href : ''});
+              }
+              for (const m of document.querySelectorAll('meta[property="og:image"],meta[name="twitter:image"]'))
+                out.unshift({src: m.content, w: 0, h: 0, alt: 'og', link: location.href});
+              return out;
+            }""")
+            log('  navegador', url[:90], '->', repr(titulo[:50]), len(dados), 'imagens')
+            return titulo, dados
+        except Exception as e:
+            log('  navegador falhou', url[:90], type(e).__name__, str(e)[:100])
+            return None, []
+        finally:
+            pg.close()
+
+    def fechar(self):
+        if self.pw:
+            self.nav.close()
+            self.pw.stop()
+
+
+NAV = None
+
+
+def nav():
+    global NAV
+    if NAV is None:
+        NAV = Navegador()
+    return NAV
+
+
+# padrão da imagem no site -> (como pegar a versão grande, filtro do link)
+SITES = {
+    'artstation': ('https://www.artstation.com/search?sort_by=relevance&query=%s',
+                   r'cdn[a-z]?\.artstation\.com/p/assets/(?:images|covers)',
+                   lambda u: re.sub(r'/(?:smaller_square|small_square|micro_square|small|medium|20\d{12})/', '/large/', u),
+                   r'artstation\.com/artwork/'),
+    'behance': ('https://www.behance.net/search/projects?search=%s',
+                r'mir-s3-cdn-cf\.behance\.net/projects/',
+                lambda u: re.sub(r'/projects/[a-z_0-9]+/', '/projects/max_808/', u),
+                r'behance\.net/gallery/'),
+    'dribbble': ('https://dribbble.com/search/%s',
+                 r'cdn\.dribbble\.com/userupload/',
+                 lambda u: re.sub(r'\?.*$', '?resize=1200x900&vertical=center', u),
+                 r'dribbble\.com/shots/'),
+    'pinterest': ('https://www.pinterest.com/search/pins/?q=%s',
+                  r'i\.pinimg\.com/',
+                  lambda u: re.sub(r'pinimg\.com/\d+x/', 'pinimg.com/736x/', u),
+                  r'pinterest\.[a-z.]+/pin/'),
+}
+
+
+def busca_site(site, consulta, n=16):
+    modelo, pad_img, grande, pad_link = SITES[site]
+    url = modelo % urllib.parse.quote(consulta if site != 'dribbble' else consulta.replace(' ', '-'))
+    titulo, imgs = nav().imagens(url)
+    achados, vistos = [], set()
+    for i in imgs:
+        src = i.get('src') or ''
+        if i.get('alt') == 'og' or not re.search(pad_img, src) or src in vistos:
+            continue
+        if i.get('w') and i['w'] < 120:
+            continue
+        vistos.add(src)
+        link = i.get('link') or url
+        achados.append({'imagem': grande(src), 'reserva': src, 'titulo': i.get('alt') or None, 'autor': None,
+                        'fonte': link if re.search(pad_link, link) else url, 'consulta': consulta, 'site': site})
+        if len(achados) >= n:
+            break
+    log('  %s %r %d' % (site, consulta, len(achados)))
+    return achados
+
+
+def ddg(consulta, n=16):
+    try:
+        try:
+            from ddgs import DDGS
+        except ImportError:
+            from duckduckgo_search import DDGS
+        try:
+            res = list(DDGS().images(consulta, max_results=n, backend='duckduckgo'))
+        except TypeError:
+            res = list(DDGS().images(consulta, max_results=n))
+    except Exception as e:
+        log('  ddg falhou', consulta, type(e).__name__, str(e)[:100])
+        return []
+    achados = [{'imagem': r.get('image'), 'reserva': r.get('thumbnail'), 'fonte': r.get('url') or r.get('image'),
+                'titulo': r.get('title'), 'autor': r.get('source'), 'consulta': consulta, 'site': 'ddg'}
+               for r in res if r.get('image')]
+    log('  ddg %r %d' % (consulta, len(achados)))
+    return achados
+
+
+def deviantart(consulta, n=16):
+    url = 'https://backend.deviantart.com/rss.xml?type=deviation&q=%s' % urllib.parse.quote(consulta)
+    try:
+        xml, _ = texto(url)
+    except Exception as e:
+        log('  deviantart falhou', consulta, e)
+        return []
+    achados = []
+    for item in re.findall(r'<item>(.*?)</item>', xml, re.S)[:n]:
+        img = re.search(r'<media:content url="([^"]+)"[^>]*medium="image"', item)
+        link = re.search(r'<link>([^<]+)</link>', item)
+        tit = re.search(r'<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</title>', item, re.S)
+        autor = re.search(r'<media:credit[^>]*role="author"[^>]*>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</media:credit>', item, re.S)
+        if img:
+            achados.append({'imagem': html.unescape(img.group(1)), 'fonte': link.group(1) if link else url,
+                            'titulo': tit.group(1) if tit else None, 'autor': autor.group(1) if autor else None,
+                            'consulta': consulta, 'site': 'deviantart'})
+    log('  deviantart %r %d' % (consulta, len(achados)))
     return achados
 
 
@@ -235,8 +387,9 @@ def folhas(itens, pasta, por=20, col=5, lado=300):
             im = ImageOps.contain(im, (lado - 8, lado - 8))
             x, y = (i % col) * lado, (i // col) * lado
             tela.paste(im, (x + (lado - im.width) // 2, y + (lado - im.height) // 2))
-            d.rectangle([x + 4, y + 4, x + 64, y + 40], fill=(0, 0, 0))
-            d.text((x + 10, y + 6), str(it['n']), fill=(255, 220, 80), font=f)
+            tag = '%s %s' % (it['n'], (it.get('site') or 'pg')[:2].upper())
+            d.rectangle([x + 4, y + 4, x + 110, y + 40], fill=(0, 0, 0))
+            d.text((x + 10, y + 6), tag, fill=(255, 220, 80), font=f)
         tela.save(os.path.join(pasta, 'folha-%02d.jpg' % (k // por + 1)), quality=86)
 
 
@@ -255,10 +408,19 @@ def principal(pedido_path, saida):
         cand += de_pagina(url)
     for q in pedido.get('buscas', []):
         cand += bing(q, pedido.get('por_busca', 14))
+    for q in pedido.get('ddg', []):
+        cand += ddg(q, pedido.get('por_busca', 14))
+    for q in pedido.get('deviantart', []):
+        cand += deviantart(q, pedido.get('por_busca', 14))
+    for site, consultas in (pedido.get('navegador') or {}).items():
+        for q in consultas:
+            cand += busca_site(site, q, pedido.get('por_site', 16))
     for q in pedido.get('dribbble', []):
         cand += dribbble(q)
     for q in pedido.get('artstation', []):
         cand += artstation(q)
+    if NAV:
+        NAV.fechar()
     vistos, unicos = set(), []
     for c in cand:
         chave = c['imagem'].split('?')[0]
