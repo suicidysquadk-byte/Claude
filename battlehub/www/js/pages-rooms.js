@@ -147,11 +147,11 @@ window.BH = window.BH || {};
     const byUser = {};
     if (res) (res.lines || []).forEach((l) => { (byUser[l.user_id] = byUser[l.user_id] || []).push(l); });
     let cta = '';
-    if (r.status === 'aberta' && !r.is_creator) {
+    if (r.status === 'aberta') {
       if (r.joined) cta = '<div class="cta-bar"><div><small>Você está inscrito</small><b class="green">' + I('checkCircle') + 'Vaga garantida</b></div>' + (r.restricted ? '' : '<button type="button" class="btn ghost" data-act="leaveRoom" data-id="' + r.id + '">Sair</button>') + '</div>';
       else if (r.in_waitlist) cta = '<div class="cta-bar"><div><small>Fila de espera</small><b class="gold">' + r.waitlist_pos + 'º da fila</b></div><button type="button" class="btn ghost" data-act="leaveRoom" data-id="' + r.id + '">Sair da fila</button></div>';
       else if (r.restricted) cta = '<div class="cta-bar"><div><small>Queda de evento</small><b>' + I('lock') + 'Só as lines do evento</b></div>' + (r.event ? '<button type="button" class="btn ghost" data-act="openEvent" data-id="' + r.event.id + '">Ver evento</button>' : '') + '</div>';
-      else cta = '<div class="cta-bar"><div><small>' + (full ? 'Sala lotada' : 'Inscrição') + '</small><b>' + entryLabel(r) + '</b></div><button type="button" class="btn primary" data-act="joinRoom" data-id="' + r.id + '">' + I(full ? 'clock' : 'zap') + (full ? 'Entrar na fila' : 'Inscrever-se') + '</button></div>';
+      else cta = '<div class="cta-bar"><div><small>' + (r.is_creator ? 'Você organiza · quer jogar também?' : full ? 'Sala lotada' : 'Inscrição') + '</small><b>' + entryLabel(r) + '</b></div><button type="button" class="btn primary" data-act="joinRoom" data-id="' + r.id + '">' + I(full ? 'clock' : 'zap') + (full ? 'Entrar na fila' : 'Inscrever-se') + '</button></div>';
     }
     const secrets = r.secrets && r.secrets.game_room_id
       ? '<div class="room-card-secret"><span class="live"><i></i>Sala liberada</span><div class="room-grid"><div><small>ID da sala</small><b class="mono">' + esc(r.secrets.game_room_id) + '</b></div><div><small>Senha</small><b class="mono">' + esc(r.secrets.password) + '</b></div></div><button type="button" class="btn ghost sm" data-act="copy" data-v="' + esc(r.secrets.game_room_id) + '">' + I('copy') + 'Copiar ID</button>' +
@@ -197,6 +197,7 @@ window.BH = window.BH || {};
       html: '<section class="page room-page' + (r.tier ? ' tier-' + r.tier : '') + '">' + BH.backRow() +
         '<header class="room-hero' + (r.official ? ' official' : '') + '"><div class="t-tags"><span class="room-code">Sala #' + r.code + '</span>' + (r.official ? BH.offTag() : '') + BH.tierTag(r.tier) + statusTag(r) + '</div>' +
         '<h1 class="h1">' + esc(r.title) + '</h1>' +
+        (r.creator_plays ? '<p class="note-gold small creator-plays">' + I('gamepad') + '<span><b>' + (r.is_creator ? 'Você também está jogando esta sala.' : 'O organizador também está jogando esta sala.') + '</b> ' + (r.is_creator ? 'Todos os inscritos veem este aviso, e o resultado fica registrado na auditoria.' : 'O resultado fica registrado na auditoria. Se algo parecer errado, denuncie.') + '</span></p>' : '') +
         (r.event ? '<button type="button" class="event-link ripple" data-act="openEvent" data-id="' + r.event.id + '">' + I('trophy') + '<span>' + esc(r.event.title) + (r.group_label ? ' · Grupo ' + esc(r.group_label) : '') + (r.drop_no ? ' · Queda ' + r.drop_no : '') + '</span>' + I('right') + '</button>' : '') +
         (r.theme || r.xp_mult > 1 ? '<p class="room-extra">' + (r.theme ? '<span>' + I('calendar') + esc(r.theme) + '</span>' : '') + (r.xp_mult > 1 ? '<span class="xp2">' + I('sparkles') + 'XP x' + String(r.xp_mult).replace('.', ',') + '</span>' : '') + '</p>' : '') +
         (r.official ? '<p class="room-host">' + hostHtml(r) + '</p>' : '<button type="button" class="room-host ripple" data-act="profile" data-id="' + (r.creator.id || '') + '">' + U.av(r.creator, 'xs') + '<span>Organizador ' + U.nick(r.creator) + '</span></button>') +

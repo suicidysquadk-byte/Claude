@@ -120,7 +120,12 @@ async function conservation(label) {
   await must('admin libera criador', call(owner, 'admin_set_creator', { p_user: creator, p_value: true }));
   const room = await must('criar sala', call(creator, 'create_room', { p: roomDef }));
   const rid = room && room.id;
-  await refuse('organizador não entra na própria sala', call(creator, 'join_room', { p_id: rid }), /organizador/);
+  // o organizador pode jogar a própria sala (paga a inscrição); aqui ele entra e sai, e a inscrição volta
+  const bc = await bal(creator);
+  await must('organizador entra na própria sala', call(creator, 'join_room', { p_id: rid }));
+  ok((await bal(creator)) === bc - Number(roomDef.entry_cents), 'organizador paga a inscrição', (await bal(creator)) - bc);
+  await must('organizador sai da própria sala', call(creator, 'leave_room', { p_id: rid }));
+  ok((await bal(creator)) === bc, 'inscrição do organizador volta ao sair', (await bal(creator)) - bc);
   for (let i = 0; i < 6; i++) await must('entrar ' + i, call(P[i], 'join_room', { p_id: rid }));
   ok((await bal(P[0])) === 4800, 'inscrição debitada', await bal(P[0]));
   const vault1 = Number((await q1('select vault_cents v from rooms where id = $1', [rid])).v);
