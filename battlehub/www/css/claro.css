@@ -1,0 +1,81 @@
+/* BattleHub · tema Branco (o usuário escolhe em Perfil → Aparência: Sistema, Preto ou Branco)
+   Mesmos componentes do tema Preto; aqui só as cores. Efeitos da loja e o leque de cartas continuam escuros. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f6f4ef; --bg-2: #efece5; --surface: #ffffff; --surface-2: #f4f2ec; --surface-3: #ebe8e0;
+  --line: #e4e0d7; --line-2: #d6d1c6; --text: #17171a; --text-2: #3d3b36; --muted: #6f6c65; --faint: #a29e95;
+  --violet: #c9a24d; --violet-hi: #8c6d2c; --violet-deep: #6e5520; --gold: #9a7527; --gold-hi: #7d5f1f;
+  --green: #0f9f6e; --red: #e11d48; --cyan: #0e7490; --nav: #ffffff; --ink: #17130b;
+}
+:root[data-theme="light"] body::before {
+  background: radial-gradient(80vmax 50vmax at 50% -20%, rgba(201, 162, 77, .10), transparent 60%),
+    radial-gradient(circle at 1px 1px, rgba(0, 0, 0, .035) 1px, transparent 0) 0 0 / 24px 24px;
+}
+:root[data-theme="light"] #top, :root[data-theme="light"] .conv-head, :root[data-theme="light"] .a-head,
+:root[data-theme="light"] .a-tabs, :root[data-theme="light"] .composer.fixed { background: rgba(246, 244, 239, .97); }
+:root[data-theme="light"] .lnav-bg .bar { fill: #ffffff; }
+:root[data-theme="light"] .lnav-bg { filter: drop-shadow(0 10px 16px rgba(60, 50, 30, .16)) drop-shadow(0 0 1px rgba(0, 0, 0, .12)); }
+:root[data-theme="light"] .lnav-items button.on .lnav-ic { color: var(--ink); }
+:root[data-theme="light"] .logo-mark { background: #ffffff; border-color: rgba(154, 117, 39, .45); }
+:root[data-theme="light"] .logo-word, :root[data-theme="light"] .intro-word, :root[data-theme="light"] .auth-word {
+  background-image: linear-gradient(180deg, #caa24e 0%, #9a7527 55%, #7a5c1d 100%);
+}
+:root[data-theme="light"] .chip-btn.on, :root[data-theme="light"] .a-tab.on { background: #17171a; color: #ffffff; }
+:root[data-theme="light"] .seg::before { background: #17171a; }
+:root[data-theme="light"] .seg button.on { color: #ffffff; }
+:root[data-theme="light"] .btn.dark { background: #17171a; color: #ffffff; border-color: #17171a; }
+:root[data-theme="light"] .btn.outline { color: var(--gold-hi); border-color: rgba(154, 117, 39, .45); }
+:root[data-theme="light"] .lvl-n { background: #ffffff !important; color: var(--gold-hi) !important; }
+:root[data-theme="light"] .budget-bar { background: #e8e5dd; }
+:root[data-theme="light"] .off-tag { background: #c9a24d; color: #17130b; }
+:root[data-theme="light"] .t-hero, :root[data-theme="light"] .room-hero { background: linear-gradient(170deg, #ffffff, #f4f2ec); }
+:root[data-theme="light"] .cta-bar, :root[data-theme="light"] .hu { background: rgba(255, 255, 255, .97); box-shadow: 0 16px 36px -18px rgba(60, 50, 30, .35); }
+:root[data-theme="light"] .toast { background: #17171a; color: #f4f2ee; border-color: #17171a; box-shadow: 0 14px 30px -14px rgba(0, 0, 0, .45); }
+:root[data-theme="light"] .sheet { box-shadow: 0 -18px 40px -20px rgba(60, 50, 30, .35); }
+:root[data-theme="light"] .sheet-backdrop { background: rgba(20, 18, 14, .4); }
+:root[data-theme="light"] .p-banner::after, :root[data-theme="light"] .pp-banner::after { background: linear-gradient(180deg, transparent 55%, rgba(0, 0, 0, .25)); }
+:root[data-theme="light"] .av { box-shadow: inset 0 -3px 8px rgba(0, 0, 0, .18), 0 0 0 2px var(--bg); }
+:root[data-theme="light"] .login-card { background: rgba(255, 255, 255, .9); }
+:root[data-theme="light"] .vs-shield { background: #ffffff; }
+:root[data-theme="light"] .card, :root[data-theme="light"] .room-card, :root[data-theme="light"] .event-card, :root[data-theme="light"] .xp-card,
+:root[data-theme="light"] .v-card, :root[data-theme="light"] .quick, :root[data-theme="light"] .sg, :root[data-theme="light"] .stat,
+:root[data-theme="light"] .menu-row, :root[data-theme="light"] .shop-item, :root[data-theme="light"] .wallet { box-shadow: 0 1px 2px rgba(60, 50, 30, .06); }
+
+/* abertura no tema Branco: fundo claro, coroa e nome em dourado */
+:root[data-theme="light"] #splash.intro { background: radial-gradient(120% 80% at 50% 40%, #ffffff, #efece5 75%); }
+:root[data-theme="light"] #splash.intro.zoom { background: transparent; }
+:root[data-theme="light"] .intro-mark .base-line, :root[data-theme="light"] .intro-mark .outline { stroke: #3a3a40; }
+:root[data-theme="light"] .intro-mark .dot { fill: #17171a; filter: none; }
+:root[data-theme="light"] .intro-mark .node { fill: #ffffff; stroke: #5b5953; }
+
+/* boas-vindas e login no tema Branco */
+:root[data-theme="light"] .welcome { background: #f6f4ef; }
+:root[data-theme="light"] .welcome-fade { background: linear-gradient(180deg, rgba(246, 244, 239, .3) 0%, rgba(246, 244, 239, .1) 30%, rgba(246, 244, 239, .9) 62%, #f6f4ef 78%); }
+:root[data-theme="light"] .welcome-body h1 { color: #17171a; }
+:root[data-theme="light"] .auth { background: radial-gradient(120% 60% at 50% 0%, #ffffff, #efece5 70%); }
+:root[data-theme="light"] .auth-title { color: #17171a; }
+:root[data-theme="light"] .auth-bolt path { stroke: #8f98c4; filter: none; }
+:root[data-theme="light"] .auth-top::after { background: radial-gradient(60% 80% at 15% 0%, rgba(120, 130, 200, .18), transparent 70%); }
+
+/* seletor de aparência */
+.theme-pick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.theme-pick button { display: grid; gap: 8px; justify-items: center; padding: 10px 8px 12px; border-radius: 16px; border: 1.5px solid var(--line); background: var(--surface); color: var(--text); font-weight: 700; font-size: 13.5px; }
+.theme-pick button.on { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(201, 162, 77, .18); }
+.theme-pick small { font-weight: 500; font-size: 11.5px; color: var(--muted); }
+.tp-sw { width: 100%; aspect-ratio: 9 / 13; border-radius: 10px; display: grid; align-content: start; gap: 5px; padding: 8px 7px; overflow: hidden; border: 1px solid rgba(128, 128, 128, .25); }
+.tp-sw i { display: block; height: 7px; border-radius: 4px; }
+.tp-sw i:first-child { width: 55%; background: #c9a24d; }
+.tp-dark { background: #0b0b0d; } .tp-dark i { background: #232328; }
+.tp-light { background: #f6f4ef; } .tp-light i { background: #e4e0d7; }
+.tp-sys { background: linear-gradient(135deg, #0b0b0d 50%, #f6f4ef 50%); } .tp-sys i { background: rgba(128, 128, 128, .35); }
+
+/* textos que eram brancos fixos */
+:root[data-theme="light"] .theme-top h3 { background: linear-gradient(90deg, #17171a, var(--gold-hi)); -webkit-background-clip: text; background-clip: text; }
+:root[data-theme="light"] .radio input:checked + span, :root[data-theme="light"] .amount.on, :root[data-theme="light"] .a-link.on { color: var(--text); }
+:root[data-theme="light"] .swatch.on { border-color: #17171a; }
+:root[data-theme="light"] .btn.google { border-color: var(--line-2); box-shadow: none; }
+
+/* caixas que usavam preto transparente por cima do cartão */
+:root[data-theme="light"] .hero-clock, :root[data-theme="light"] .t-hero .tile, :root[data-theme="light"] .t-count,
+:root[data-theme="light"] .room-money > div, :root[data-theme="light"] .room-hero .room-host, :root[data-theme="light"] .vault,
+:root[data-theme="light"] .ev-money div, :root[data-theme="light"] .at-actions { background: var(--surface-2); }

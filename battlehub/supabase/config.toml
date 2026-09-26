@@ -1,0 +1,7 @@
+project_id = "battlehub"
+
+[functions.pix-criar]
+verify_jwt = true
+
+[functions.pix-webhook]
+verify_jwt = false
