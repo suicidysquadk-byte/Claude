@@ -1,0 +1,668 @@
+{
+ "pesquisa": "2026-09-26-decoracoes-02",
+ "grade": "https://claude.ai/artifact/XoEzraDhW7UprDVMHL7nKV",
+ "analisadas": 120,
+ "encontradas": 222,
+ "referencias": [
+  {
+   "id": "deco-02-01",
+   "pesquisa": "2026-09-26-decoracoes-02",
+   "numero": 1,
+   "titulo": "Dragão de gelo enrolado no aro",
+   "autor": null,
+   "fonte": null,
+   "imagem": "https://i.pinimg.com/736x/87/e9/3f/87e93fcb1a4783c694e507b5d90f713c.jpg",
+   "site": "Pinterest",
+   "consulta": "avatar frame fantasy png",
+   "uso": "apenas estudo",
+   "formato": "decoracao",
+   "qualidade": "premium",
+   "estilos": [
+    "FANTASY",
+    "ICE"
+   ],
+   "template": "DECO_CRIATURA_05",
+   "composicao": "cabeça às 11h olhando para dentro, o corpo contorna o aro pela direita e a cauda fecha às 7h",
+   "iluminacao": "luz fria difusa de cima, brilho especular nas escamas e nas gemas",
+   "profundidade": "o corpo passa por cima e por trás do aro, névoa de gelo no fundo",
+   "efeitos": "cristais de neve e névoa branca só na borda de dentro",
+   "paleta": [
+    "#0e2a5c",
+    "#2f6fd6",
+    "#8cc8ff",
+    "#c9a86a",
+    "#f4f8ff"
+   ],
+   "metricas": {
+    "largura": 736,
+    "altura": 736,
+    "nitidez": 2857.9,
+    "contraste": 78.6,
+    "colorido": 50.6
+   },
+   "notas": {
+    "composicao": 9,
+    "iluminacao": 8,
+    "profundidade": 9,
+    "cores": 9,
+    "detalhamento": 9,
+    "acabamento": 9,
+    "coerencia": 9,
+    "recorte": 8,
+    "efeitos": 8,
+    "aparencia_profissional": 9
+   },
+   "nota": 8.7,
+   "aprendizados": [
+    "a criatura vira o próprio aro: o corpo substitui a borda e a cabeça é o foco, sem cobrir o rosto."
+   ],
+   "status": "candidata",
+   "motivo_rejeicao": null
+  },
+  {
+   "id": "deco-02-02",
+   "pesquisa": "2026-09-26-decoracoes-02",
+   "numero": 2,
+   "titulo": "Asas de dragão em cristal roxo",
+   "autor": null,
+   "fonte": null,
+   "imagem": "https://i.pinimg.com/736x/0d/e7/f6/0de7f6b9fee884b4053731a9b01332be.jpg",
+   "site": "Pinterest",
+   "consulta": "avatar frame fantasy png",
+   "uso": "apenas estudo",
+   "formato": "decoracao",
+   "qualidade": "alta",
+   "estilos": [
+    "PURPLE_VOID",
+    "FANTASY"
+   ],
+   "template": "DECO_ASAS_03",
+   "composicao": "simétrica: cabeça de dragão às 12h, asas descem pelas laterais e fecham num cristal azul às 6h",
+   "iluminacao": "brilho interno magenta e dourado, cada pena com a borda acesa (rim light)",
+   "profundidade": "3 camadas de penas sobrepostas, cristais na frente",
+   "efeitos": "glow magenta forte, gemas azuis de contraponto",
+   "paleta": [
+    "#1a0826",
+    "#7b2cbf",
+    "#e040a0",
+    "#f2b544",
+    "#3a7bff"
+   ],
+   "metricas": {
+    "largura": 736,
+    "altura": 736,
+    "nitidez": 2927.6,
+    "contraste": 61.5,
+    "colorido": 74.4
+   },
+   "notas": {
+    "composicao": 8,
+    "iluminacao": 9,
+    "profundidade": 8,
+    "cores": 8,
+    "detalhamento": 9,
+    "acabamento": 8,
+    "coerencia": 9,
+    "recorte": 8,
+    "efeitos": 7,
+    "aparencia_profissional": 8
+   },
+   "nota": 8.2,
+   "aprendizados": [
+    "um destaque azul em poucos pontos equilibra o aro todo magenta. O glow está no limite do excesso."
+   ],
+   "status": "candidata",
+   "motivo_rejeicao": null
+  },
+  {
+   "id": "deco-02-03",
+   "pesquisa": "2026-09-26-decoracoes-02",
+   "numero": 3,
+   "titulo": "Coroa real em ouro rosa",
+   "autor": null,
+   "fonte": null,
+   "imagem": "https://i.pinimg.com/736x/e9/10/ed/e910ed0d3381b0348f1725d5eeafc8aa.jpg",
+   "site": "Pinterest",
+   "consulta": "avatar frame fantasy png",
+   "uso": "apenas estudo",
+   "formato": "decoracao",
+   "qualidade": "alta",
+   "estilos": [
+    "ROYAL",
+    "GOLD_PREMIUM"
+   ],
+   "template": "DECO_COROA_04",
+   "composicao": "coroa com coração às 12h, dois dragões dourados espelhados nas laterais, faixa para o nome na base",
+   "iluminacao": "ouro com reflexo forte e contraluz rosa saindo por trás",
+   "profundidade": "alta, ornamentos em 3 níveis",
+   "efeitos": "faíscas rosa pequenas e brilho atrás da coroa",
+   "paleta": [
+    "#120308",
+    "#8a1238",
+    "#e0457b",
+    "#d9a441",
+    "#ffe2a6"
+   ],
+   "metricas": {
+    "largura": 736,
+    "altura": 736,
+    "nitidez": 3629.4,
+    "contraste": 63.1,
+    "colorido": 72.7
+   },
+   "notas": {
+    "composicao": 8,
+    "iluminacao": 9,
+    "profundidade": 8,
+    "cores": 8,
+    "detalhamento": 9,
+    "acabamento": 8,
+    "coerencia": 9,
+    "recorte": 8,
+    "efeitos": 8,
+    "aparencia_profissional": 9
+   },
+   "nota": 8.4,
+   "aprendizados": [
+    "o dourado só parece premium com reflexo e sombra no metal. A faixa da base dá peso e fecha a leitura."
+   ],
+   "status": "candidata",
+   "motivo_rejeicao": null
+  },
+  {
+   "id": "deco-02-04",
+   "pesquisa": "2026-09-26-decoracoes-02",
+   "numero": 4,
+   "titulo": "Noite oriental com lua e lótus",
+   "autor": null,
+   "fonte": null,
+   "imagem": "https://i.pinimg.com/736x/fe/b5/cb/feb5cb07e3c18aad954e8ffbcd131108.jpg",
+   "site": "Pinterest",
+   "consulta": "avatar frame fantasy png",
+   "uso": "apenas estudo",
+   "formato": "decoracao",
+   "qualidade": "premium",
+   "estilos": [
+    "FANTASY",
+    "SPACE"
+   ],
+   "template": "DECO_CENA_07",
+   "composicao": "assimétrica: lua às 10h, pagodes flutuando às 1h e às 4h, lótus e nuvens embaixo, galáxia correndo por dentro do aro",
+   "iluminacao": "luar suave vindo da lua, brilho azul frio nas nuvens",
+   "profundidade": "3 planos: céu com galáxia, aro e elementos na frente",
+   "efeitos": "poucas estrelas e névoa em volutas, sem glow exagerado",
+   "paleta": [
+    "#050a1f",
+    "#1b3a8a",
+    "#4f7fd6",
+    "#9ed8c8",
+    "#f1ead2"
+   ],
+   "metricas": {
+    "largura": 736,
+    "altura": 736,
+    "nitidez": 515.4,
+    "contraste": 59.6,
+    "colorido": 41.2
+   },
+   "notas": {
+    "composicao": 9,
+    "iluminacao": 8,
+    "profundidade": 9,
+    "cores": 9,
+    "detalhamento": 8,
+    "acabamento": 9,
+    "coerencia": 9,
+    "recorte": 8,
+    "efeitos": 8,
+    "aparencia_profissional": 9
+   },
+   "nota": 8.6,
+   "aprendizados": [
+    "um mini cenário no aro conta uma história. O peso fica em pontos opostos (lua e pagode) e o meio fica calmo."
+   ],
+   "status": "candidata",
+   "motivo_rejeicao": null
+  },
+  {
+   "id": "deco-02-05",
+   "pesquisa": "2026-09-26-decoracoes-02",
+   "numero": 5,
+   "titulo": "Lírio-aranha vermelho com fita",
+   "autor": null,
+   "fonte": null,
+   "imagem": "https://i.pinimg.com/736x/ce/2a/6d/ce2a6d02b5cc00172991e16ceff0a785.jpg",
+   "site": "Pinterest",
+   "consulta": "avatar frame fantasy png",
+   "uso": "apenas estudo",
+   "formato": "decoracao",
+   "qualidade": "premium",
+   "estilos": [
+    "ANIME_PREMIUM",
+    "DARK_ANIME"
+   ],
+   "template": "DECO_ACENTO_08",
+   "composicao": "aro fino de vidro vermelho com acento forte às 10h (asa, joia e borla) e flores às 1h e às 7h; o resto do aro fica limpo",
+   "iluminacao": "reflexos brancos de vidro e glitter dentro do aro",
+   "profundidade": "a fita passa por cima e por baixo do aro",
+   "efeitos": "brilhos pontuais e fita translúcida",
+   "paleta": [
+    "#0a0204",
+    "#7a0b12",
+    "#d8202b",
+    "#ff8a8a",
+    "#ffffff"
+   ],
+   "metricas": {
+    "largura": 736,
+    "altura": 736,
+    "nitidez": 584.0,
+    "contraste": 52.1,
+    "colorido": 58.5
+   },
+   "notas": {
+    "composicao": 9,
+    "iluminacao": 8,
+    "profundidade": 8,
+    "cores": 9,
+    "detalhamento": 8,
+    "acabamento": 9,
+    "coerencia": 9,
+    "recorte": 8,
+    "efeitos": 9,
+    "aparencia_profissional": 9
+   },
+   "nota": 8.6,
+   "aprendizados": [
+    "um acento forte e muito espaço vazio deixam o rosto livre e a peça elegante."
+   ],
+   "status": "candidata",
+   "motivo_rejeicao": null
+  },
+  {
+   "id": "deco-02-06",
+   "pesquisa": "2026-09-26-decoracoes-02",
+   "numero": 6,
+   "titulo": "Coroa de espinhos com rosas",
+   "autor": null,
+   "fonte": null,
+   "imagem": "https://i.pinimg.com/736x/d7/4d/f4/d74df495e2054e40140d702e26800a7f.jpg",
+   "site": "Pinterest",
+   "consulta": "avatar frame fantasy png",
+   "uso": "apenas estudo",
+   "formato": "decoracao",
+   "qualidade": "boa",
+   "estilos": [
+    "DARK_PREMIUM",
+    "DEMON"
+   ],
+   "template": "DECO_ARO_ELEMENTAL_02",
+   "composicao": "galhos de espinho trançados formam o aro, rosas agrupadas em 3 pontos (10h, 2h e 7h), pontas longas saindo para fora",
+   "iluminacao": "luz de cima com sombra marcada nos galhos",
+   "profundidade": "média, os galhos cruzam por cima e por baixo",
+   "efeitos": "nenhum efeito de luz, só forma e textura",
+   "paleta": [
+    "#0d0a0c",
+    "#2a1c22",
+    "#6b1016",
+    "#c4161c",
+    "#f0e6e6"
+   ],
+   "metricas": {
+    "largura": 736,
+    "altura": 733,
+    "nitidez": 1575.5,
+    "contraste": 97.8,
+    "colorido": 38.1
+   },
+   "notas": {
+    "composicao": 8,
+    "iluminacao": 7,
+    "profundidade": 7,
+    "cores": 9,
+    "detalhamento": 8,
+    "acabamento": 8,
+    "coerencia": 9,
+    "recorte": 8,
+    "efeitos": 7,
+    "aparencia_profissional": 8
+   },
+   "nota": 7.9,
+   "aprendizados": [
+    "uma silhueta forte funciona sem glow. Agrupar as rosas em 3 pontos cria ritmo."
+   ],
+   "status": "candidata",
+   "motivo_rejeicao": null
+  },
+  {
+   "id": "deco-02-07",
+   "pesquisa": "2026-09-26-decoracoes-02",
+   "numero": 7,
+   "titulo": "Dragãozinho da lua com morcegos",
+   "autor": null,
+   "fonte": null,
+   "imagem": "https://i.pinimg.com/736x/d3/e5/a2/d3e5a2452d5cf245c6decac9087cdd8a.jpg",
+   "site": "Pinterest",
+   "consulta": "avatar frame fantasy png",
+   "uso": "apenas estudo",
+   "formato": "decoracao",
+   "qualidade": "boa",
+   "estilos": [
+    "ANIME_PREMIUM",
+    "PURPLE_VOID"
+   ],
+   "template": "DECO_CRIATURA_05",
+   "composicao": "dragãozinho sentado às 7h, lua às 11h e morcego às 3h; nuvens e cristais ligam os pontos",
+   "iluminacao": "luz suave de ilustração, brilho nas estrelas",
+   "profundidade": "baixa a média, acabamento de adesivo",
+   "efeitos": "estrelinhas e cristais pequenos",
+   "paleta": [
+    "#1e1b4b",
+    "#5b3fd1",
+    "#9b8cff",
+    "#f6d57a",
+    "#ffffff"
+   ],
+   "metricas": {
+    "largura": 736,
+    "altura": 736,
+    "nitidez": 1694.3,
+    "contraste": 62.9,
+    "colorido": 52.8
+   },
+   "notas": {
+    "composicao": 8,
+    "iluminacao": 7,
+    "profundidade": 6,
+    "cores": 8,
+    "detalhamento": 8,
+    "acabamento": 8,
+    "coerencia": 9,
+    "recorte": 8,
+    "efeitos": 8,
+    "aparencia_profissional": 8
+   },
+   "nota": 7.8,
+   "aprendizados": [
+    "personagem pequeno com carinha expressiva vira o foco. Boa base para uma coleção fofa."
+   ],
+   "status": "candidata",
+   "motivo_rejeicao": null
+  },
+  {
+   "id": "deco-02-08",
+   "pesquisa": "2026-09-26-decoracoes-02",
+   "numero": 8,
+   "titulo": "Camaleão e olho de réptil",
+   "autor": null,
+   "fonte": "https://www.artstation.com/artwork/493b1q",
+   "imagem": "https://cdnb.artstation.com/p/assets/covers/images/065/955/213/large/sky-mavis-sky-mavis-thumbnail-reptile-abs.jpg?1691654480",
+   "site": "ArtStation",
+   "consulta": "avatar border",
+   "uso": "apenas estudo",
+   "formato": "decoracao",
+   "qualidade": "premium",
+   "estilos": [
+    "GAMER_PREMIUM",
+    "FANTASY"
+   ],
+   "template": "DECO_CRIATURA_05",
+   "composicao": "o camaleão sobe pela borda e a cauda enrola no aro; na outra peça o aro vira um olho de réptil",
+   "iluminacao": "luz de cima, sombra interna e rim light verde",
+   "profundidade": "média, criatura por cima do aro",
+   "efeitos": "borboletas e brilhos pequenos",
+   "paleta": [
+    "#2a1030",
+    "#5e2a84",
+    "#2fb89a",
+    "#f08a24",
+    "#ffd2e6"
+   ],
+   "metricas": {
+    "largura": 1000,
+    "altura": 1000,
+    "nitidez": 1066.7,
+    "contraste": 57.5,
+    "colorido": 68.0
+   },
+   "notas": {
+    "composicao": 8,
+    "iluminacao": 8,
+    "profundidade": 8,
+    "cores": 9,
+    "detalhamento": 9,
+    "acabamento": 9,
+    "coerencia": 9,
+    "recorte": 8,
+    "efeitos": 8,
+    "aparencia_profissional": 9
+   },
+   "nota": 8.5,
+   "aprendizados": [
+    "a criatura mexe no aro (sobe, morde, enrola). É isso que dá vida e ideia de animação."
+   ],
+   "status": "candidata",
+   "motivo_rejeicao": null
+  },
+  {
+   "id": "deco-02-09",
+   "pesquisa": "2026-09-26-decoracoes-02",
+   "numero": 9,
+   "titulo": "Fones neon com orelhas de gato",
+   "autor": null,
+   "fonte": "https://www.behance.net/gallery/120908411/Game-Avatar-Frames",
+   "imagem": "https://mir-s3-cdn-cf.behance.net/projects/max_808/b48fff120908411.Y3JvcCw4MDgsNjMyLDAsMA.jpg",
+   "site": "Página indicada",
+   "consulta": null,
+   "uso": "apenas estudo",
+   "formato": "decoracao",
+   "qualidade": "alta",
+   "estilos": [
+    "NEON",
+    "GAMER_PREMIUM"
+   ],
+   "template": "DECO_ORELHAS_CAUDA_01",
+   "composicao": "orelhas às 11h e à 1h presas num arco de fone, conchas às 3h e às 9h, aro fino",
+   "iluminacao": "neon rosa e azul com reflexo de plástico 3D",
+   "profundidade": "3D de verdade, com sombra de contato",
+   "efeitos": "glow só nas bordas do neon",
+   "paleta": [
+    "#1b1740",
+    "#3b2a8f",
+    "#c86bff",
+    "#5fd0ff",
+    "#ffffff"
+   ],
+   "metricas": {
+    "largura": 808,
+    "altura": 632,
+    "nitidez": 1724.0,
+    "contraste": 49.0,
+    "colorido": 59.7
+   },
+   "notas": {
+    "composicao": 8,
+    "iluminacao": 8,
+    "profundidade": 8,
+    "cores": 8,
+    "detalhamento": 7,
+    "acabamento": 8,
+    "coerencia": 9,
+    "recorte": 8,
+    "efeitos": 8,
+    "aparencia_profissional": 8
+   },
+   "nota": 8.0,
+   "aprendizados": [
+    "fone gamer com orelha junta o nosso público com o estilo do Discord. 3D limpo e leve."
+   ],
+   "status": "candidata",
+   "motivo_rejeicao": null
+  },
+  {
+   "id": "deco-02-10",
+   "pesquisa": "2026-09-26-decoracoes-02",
+   "numero": 10,
+   "titulo": "Aro de ouro fino",
+   "autor": null,
+   "fonte": null,
+   "imagem": "https://i.pinimg.com/736x/50/f4/81/50f481996004e56102d52a551af6a533.jpg",
+   "site": "Pinterest",
+   "consulta": "avatar frame fantasy png",
+   "uso": "apenas estudo",
+   "formato": "decoracao",
+   "qualidade": "alta",
+   "estilos": [
+    "MINIMAL_PREMIUM",
+    "BLACK_GOLD"
+   ],
+   "template": "DECO_ACENTO_08",
+   "composicao": "aro duplo fino com pontas de diamante às 12h e às 6h e curvas que abrem nas laterais",
+   "iluminacao": "luz quente lateral, reflexo forte no metal, faíscas douradas no fundo",
+   "profundidade": "média, duas bordas sobrepostas",
+   "efeitos": "poucas faíscas desfocadas",
+   "paleta": [
+    "#07060a",
+    "#3a2a12",
+    "#b88a3c",
+    "#f1cf86",
+    "#fff4d6"
+   ],
+   "metricas": {
+    "largura": 736,
+    "altura": 736,
+    "nitidez": 784.0,
+    "contraste": 65.2,
+    "colorido": 40.5
+   },
+   "notas": {
+    "composicao": 9,
+    "iluminacao": 9,
+    "profundidade": 7,
+    "cores": 8,
+    "detalhamento": 8,
+    "acabamento": 9,
+    "coerencia": 9,
+    "recorte": 8,
+    "efeitos": 8,
+    "aparencia_profissional": 9
+   },
+   "nota": 8.4,
+   "aprendizados": [
+    "o material faz o trabalho e quase não há efeito. A imagem tem marca de ferramenta de IA, então só o princípio serve."
+   ],
+   "status": "candidata",
+   "motivo_rejeicao": null
+  },
+  {
+   "id": "deco-02-11",
+   "pesquisa": "2026-09-26-decoracoes-02",
+   "numero": 11,
+   "titulo": "Asas de borboleta em cristal",
+   "autor": null,
+   "fonte": null,
+   "imagem": "https://mir-s3-cdn-cf.behance.net/projects/max_808/aeba9f199322543.Y3JvcCw4MDgsNjMyLDAsMA.jpg",
+   "site": "Behance",
+   "consulta": "avatar frame game",
+   "uso": "apenas estudo",
+   "formato": "decoracao",
+   "qualidade": "alta",
+   "estilos": [
+    "HOLOGRAPHIC",
+    "ICE"
+   ],
+   "template": "DECO_ASAS_03",
+   "composicao": "asas abertas nas laterais, joia com penas no topo, faixa de nome na base e raios de gelo embaixo",
+   "iluminacao": "luz interna roxa e azul, bordas das asas acesas",
+   "profundidade": "asas atrás, joia e faixa na frente",
+   "efeitos": "raios elétricos na base, brilho holográfico nas asas",
+   "paleta": [
+    "#07040f",
+    "#4b2bbf",
+    "#9b6bff",
+    "#63c5ff",
+    "#f2eaff"
+   ],
+   "metricas": {
+    "largura": 808,
+    "altura": 632,
+    "nitidez": 1016.6,
+    "contraste": 77.9,
+    "colorido": 69.6
+   },
+   "notas": {
+    "composicao": 8,
+    "iluminacao": 9,
+    "profundidade": 8,
+    "cores": 8,
+    "detalhamento": 8,
+    "acabamento": 8,
+    "coerencia": 8,
+    "recorte": 8,
+    "efeitos": 8,
+    "aparencia_profissional": 8
+   },
+   "nota": 8.1,
+   "aprendizados": [
+    "asas atrás do avatar aumentam a peça sem cobrir o rosto. O efeito fica concentrado na base."
+   ],
+   "status": "candidata",
+   "motivo_rejeicao": null
+  },
+  {
+   "id": "deco-02-12",
+   "pesquisa": "2026-09-26-decoracoes-02",
+   "numero": 12,
+   "titulo": "Folhas e energia da floresta",
+   "autor": null,
+   "fonte": null,
+   "imagem": "https://i.pinimg.com/736x/2d/68/d5/2d68d5723e6774e10751f0c6ad878026.jpg",
+   "site": "Pinterest",
+   "consulta": "avatar frame fantasy png",
+   "uso": "apenas estudo",
+   "formato": "decoracao",
+   "qualidade": "alta",
+   "estilos": [
+    "FANTASY",
+    "GAMER_PREMIUM"
+   ],
+   "template": "DECO_ARO_ELEMENTAL_02",
+   "composicao": "folhas pontudas sobem pelas laterais como chamas, placa na base e redemoinho de energia atrás",
+   "iluminacao": "brilho verde de dentro das folhas, fumaça clara no fundo",
+   "profundidade": "3 planos: redemoinho, folhas e placa",
+   "efeitos": "energia em espiral e lascas de cristal verde embaixo",
+   "paleta": [
+    "#0b1a12",
+    "#1f5a36",
+    "#3fae5a",
+    "#b8f07a",
+    "#d8e8f0"
+   ],
+   "metricas": {
+    "largura": 736,
+    "altura": 753,
+    "nitidez": 1241.3,
+    "contraste": 73.6,
+    "colorido": 30.6
+   },
+   "notas": {
+    "composicao": 8,
+    "iluminacao": 8,
+    "profundidade": 8,
+    "cores": 8,
+    "detalhamento": 8,
+    "acabamento": 8,
+    "coerencia": 9,
+    "recorte": 7,
+    "efeitos": 8,
+    "aparencia_profissional": 8
+   },
+   "nota": 8.0,
+   "aprendizados": [
+    "o elemento natural sobe como chama e dá movimento mesmo parado. É o estilo das molduras de ranking dos jogos."
+   ],
+   "status": "candidata",
+   "motivo_rejeicao": null
+  }
+ ]
+}

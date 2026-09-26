@@ -4,211 +4,567 @@
     "GAMER_PREMIUM": {
       "nome": "Gamer Premium",
       "luz": "luz principal lateral fria, rim light forte recortando a silhueta, luz ambiente baixa",
-      "paleta": ["#0a0a0f", "#1b1b2e", "#6d28d9", "#22d3ee"],
+      "paleta": [
+        "#0a0a0f",
+        "#1b1b2e",
+        "#6d28d9",
+        "#22d3ee"
+      ],
       "profundidade": "alta: primeiro plano com o elemento principal, plano médio com formas de apoio, fundo com névoa e bokeh",
-      "efeitos": ["partículas discretas", "faíscas", "névoa baixa", "brilho só nas bordas"],
-      "materiais": ["metal escovado", "vidro fosco", "luz de LED"],
-      "evitar": ["brilho em tudo", "fundo vazio", "texto no meio da arte"]
+      "efeitos": [
+        "partículas discretas",
+        "faíscas",
+        "névoa baixa",
+        "brilho só nas bordas"
+      ],
+      "materiais": [
+        "metal escovado",
+        "vidro fosco",
+        "luz de LED"
+      ],
+      "evitar": [
+        "brilho em tudo",
+        "fundo vazio",
+        "texto no meio da arte"
+      ]
     },
     "DARK_PREMIUM": {
       "nome": "Dark Premium",
       "luz": "clave baixa, uma fonte de luz principal e rim light suave; muito contraste entre a figura e o fundo",
-      "paleta": ["#050507", "#121216", "#2a2a33", "#c9a24d"],
+      "paleta": [
+        "#050507",
+        "#121216",
+        "#2a2a33",
+        "#c9a24d"
+      ],
       "profundidade": "alta, com sombras profundas e névoa escura",
-      "efeitos": ["névoa", "poeira no ar", "reflexo sutil"],
-      "materiais": ["veludo", "metal escuro", "couro"],
-      "evitar": ["saturação alta", "muitos efeitos", "cores de arco-íris"]
+      "efeitos": [
+        "névoa",
+        "poeira no ar",
+        "reflexo sutil"
+      ],
+      "materiais": [
+        "veludo",
+        "metal escuro",
+        "couro"
+      ],
+      "evitar": [
+        "saturação alta",
+        "muitos efeitos",
+        "cores de arco-íris"
+      ]
     },
     "CYBERPUNK": {
       "nome": "Cyberpunk",
       "luz": "neon rosa e ciano vindo de lados opostos, reflexos molhados, luz de letreiro",
-      "paleta": ["#01012b", "#ff2a6d", "#05d9e8", "#f9f871"],
+      "paleta": [
+        "#01012b",
+        "#ff2a6d",
+        "#05d9e8",
+        "#f9f871"
+      ],
       "profundidade": "cidade em camadas com névoa e chuva",
-      "efeitos": ["chuva", "falha RGB discreta", "reflexo no chão molhado", "linhas de varredura"],
-      "materiais": ["cromo", "plástico brilhante", "asfalto molhado"],
-      "evitar": ["neon em todos os elementos", "falha RGB exagerada"]
+      "efeitos": [
+        "chuva",
+        "falha RGB discreta",
+        "reflexo no chão molhado",
+        "linhas de varredura"
+      ],
+      "materiais": [
+        "cromo",
+        "plástico brilhante",
+        "asfalto molhado"
+      ],
+      "evitar": [
+        "neon em todos os elementos",
+        "falha RGB exagerada"
+      ]
     },
     "NEON": {
       "nome": "Neon",
       "luz": "tubos de neon como fonte principal, halo em volta, resto escuro",
-      "paleta": ["#050508", "#ff2bd6", "#22d3ee", "#a3ff12"],
+      "paleta": [
+        "#050508",
+        "#ff2bd6",
+        "#22d3ee",
+        "#a3ff12"
+      ],
       "profundidade": "média, com reflexos no chão e halo",
-      "efeitos": ["halo", "reflexo", "pulso de luz"],
-      "materiais": ["vidro", "tubo de neon"],
-      "evitar": ["neon borrado sem forma", "fundo claro"]
+      "efeitos": [
+        "halo",
+        "reflexo",
+        "pulso de luz"
+      ],
+      "materiais": [
+        "vidro",
+        "tubo de neon"
+      ],
+      "evitar": [
+        "neon borrado sem forma",
+        "fundo claro"
+      ]
     },
     "FUTURISTIC": {
       "nome": "Futurista",
       "luz": "luz branca difusa com contraluz ciano, superfícies limpas",
-      "paleta": ["#0b1220", "#0ea5e9", "#e0f2fe", "#ffffff"],
+      "paleta": [
+        "#0b1220",
+        "#0ea5e9",
+        "#e0f2fe",
+        "#ffffff"
+      ],
       "profundidade": "perspectiva forte, linhas de fuga",
-      "efeitos": ["HUD", "linhas de dados", "partículas de luz"],
-      "materiais": ["painel branco", "vidro", "metal fosco"],
-      "evitar": ["poluição de HUD", "texto ilegível"]
+      "efeitos": [
+        "HUD",
+        "linhas de dados",
+        "partículas de luz"
+      ],
+      "materiais": [
+        "painel branco",
+        "vidro",
+        "metal fosco"
+      ],
+      "evitar": [
+        "poluição de HUD",
+        "texto ilegível"
+      ]
     },
     "ROYAL": {
       "nome": "Realeza",
       "luz": "luz quente de cima (dourada), brilho especular no ouro",
-      "paleta": ["#1e0b3a", "#5b21b6", "#e5b64a", "#fffbe6"],
+      "paleta": [
+        "#1e0b3a",
+        "#5b21b6",
+        "#e5b64a",
+        "#fffbe6"
+      ],
       "profundidade": "média, com raios de luz e cortina",
-      "efeitos": ["raios de luz", "pó dourado", "brilho no metal"],
-      "materiais": ["ouro", "veludo", "joias"],
-      "evitar": ["dourado chapado sem reflexo"]
+      "efeitos": [
+        "raios de luz",
+        "pó dourado",
+        "brilho no metal"
+      ],
+      "materiais": [
+        "ouro",
+        "veludo",
+        "joias"
+      ],
+      "evitar": [
+        "dourado chapado sem reflexo"
+      ]
     },
     "ANIME_PREMIUM": {
       "nome": "Anime Premium",
       "luz": "cel shading com rim light colorido e céu dramático",
-      "paleta": ["#0f172a", "#f472b6", "#60a5fa", "#fef3c7"],
+      "paleta": [
+        "#0f172a",
+        "#f472b6",
+        "#60a5fa",
+        "#fef3c7"
+      ],
       "profundidade": "alta, com céu, nuvens e partículas",
-      "efeitos": ["pétalas", "brilhos", "linhas de velocidade discretas"],
-      "materiais": ["tecido", "cabelo com brilho"],
-      "evitar": ["personagens protegidos", "traço inconsistente"]
+      "efeitos": [
+        "pétalas",
+        "brilhos",
+        "linhas de velocidade discretas"
+      ],
+      "materiais": [
+        "tecido",
+        "cabelo com brilho"
+      ],
+      "evitar": [
+        "personagens protegidos",
+        "traço inconsistente"
+      ]
     },
     "DARK_ANIME": {
       "nome": "Dark Anime",
       "luz": "contraluz vermelho ou roxo, rosto meio na sombra",
-      "paleta": ["#050505", "#1f0a1f", "#dc2626", "#a855f7"],
+      "paleta": [
+        "#050505",
+        "#1f0a1f",
+        "#dc2626",
+        "#a855f7"
+      ],
       "profundidade": "alta, com fumaça e brasas",
-      "efeitos": ["fumaça", "brasas", "olhos brilhando"],
-      "materiais": ["tecido escuro", "lâmina"],
-      "evitar": ["gore", "personagens protegidos"]
+      "efeitos": [
+        "fumaça",
+        "brasas",
+        "olhos brilhando"
+      ],
+      "materiais": [
+        "tecido escuro",
+        "lâmina"
+      ],
+      "evitar": [
+        "gore",
+        "personagens protegidos"
+      ]
     },
     "FANTASY": {
       "nome": "Fantasia",
       "luz": "luz mágica vinda do elemento principal, luz de lua ou de cristal",
-      "paleta": ["#0b1026", "#7c3aed", "#22d3ee", "#fde68a"],
+      "paleta": [
+        "#0b1026",
+        "#7c3aed",
+        "#22d3ee",
+        "#fde68a"
+      ],
       "profundidade": "alta, com ruínas, floresta ou montanhas em camadas",
-      "efeitos": ["runas", "vaga-lumes", "névoa mágica"],
-      "materiais": ["pedra", "cristal", "madeira velha"],
-      "evitar": ["cenário genérico de banco de imagem"]
+      "efeitos": [
+        "runas",
+        "vaga-lumes",
+        "névoa mágica"
+      ],
+      "materiais": [
+        "pedra",
+        "cristal",
+        "madeira velha"
+      ],
+      "evitar": [
+        "cenário genérico de banco de imagem"
+      ]
     },
     "SCI_FI": {
       "nome": "Ficção científica",
       "luz": "luz dura de estrela, contraluz de planeta",
-      "paleta": ["#020617", "#312e81", "#38bdf8", "#f8fafc"],
+      "paleta": [
+        "#020617",
+        "#312e81",
+        "#38bdf8",
+        "#f8fafc"
+      ],
       "profundidade": "enorme escala, nave ou estrutura em primeiro plano",
-      "efeitos": ["poeira espacial", "rastros", "reflexo de lente"],
-      "materiais": ["metal de nave", "vidro de cabine"],
-      "evitar": ["reflexo de lente exagerado"]
+      "efeitos": [
+        "poeira espacial",
+        "rastros",
+        "reflexo de lente"
+      ],
+      "materiais": [
+        "metal de nave",
+        "vidro de cabine"
+      ],
+      "evitar": [
+        "reflexo de lente exagerado"
+      ]
     },
     "SPACE": {
       "nome": "Espaço",
       "luz": "luz de estrela distante e brilho de nebulosa",
-      "paleta": ["#03010a", "#4c1d95", "#db2777", "#e9d5ff"],
+      "paleta": [
+        "#03010a",
+        "#4c1d95",
+        "#db2777",
+        "#e9d5ff"
+      ],
       "profundidade": "planeta ou lua em primeiro plano, nebulosa ao fundo",
-      "efeitos": ["estrelas", "nebulosa", "anel planetário"],
-      "materiais": ["gás", "rocha"],
-      "evitar": ["estrelas uniformes demais"]
+      "efeitos": [
+        "estrelas",
+        "nebulosa",
+        "anel planetário"
+      ],
+      "materiais": [
+        "gás",
+        "rocha"
+      ],
+      "evitar": [
+        "estrelas uniformes demais"
+      ]
     },
     "SAMURAI": {
       "nome": "Samurai",
       "luz": "lua grande contra a silhueta, pôr do sol vermelho",
-      "paleta": ["#0c0a09", "#7f1d1d", "#dc2626", "#fef3c7"],
+      "paleta": [
+        "#0c0a09",
+        "#7f1d1d",
+        "#dc2626",
+        "#fef3c7"
+      ],
       "profundidade": "silhueta em primeiro plano, montanhas e lua ao fundo",
-      "efeitos": ["pétalas", "vento", "névoa"],
-      "materiais": ["aço", "papel de arroz", "laca"],
-      "evitar": ["clichê sem composição"]
+      "efeitos": [
+        "pétalas",
+        "vento",
+        "névoa"
+      ],
+      "materiais": [
+        "aço",
+        "papel de arroz",
+        "laca"
+      ],
+      "evitar": [
+        "clichê sem composição"
+      ]
     },
     "DEMON": {
       "nome": "Demoníaco",
       "luz": "luz vermelha de baixo para cima, brasas",
-      "paleta": ["#0a0202", "#450a0a", "#dc2626", "#f97316"],
+      "paleta": [
+        "#0a0202",
+        "#450a0a",
+        "#dc2626",
+        "#f97316"
+      ],
       "profundidade": "alta, com fumaça e fogo ao fundo",
-      "efeitos": ["brasas", "fumaça", "chifres e asas recortados pela luz"],
-      "materiais": ["obsidiana", "ferro", "chifre"],
-      "evitar": ["gore"]
+      "efeitos": [
+        "brasas",
+        "fumaça",
+        "chifres e asas recortados pela luz"
+      ],
+      "materiais": [
+        "obsidiana",
+        "ferro",
+        "chifre"
+      ],
+      "evitar": [
+        "gore"
+      ]
     },
     "ICE": {
       "nome": "Gelo",
       "luz": "luz fria difusa atravessando o gelo, brilho especular",
-      "paleta": ["#0c4a6e", "#38bdf8", "#e0f2fe", "#ffffff"],
+      "paleta": [
+        "#0c4a6e",
+        "#38bdf8",
+        "#e0f2fe",
+        "#ffffff"
+      ],
       "profundidade": "cristais em primeiro plano, névoa fria ao fundo",
-      "efeitos": ["neve", "vapor frio", "cristais brilhando"],
-      "materiais": ["gelo translúcido", "neve"],
-      "evitar": ["azul chapado sem translucidez"]
+      "efeitos": [
+        "neve",
+        "vapor frio",
+        "cristais brilhando"
+      ],
+      "materiais": [
+        "gelo translúcido",
+        "neve"
+      ],
+      "evitar": [
+        "azul chapado sem translucidez"
+      ]
     },
     "FIRE": {
       "nome": "Fogo",
       "luz": "o fogo é a luz principal: quente, de baixo, tremendo",
-      "paleta": ["#1a0404", "#b91c1c", "#f97316", "#fde047"],
+      "paleta": [
+        "#1a0404",
+        "#b91c1c",
+        "#f97316",
+        "#fde047"
+      ],
       "profundidade": "chamas em primeiro plano e brasas no ar",
-      "efeitos": ["brasas", "calor distorcendo", "fumaça"],
-      "materiais": ["carvão", "lava", "metal incandescente"],
-      "evitar": ["chamas recortadas sem luz no entorno"]
+      "efeitos": [
+        "brasas",
+        "calor distorcendo",
+        "fumaça"
+      ],
+      "materiais": [
+        "carvão",
+        "lava",
+        "metal incandescente"
+      ],
+      "evitar": [
+        "chamas recortadas sem luz no entorno"
+      ]
     },
     "GOLD_PREMIUM": {
       "nome": "Ouro Premium",
       "luz": "luz de estúdio suave com reflexo forte no ouro",
-      "paleta": ["#0b0b0d", "#3f3421", "#c9a24d", "#fff5c2"],
+      "paleta": [
+        "#0b0b0d",
+        "#3f3421",
+        "#c9a24d",
+        "#fff5c2"
+      ],
       "profundidade": "média, bokeh dourado ao fundo",
-      "efeitos": ["reflexo passando", "pó dourado", "bokeh"],
-      "materiais": ["ouro polido", "mármore preto"],
-      "evitar": ["dourado amarelo chapado"]
+      "efeitos": [
+        "reflexo passando",
+        "pó dourado",
+        "bokeh"
+      ],
+      "materiais": [
+        "ouro polido",
+        "mármore preto"
+      ],
+      "evitar": [
+        "dourado amarelo chapado"
+      ]
     },
     "BLACK_GOLD": {
       "nome": "Preto e Dourado",
       "luz": "clave baixa com filetes de luz dourada",
-      "paleta": ["#050505", "#15130f", "#c9a24d", "#f6d77a"],
+      "paleta": [
+        "#050505",
+        "#15130f",
+        "#c9a24d",
+        "#f6d77a"
+      ],
       "profundidade": "média, linhas douradas em diagonal",
-      "efeitos": ["filetes de luz", "reflexo passando"],
-      "materiais": ["fibra de carbono", "ouro"],
-      "evitar": ["dourado em excesso"]
+      "efeitos": [
+        "filetes de luz",
+        "reflexo passando"
+      ],
+      "materiais": [
+        "fibra de carbono",
+        "ouro"
+      ],
+      "evitar": [
+        "dourado em excesso"
+      ]
     },
     "PURPLE_VOID": {
       "nome": "Vazio Roxo",
       "luz": "brilho roxo vindo do fundo (portal ou vórtice), silhueta escura",
-      "paleta": ["#030208", "#2e1065", "#7c3aed", "#e9d5ff"],
+      "paleta": [
+        "#030208",
+        "#2e1065",
+        "#7c3aed",
+        "#e9d5ff"
+      ],
       "profundidade": "alta, túnel ou vórtice",
-      "efeitos": ["partículas sendo sugadas", "névoa roxa"],
-      "materiais": ["energia", "vidro escuro"],
-      "evitar": ["roxo chapado"]
+      "efeitos": [
+        "partículas sendo sugadas",
+        "névoa roxa"
+      ],
+      "materiais": [
+        "energia",
+        "vidro escuro"
+      ],
+      "evitar": [
+        "roxo chapado"
+      ]
     },
     "BLUE_TECH": {
       "nome": "Azul Tecnológico",
       "luz": "luz azul de tela e circuitos",
-      "paleta": ["#020617", "#1d4ed8", "#38bdf8", "#e0f2fe"],
+      "paleta": [
+        "#020617",
+        "#1d4ed8",
+        "#38bdf8",
+        "#e0f2fe"
+      ],
       "profundidade": "média, grade em perspectiva",
-      "efeitos": ["pacotes de dados", "HUD", "varredura"],
-      "materiais": ["placa de circuito", "vidro"],
-      "evitar": ["código ilegível em destaque"]
+      "efeitos": [
+        "pacotes de dados",
+        "HUD",
+        "varredura"
+      ],
+      "materiais": [
+        "placa de circuito",
+        "vidro"
+      ],
+      "evitar": [
+        "código ilegível em destaque"
+      ]
     },
     "RED_COMBAT": {
       "nome": "Combate Vermelho",
       "luz": "luz vermelha de alerta com contraluz branco",
-      "paleta": ["#0a0a0a", "#7f1d1d", "#ef4444", "#f5f5f5"],
+      "paleta": [
+        "#0a0a0a",
+        "#7f1d1d",
+        "#ef4444",
+        "#f5f5f5"
+      ],
       "profundidade": "alta, fumaça de batalha",
-      "efeitos": ["faíscas", "fumaça", "cápsulas"],
-      "materiais": ["metal militar", "tecido tático"],
-      "evitar": ["sangue"]
+      "efeitos": [
+        "faíscas",
+        "fumaça",
+        "cápsulas"
+      ],
+      "materiais": [
+        "metal militar",
+        "tecido tático"
+      ],
+      "evitar": [
+        "sangue"
+      ]
     },
     "HOLOGRAPHIC": {
       "nome": "Holográfico",
       "luz": "iridescente, cor muda com o ângulo",
-      "paleta": ["#0b0b12", "#a5f3fc", "#f5d0fe", "#fef9c3"],
+      "paleta": [
+        "#0b0b12",
+        "#a5f3fc",
+        "#f5d0fe",
+        "#fef9c3"
+      ],
       "profundidade": "média, camadas de vidro",
-      "efeitos": ["iridescência", "brilho de borda", "arco-íris sutil"],
-      "materiais": ["filme holográfico", "vidro"],
-      "evitar": ["arco-íris saturado demais"]
+      "efeitos": [
+        "iridescência",
+        "brilho de borda",
+        "arco-íris sutil"
+      ],
+      "materiais": [
+        "filme holográfico",
+        "vidro"
+      ],
+      "evitar": [
+        "arco-íris saturado demais"
+      ]
     },
     "MINIMAL_PREMIUM": {
       "nome": "Minimalista Premium",
       "luz": "luz suave e uniforme, sombras curtas",
-      "paleta": ["#0e0e10", "#1f1f23", "#d4d4d8", "#c9a24d"],
+      "paleta": [
+        "#0e0e10",
+        "#1f1f23",
+        "#d4d4d8",
+        "#c9a24d"
+      ],
       "profundidade": "baixa a média, muito espaço negativo",
-      "efeitos": ["nenhum ou quase nenhum"],
-      "materiais": ["papel", "metal fosco"],
-      "evitar": ["qualquer excesso"]
+      "efeitos": [
+        "nenhum ou quase nenhum"
+      ],
+      "materiais": [
+        "papel",
+        "metal fosco"
+      ],
+      "evitar": [
+        "qualquer excesso"
+      ]
     }
   },
   "variacoes_de_cor": {
-    "Blue": ["#0b1b4d", "#2563eb", "#93c5fd"],
-    "Purple": ["#1e0b3a", "#7c3aed", "#c4b5fd"],
-    "Red": ["#1a0404", "#dc2626", "#fca5a5"],
-    "Gold": ["#1c1405", "#c9a24d", "#fff5c2"],
-    "White": ["#e5e7eb", "#ffffff", "#a1a1aa"],
-    "Cyber": ["#01012b", "#ff2a6d", "#05d9e8"],
-    "Fire": ["#1a0404", "#f97316", "#fde047"],
-    "Ice": ["#0c4a6e", "#38bdf8", "#e0f2fe"]
+    "Blue": [
+      "#0b1b4d",
+      "#2563eb",
+      "#93c5fd"
+    ],
+    "Purple": [
+      "#1e0b3a",
+      "#7c3aed",
+      "#c4b5fd"
+    ],
+    "Red": [
+      "#1a0404",
+      "#dc2626",
+      "#fca5a5"
+    ],
+    "Gold": [
+      "#1c1405",
+      "#c9a24d",
+      "#fff5c2"
+    ],
+    "White": [
+      "#e5e7eb",
+      "#ffffff",
+      "#a1a1aa"
+    ],
+    "Cyber": [
+      "#01012b",
+      "#ff2a6d",
+      "#05d9e8"
+    ],
+    "Fire": [
+      "#1a0404",
+      "#f97316",
+      "#fde047"
+    ],
+    "Ice": [
+      "#0c4a6e",
+      "#38bdf8",
+      "#e0f2fe"
+    ]
   },
   "intensidades": {
     "sutil": "poucos efeitos, luz suave, bastante espaço negativo",
@@ -216,5 +572,53 @@
     "intenso": "contraste alto, mais partículas e brilho, ainda com hierarquia",
     "cinematografico": "luz dramática, profundidade grande, atmosfera (névoa, poeira)",
     "ultra_detalhado": "microtexturas, pequenos efeitos, materiais bem definidos"
-  }
+  },
+  "cores": {
+    "Preto": [
+      "#050507",
+      "#16161c",
+      "#2a2a33"
+    ],
+    "Branco": [
+      "#f4f4f6",
+      "#d9dbe3",
+      "#ffffff"
+    ],
+    "Azul": [
+      "#0b2a6b",
+      "#2563eb",
+      "#93c5fd"
+    ],
+    "Vermelho": [
+      "#450a0a",
+      "#dc2626",
+      "#fca5a5"
+    ],
+    "Roxo": [
+      "#2e1065",
+      "#7c3aed",
+      "#c4b5fd"
+    ],
+    "Verde": [
+      "#052e16",
+      "#16a34a",
+      "#86efac"
+    ],
+    "Ciano": [
+      "#083344",
+      "#06b6d4",
+      "#a5f3fc"
+    ],
+    "Dourado": [
+      "#3a2a0a",
+      "#c9a14a",
+      "#f6dc9a"
+    ],
+    "Rosa": [
+      "#500724",
+      "#db2777",
+      "#f9a8d4"
+    ]
+  },
+  "_estilos_salvos": "Quando o usuário aprova uma base visual e toca em SALVAR COMO ESTILO, o perfil vai para visual/estilos-salvos/<nome>.json e pode ser usado em qualquer formato."
 }

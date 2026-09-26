@@ -1,30 +1,91 @@
 {
-  "_sobre": "Checklist de qualidade. Toda referência e toda arte gerada recebe nota de 0 a 10 em cada critério. Só passa com média 8 ou mais e nenhum critério abaixo de 6.",
-  "aprovacao": { "media_minima": 8, "criterio_minimo": 6 },
+  "_sobre": "Checklist de qualidade. Toda referência e toda arte gerada recebe nota de 0 a 10 nos 10 critérios abaixo (seção 10 do documento). Só é entregue com média 8 ou mais e nenhum critério abaixo de 6; se parecer genérica, vazia ou artificial, volta para a composição antes de ser entregue.",
+  "aprovacao": {
+    "media_minima": 8,
+    "criterio_minimo": 6
+  },
   "criterios": {
-    "composicao": { "pergunta": "Tem um ponto focal claro e hierarquia?", "0": "tudo com o mesmo peso", "5": "foco existe mas disputa com outros", "10": "o olho vai direto ao foco e depois percorre o resto" },
-    "iluminacao": { "pergunta": "A luz tem direção e cria volume?", "0": "luz chapada", "5": "luz com direção mas sem rim light", "10": "luz principal, rim light e sombras coerentes" },
-    "profundidade": { "pergunta": "Existem planos separados?", "0": "tudo no mesmo plano", "5": "2 planos", "10": "3 ou mais planos com perspectiva atmosférica" },
-    "acabamento": { "pergunta": "As bordas e o recorte estão limpos?", "0": "halo branco, serrilhado, restos de fundo", "5": "pequenos defeitos visíveis de perto", "10": "limpo em qualquer fundo" },
-    "cores": { "pergunta": "A paleta é coesa e tem um destaque?", "0": "cores brigando", "5": "coesa mas sem destaque", "10": "3 a 5 cores e um destaque que guia o olho" },
-    "detalhamento": { "pergunta": "Os detalhes estão no lugar certo?", "0": "sem detalhe ou ruído em tudo", "5": "detalhe espalhado", "10": "detalhe concentrado no foco, calma no resto" },
-    "coerencia": { "pergunta": "Estilo, luz e materiais combinam entre si?", "0": "estilos misturados", "5": "pequenas quebras", "10": "tudo parece da mesma arte" },
-    "legibilidade": { "pergunta": "O rosto, o nick e o conteúdo continuam visíveis?", "0": "cobre o rosto ou o texto", "5": "atrapalha um pouco", "10": "enfeita sem atrapalhar" },
-    "silhueta": { "pergunta": "Dá para entender a peça em 48 px?", "0": "vira borrão", "5": "lê só de perto", "10": "forma reconhecível em qualquer tamanho" },
-    "desempenho": { "pergunta": "É leve e anima só transform e opacity?", "0": "trava o celular", "5": "pesada em aparelho fraco", "10": "leve e fluida (60 fps)" }
+    "composicao": {
+      "pergunta": "Tem foco principal, hierarquia, equilíbrio e espaço negativo?",
+      "0": "tudo com o mesmo peso",
+      "5": "o foco existe mas disputa com outros elementos",
+      "10": "o olho vai direto ao foco e depois percorre o resto"
+    },
+    "iluminacao": {
+      "pergunta": "Luz principal, secundária, rim light, reflexos e sombras são coerentes?",
+      "0": "luz chapada ou incompatível",
+      "5": "luz com direção mas sem rim light nem sombra",
+      "10": "fontes de luz coerentes criando volume"
+    },
+    "profundidade": {
+      "pergunta": "Existem primeiro plano, plano médio e fundo separados?",
+      "0": "tudo no mesmo plano",
+      "5": "2 planos",
+      "10": "3 ou mais planos com escala, sobreposição e desfoque"
+    },
+    "cores": {
+      "pergunta": "A paleta é coesa, com contraste, temperatura e um destaque?",
+      "0": "cores desconectadas",
+      "5": "coesa mas sem destaque",
+      "10": "3 a 5 cores e um destaque que guia o olho"
+    },
+    "detalhamento": {
+      "pergunta": "Microtexturas, pequenos efeitos e brilhos estão no lugar certo?",
+      "0": "sem detalhe ou ruído em tudo",
+      "5": "detalhe espalhado",
+      "10": "detalhe concentrado no foco, calma no resto"
+    },
+    "acabamento": {
+      "pergunta": "Nitidez, texturas e materiais têm acabamento profissional?",
+      "0": "borrado, sem material",
+      "5": "materiais genéricos",
+      "10": "materiais bem definidos e nítidos"
+    },
+    "coerencia": {
+      "pergunta": "Todos os elementos parecem pertencer à mesma cena?",
+      "0": "estilos misturados, objetos soltos",
+      "5": "pequenas quebras",
+      "10": "tudo parece da mesma arte"
+    },
+    "recorte": {
+      "pergunta": "O recorte está limpo em qualquer fundo?",
+      "0": "halo branco, serrilhado, restos de fundo",
+      "5": "defeitos visíveis de perto",
+      "10": "limpo em fundo claro e escuro"
+    },
+    "efeitos": {
+      "pergunta": "Cada efeito tem propósito (efeito com propósito > efeito em excesso)?",
+      "0": "glow e partículas enchendo a imagem",
+      "5": "efeitos certos em quantidade demais",
+      "10": "poucos efeitos, todos com função"
+    },
+    "aparencia_profissional": {
+      "pergunta": "Parece feito por um designer profissional?",
+      "0": "cara de template genérico",
+      "5": "bom mas comum",
+      "10": "peça premium, de loja"
+    }
   },
   "arte_generica": [
-    "brilho em tudo, sem uma área calma",
+    "fundo vazio",
+    "personagem simplesmente colocado sobre uma imagem",
+    "iluminação incompatível",
+    "sombras inexistentes",
+    "excesso de glow",
+    "excesso de partículas",
+    "composição sem hierarquia",
+    "elementos competindo pelo foco",
+    "personagem pequeno demais",
+    "objetos flutuando sem integração",
+    "cores desconectadas",
+    "aparência de template genérico",
+    "excesso de efeitos sem função",
+    "baixa profundidade",
+    "falta de acabamento",
     "gradiente roxo e azul sem forma nenhuma",
-    "simetria perfeita sem intenção",
-    "partículas espalhadas sem direção",
     "texto, marca d'água ou assinatura na imagem",
     "halo branco ou borda suja no recorte",
     "anatomia deformada (mãos, olhos, patas)",
-    "objetos derretidos ou sem forma",
-    "estilos misturados (3D realista com flat)",
-    "sem ponto focal",
-    "detalhe que some em tamanho pequeno",
     "logo, personagem ou arte protegida de terceiros"
   ],
   "metricas_automaticas": {
@@ -33,5 +94,10 @@
     "nitidez_minima": 60,
     "contraste_minimo": 38,
     "nota": "nitidez = variância do laplaciano numa cópia de 512 px; contraste = desvio padrão da luminância; colorido = métrica de Hasler e Süsstrunk"
+  },
+  "checagens_do_app": {
+    "legibilidade": "o rosto do avatar, o nick e o conteúdo continuam visíveis",
+    "silhueta": "a peça se entende em 48 px",
+    "desempenho": "leve, anima só transform e opacity, no máximo 3 camadas animadas"
   }
 }

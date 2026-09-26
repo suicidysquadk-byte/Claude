@@ -1,0 +1,1 @@
+# Estilos salvos pelo usuário (SALVAR COMO ESTILO). Um arquivo JSON por estilo, no formato de perfis/_modelo.json.

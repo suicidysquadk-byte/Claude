@@ -1,167 +1,537 @@
 {
   "_sobre": "Templates de composição. Cada arte nasce de um template: ele diz onde fica o foco, o que fica livre, quantas camadas existem, de onde vem a luz e o que pode se mexer. Medidas em fração da tela (0 a 1) para servirem em qualquer resolução.",
   "formatos": {
-    "decoracao": { "nome": "Decoração de avatar", "tela": [600, 600], "avatar": { "centro": [0.5, 0.5], "raio": 0.4167 }, "nota": "A tela é 1,2x o avatar, como no Discord. O rosto do avatar nunca pode ser coberto." },
-    "banner": { "nome": "Banner do perfil", "tela": [960, 360], "proporcao": "8:3" },
-    "placa": { "nome": "Placa de nome", "tela": [640, 112], "proporcao": "40:7", "nota": "Fica atrás do nick nas listas. O texto tem que continuar legível." },
-    "perfil": { "nome": "Moldura de perfil", "tela": [720, 1080], "proporcao": "2:3", "nota": "Contorna o cartão de perfil inteiro. O miolo fica livre." },
-    "fundo": { "nome": "Fundo / wallpaper", "tela": [720, 1440], "proporcao": "1:2" },
-    "capa": { "nome": "Capa do cartão", "tela": [800, 480], "proporcao": "5:3" }
+    "decoracao": {
+      "nome": "Decoração de avatar",
+      "tela": [
+        600,
+        600
+      ],
+      "avatar": {
+        "centro": [
+          0.5,
+          0.5
+        ],
+        "raio": 0.4167
+      },
+      "nota": "A tela é 1,2x o avatar, como no Discord. O rosto do avatar nunca pode ser coberto."
+    },
+    "banner": {
+      "nome": "Banner do perfil",
+      "tela": [
+        960,
+        360
+      ],
+      "proporcao": "8:3"
+    },
+    "placa": {
+      "nome": "Placa de nome",
+      "tela": [
+        640,
+        112
+      ],
+      "proporcao": "40:7",
+      "nota": "Fica atrás do nick nas listas. O texto tem que continuar legível."
+    },
+    "perfil": {
+      "nome": "Moldura de perfil",
+      "tela": [
+        720,
+        1080
+      ],
+      "proporcao": "2:3",
+      "nota": "Contorna o cartão de perfil inteiro. O miolo fica livre."
+    },
+    "fundo": {
+      "nome": "Fundo / wallpaper",
+      "tela": [
+        720,
+        1440
+      ],
+      "proporcao": "1:2"
+    },
+    "capa": {
+      "nome": "Capa do cartão",
+      "tela": [
+        800,
+        480
+      ],
+      "proporcao": "5:3"
+    },
+    "card": {
+      "nome": "Card",
+      "tela": [
+        720,
+        1000
+      ],
+      "proporcao": "18:25"
+    },
+    "quadro": {
+      "nome": "Quadro",
+      "tela": [
+        1000,
+        1000
+      ],
+      "proporcao": "1:1"
+    },
+    "avatar": {
+      "nome": "Avatar",
+      "tela": [
+        512,
+        512
+      ],
+      "proporcao": "1:1"
+    },
+    "tela_carregamento": {
+      "nome": "Tela de carregamento",
+      "tela": [
+        1080,
+        1920
+      ],
+      "proporcao": "9:16"
+    },
+    "wallpaper": {
+      "nome": "Wallpaper",
+      "tela": [
+        1080,
+        1920
+      ],
+      "proporcao": "9:16"
+    }
   },
   "templates": {
+    "GAMER_DARK_01": {
+      "formato": "banner",
+      "tambem": [
+        "wallpaper",
+        "card",
+        "quadro"
+      ],
+      "descricao": "Personagem principal grande perto do centro, fundo escuro com profundidade e contraste elevado.",
+      "estrutura": [
+        "personagem principal ocupando cerca de 55 a 70% da composição",
+        "foco visual próximo ao centro",
+        "elementos secundários nas laterais",
+        "fundo com profundidade",
+        "iluminação direcionada",
+        "partículas discretas",
+        "área de respiro",
+        "sombras profundas",
+        "contraste elevado"
+      ],
+      "foco": "centro (x 0,35 a 0,65)",
+      "zonas": {
+        "livre": "faixas de respiro de 6% nas bordas",
+        "permitido": "laterais para elementos secundários"
+      },
+      "camadas": [
+        "fundo escuro com névoa",
+        "elementos secundários nas laterais",
+        "personagem principal",
+        "partículas discretas na frente"
+      ],
+      "luz": "direcionada de cima e de um lado, rim light recortando a silhueta",
+      "profundidade": "alta, 3 a 4 planos",
+      "movimento": [
+        "partículas sobem devagar",
+        "névoa desliza",
+        "personagem respira (scale sutil)"
+      ],
+      "evitar": [
+        "personagem pequeno",
+        "fundo vazio",
+        "glow em tudo"
+      ]
+    },
+    "GAMER_CINEMATIC_02": {
+      "formato": "banner",
+      "tambem": [
+        "wallpaper",
+        "tela_carregamento",
+        "capa"
+      ],
+      "descricao": "Personagem deslocado para um lado com espaço negativo para informações e atmosfera cinematográfica.",
+      "estrutura": [
+        "personagem deslocado para um dos lados",
+        "espaço negativo para informações",
+        "iluminação lateral",
+        "elementos ambientais",
+        "atmosfera",
+        "profundidade cinematográfica",
+        "partículas",
+        "reflexos",
+        "composição assimétrica equilibrada"
+      ],
+      "foco": "terço lateral (x 0,60 a 0,95 ou espelhado)",
+      "zonas": {
+        "livre": "terço oposto ao personagem, com contraste baixo"
+      },
+      "camadas": [
+        "céu ou horizonte",
+        "ambiente em planos",
+        "personagem",
+        "atmosfera: poeira, faíscas, raios de luz"
+      ],
+      "luz": "lateral forte do lado do personagem, contraluz e reflexos no chão",
+      "profundidade": "cinematográfica, 4 a 5 planos com perspectiva atmosférica",
+      "movimento": [
+        "raios de luz pulsam (opacity)",
+        "poeira atravessa",
+        "parallax lento entre os planos"
+      ],
+      "evitar": [
+        "espaço negativo com detalhe forte",
+        "personagem colado na borda"
+      ]
+    },
+    "BANNER_PERFIL_04": {
+      "formato": "banner",
+      "descricao": "Banner do perfil do app: elemento principal à direita, esquerda livre para o avatar e o nick que ficam por cima.",
+      "foco": "terço da direita (x 0,62 a 0,95)",
+      "zonas": {
+        "livre": "x 0 a 0,40 (avatar e texto)",
+        "respiro": "faixa de 8% nas bordas"
+      },
+      "camadas": [
+        "fundo: gradiente e textura",
+        "meio: formas de apoio desfocadas",
+        "frente: elemento principal",
+        "efeitos: partículas e névoa"
+      ],
+      "luz": "lateral roxa pela direita, rim light no elemento, ambiente baixo",
+      "profundidade": "4 planos",
+      "movimento": [
+        "névoa desliza (translateX lento)",
+        "partículas sobem",
+        "elemento principal respira"
+      ],
+      "evitar": [
+        "foco no centro atrás do avatar",
+        "brilho uniforme"
+      ]
+    },
     "DECO_ORELHAS_CAUDA_01": {
       "formato": "decoracao",
       "descricao": "Orelhas no topo e cauda enrolando embaixo, no estilo dos itens de animal do Discord.",
       "foco": "orelhas entre 10h e 2h no aro, cauda entre 4h e 7h",
-      "zonas": { "livre": "círculo central de raio 0,36 (rosto)", "permitido": "anel entre raio 0,36 e 0,50, e as quinas da tela" },
-      "camadas": ["atrás do avatar: cauda e parte de trás das orelhas", "frente: pelos da borda, pontas das orelhas, ponta da cauda"],
+      "zonas": {
+        "livre": "círculo central de raio 0,36 (rosto)",
+        "permitido": "anel entre raio 0,36 e 0,50, e as quinas da tela"
+      },
+      "camadas": [
+        "atrás do avatar: cauda e parte de trás das orelhas",
+        "frente: pelos da borda, pontas das orelhas, ponta da cauda"
+      ],
       "luz": "principal de cima à esquerda, rim light na borda de fora",
       "profundidade": "2 planos: atrás e na frente do avatar",
-      "movimento": ["cauda balança (rotate, 3 a 4 s)", "orelha pisca de vez em quando (scaleY rápido)"],
-      "evitar": ["pelo cobrindo o rosto", "orelhas simétricas demais", "cauda cortada pela borda da tela"]
+      "movimento": [
+        "cauda balança (rotate, 3 a 4 s)",
+        "orelha pisca de vez em quando (scaleY rápido)"
+      ],
+      "evitar": [
+        "pelo cobrindo o rosto",
+        "orelhas simétricas demais",
+        "cauda cortada pela borda da tela"
+      ]
     },
     "DECO_ARO_ELEMENTAL_02": {
       "formato": "decoracao",
       "descricao": "Aro de elemento (fogo, gelo, raio, energia) com um pico assimétrico que dá direção.",
       "foco": "pico maior entre 10h e 12h, resto do aro mais baixo",
-      "zonas": { "livre": "círculo central de raio 0,38", "permitido": "anel entre raio 0,38 e 0,50" },
-      "camadas": ["atrás: brilho difuso", "meio: aro principal", "frente: faíscas e lascas"],
+      "zonas": {
+        "livre": "círculo central de raio 0,38",
+        "permitido": "anel entre raio 0,38 e 0,50"
+      },
+      "camadas": [
+        "atrás: brilho difuso",
+        "meio: aro principal",
+        "frente: faíscas e lascas"
+      ],
       "luz": "a luz vem do próprio elemento, mais forte no pico",
       "profundidade": "3 planos: brilho atrás, aro, partículas na frente",
-      "movimento": ["chamas tremulam (scale e opacity)", "partículas sobem ou orbitam (translate)"],
-      "evitar": ["aro de espessura igual em volta toda", "brilho que estoura o rosto"]
+      "movimento": [
+        "chamas tremulam (scale e opacity)",
+        "partículas sobem ou orbitam (translate)"
+      ],
+      "evitar": [
+        "aro de espessura igual em volta toda",
+        "brilho que estoura o rosto"
+      ]
     },
     "DECO_ASAS_03": {
       "formato": "decoracao",
       "descricao": "Asas atrás do avatar, abertas para os lados.",
       "foco": "raiz das asas às 4h e 8h, pontas subindo até 2h e 10h",
-      "zonas": { "livre": "círculo central de raio 0,40", "permitido": "laterais e topo" },
-      "camadas": ["atrás: asas inteiras", "frente: detalhe pequeno (pena solta, joia) na base"],
+      "zonas": {
+        "livre": "círculo central de raio 0,40",
+        "permitido": "laterais e topo"
+      },
+      "camadas": [
+        "atrás: asas inteiras",
+        "frente: detalhe pequeno (pena solta, joia) na base"
+      ],
       "luz": "contraluz forte por trás das asas, bordas acesas",
       "profundidade": "asa de trás mais escura e menor que a da frente",
-      "movimento": ["asas batem devagar (rotate a partir da raiz, 4 s)"],
-      "evitar": ["asas espelhadas perfeitas", "penas sem forma (borrão)"]
+      "movimento": [
+        "asas batem devagar (rotate a partir da raiz, 4 s)"
+      ],
+      "evitar": [
+        "asas espelhadas perfeitas",
+        "penas sem forma (borrão)"
+      ]
     },
     "DECO_COROA_04": {
       "formato": "decoracao",
       "descricao": "Coroa ou tiara no topo, com acentos pequenos embaixo para fechar a leitura.",
       "foco": "coroa entre 11h e 1h, inclinada 8 a 15 graus",
-      "zonas": { "livre": "círculo central de raio 0,38", "permitido": "topo e base do anel" },
-      "camadas": ["atrás: aura", "frente: coroa e gemas"],
+      "zonas": {
+        "livre": "círculo central de raio 0,38",
+        "permitido": "topo e base do anel"
+      },
+      "camadas": [
+        "atrás: aura",
+        "frente: coroa e gemas"
+      ],
       "luz": "reflexo especular nas gemas e no metal, luz quente de cima",
       "profundidade": "coroa na frente, aura atrás",
-      "movimento": ["brilho que passa pelas gemas (translate de um reflexo)", "coroa quica de leve"],
-      "evitar": ["coroa reta e centralizada demais", "dourado chapado sem reflexo"]
+      "movimento": [
+        "brilho que passa pelas gemas (translate de um reflexo)",
+        "coroa quica de leve"
+      ],
+      "evitar": [
+        "coroa reta e centralizada demais",
+        "dourado chapado sem reflexo"
+      ]
     },
     "DECO_CRIATURA_05": {
       "formato": "decoracao",
       "descricao": "Criatura (dragão, serpente, raposa) enrolada no aro, cabeça olhando para o centro.",
       "foco": "cabeça entre 1h e 2h, corpo contornando até 7h",
-      "zonas": { "livre": "círculo central de raio 0,37", "permitido": "anel inteiro" },
-      "camadas": ["atrás: corpo e cauda", "frente: cabeça, garras e um trecho do corpo cruzando o aro"],
+      "zonas": {
+        "livre": "círculo central de raio 0,37",
+        "permitido": "anel inteiro"
+      },
+      "camadas": [
+        "atrás: corpo e cauda",
+        "frente: cabeça, garras e um trecho do corpo cruzando o aro"
+      ],
       "luz": "principal de cima, rim light colorido na borda de fora",
       "profundidade": "o corpo passa por trás e pela frente do avatar",
-      "movimento": ["cabeça respira (scale), olhos piscam, partículas saem da boca"],
-      "evitar": ["criatura inteira na frente do rosto", "anatomia torta"]
+      "movimento": [
+        "cabeça respira (scale), olhos piscam, partículas saem da boca"
+      ],
+      "evitar": [
+        "criatura inteira na frente do rosto",
+        "anatomia torta"
+      ]
     },
     "DECO_ORBITA_06": {
       "formato": "decoracao",
       "descricao": "Objetos girando numa órbita inclinada, passando atrás e na frente do avatar.",
       "foco": "órbita elíptica inclinada 20 a 30 graus",
-      "zonas": { "livre": "círculo central de raio 0,40", "permitido": "a elipse" },
-      "camadas": ["atrás: metade de cima da órbita", "frente: metade de baixo"],
+      "zonas": {
+        "livre": "círculo central de raio 0,40",
+        "permitido": "a elipse"
+      },
+      "camadas": [
+        "atrás: metade de cima da órbita",
+        "frente: metade de baixo"
+      ],
       "luz": "cada objeto com a própria luz, rastro suave",
       "profundidade": "objetos de trás menores e mais escuros",
-      "movimento": ["giro contínuo (rotate de um grupo)"],
-      "evitar": ["mais de 5 objetos", "objetos grandes demais"]
-    },
-    "GAMER_DARK_01": {
-      "formato": "banner",
-      "descricao": "Fundo escuro, elemento principal à direita, luz roxa lateral, névoa embaixo, esquerda livre para o avatar e o nick.",
-      "foco": "terço da direita (x 0,62 a 0,95)",
-      "zonas": { "livre": "x 0 a 0,40 (avatar e texto)", "respiro": "faixa de 8% nas bordas" },
-      "camadas": ["fundo: gradiente e textura", "meio: formas de apoio desfocadas", "frente: elemento principal", "efeitos: partículas e névoa"],
-      "luz": "lateral roxa pela direita, rim light no elemento, ambiente baixo",
-      "profundidade": "4 planos",
-      "movimento": ["névoa desliza (translateX lento)", "partículas sobem", "elemento principal respira"],
-      "evitar": ["foco no centro atrás do avatar", "brilho uniforme"]
-    },
-    "GAMER_CINEMATIC_02": {
-      "formato": "banner",
-      "descricao": "Elemento central com contraluz forte, profundidade grande e atmosfera.",
-      "foco": "centro-direita (x 0,50 a 0,80)",
-      "zonas": { "livre": "x 0 a 0,30", "respiro": "céu no terço de cima" },
-      "camadas": ["fundo: céu ou horizonte", "meio: silhueta principal", "frente: poeira, faíscas e raios de luz"],
-      "luz": "contraluz atrás do elemento, raios volumétricos",
-      "profundidade": "5 planos com perspectiva atmosférica",
-      "movimento": ["raios de luz pulsam (opacity)", "poeira atravessa"],
-      "evitar": ["contraluz sem silhueta clara", "horizonte torto"]
+      "movimento": [
+        "giro contínuo (rotate de um grupo)"
+      ],
+      "evitar": [
+        "mais de 5 objetos",
+        "objetos grandes demais"
+      ]
     },
     "BANNER_PAISAGEM_03": {
       "formato": "banner",
       "descricao": "Paisagem em camadas (montanhas, cidade, mar) com um ponto de luz forte.",
       "foco": "ponto de luz (lua, sol, portal) em x 0,70",
-      "zonas": { "livre": "x 0 a 0,35 com céu calmo" },
-      "camadas": ["céu", "plano distante", "plano médio", "primeiro plano escuro"],
+      "zonas": {
+        "livre": "x 0 a 0,35 com céu calmo"
+      },
+      "camadas": [
+        "céu",
+        "plano distante",
+        "plano médio",
+        "primeiro plano escuro"
+      ],
       "luz": "da fonte principal, com reflexo no plano de baixo",
       "profundidade": "cada plano mais claro e mais azulado com a distância",
-      "movimento": ["parallax lento entre os planos", "estrelas ou partículas piscam"],
-      "evitar": ["planos da mesma cor", "tudo no mesmo tamanho"]
+      "movimento": [
+        "parallax lento entre os planos",
+        "estrelas ou partículas piscam"
+      ],
+      "evitar": [
+        "planos da mesma cor",
+        "tudo no mesmo tamanho"
+      ]
     },
     "PLACA_PAISAGEM_01": {
       "formato": "placa",
       "descricao": "Cena horizontal com o elemento forte à direita e a esquerda calma para o nick.",
       "foco": "x 0,70 a 0,98",
-      "zonas": { "livre": "x 0,05 a 0,60 com contraste baixo (onde o nick fica)" },
-      "camadas": ["fundo: gradiente", "meio: cena", "frente: elemento principal"],
+      "zonas": {
+        "livre": "x 0,05 a 0,60 com contraste baixo (onde o nick fica)"
+      },
+      "camadas": [
+        "fundo: gradiente",
+        "meio: cena",
+        "frente: elemento principal"
+      ],
       "luz": "vinda da direita",
       "profundidade": "2 a 3 planos",
-      "movimento": ["um só movimento discreto (brilho, partícula ou balanço)"],
-      "evitar": ["detalhe forte atrás do texto", "branco puro atrás do texto"]
+      "movimento": [
+        "um só movimento discreto (brilho, partícula ou balanço)"
+      ],
+      "evitar": [
+        "detalhe forte atrás do texto",
+        "branco puro atrás do texto"
+      ]
     },
     "PLACA_TEXTURA_02": {
       "formato": "placa",
       "descricao": "Textura rica (pelo, metal, pétalas, circuito) com vinheta que escurece o meio.",
       "foco": "bordas da placa",
-      "zonas": { "livre": "faixa central com vinheta de 40%" },
-      "camadas": ["textura", "vinheta", "brilho de borda"],
+      "zonas": {
+        "livre": "faixa central com vinheta de 40%"
+      },
+      "camadas": [
+        "textura",
+        "vinheta",
+        "brilho de borda"
+      ],
       "luz": "reflexo passando de ponta a ponta",
       "profundidade": "rasa",
-      "movimento": ["reflexo passa a cada 5 s"],
-      "evitar": ["textura com contraste alto no meio"]
+      "movimento": [
+        "reflexo passa a cada 5 s"
+      ],
+      "evitar": [
+        "textura com contraste alto no meio"
+      ]
     },
     "PERFIL_CANTOS_01": {
       "formato": "perfil",
       "descricao": "Ornamentos grandes nos cantos, borda fina ligando tudo.",
       "foco": "cantos de cima (principais) e de baixo (menores)",
-      "zonas": { "livre": "miolo inteiro, a partir de 7% da borda" },
-      "camadas": ["borda fina", "ornamentos dos cantos", "efeitos pequenos"],
+      "zonas": {
+        "livre": "miolo inteiro, a partir de 7% da borda"
+      },
+      "camadas": [
+        "borda fina",
+        "ornamentos dos cantos",
+        "efeitos pequenos"
+      ],
       "luz": "de cima, com reflexo nos ornamentos",
       "profundidade": "ornamentos saindo um pouco da borda",
-      "movimento": ["brilho correndo pela borda", "partículas nos cantos"],
-      "evitar": ["ornamentos iguais nos 4 cantos", "borda grossa"]
+      "movimento": [
+        "brilho correndo pela borda",
+        "partículas nos cantos"
+      ],
+      "evitar": [
+        "ornamentos iguais nos 4 cantos",
+        "borda grossa"
+      ]
     },
     "PERFIL_TOPO_02": {
       "formato": "perfil",
       "descricao": "Elemento herói no topo (criatura, coroa, asas) e acentos pequenos embaixo.",
       "foco": "topo, levemente fora do centro",
-      "zonas": { "livre": "miolo a partir de 12% do topo e 5% das laterais" },
-      "camadas": ["borda", "elemento do topo", "acentos da base", "efeitos"],
+      "zonas": {
+        "livre": "miolo a partir de 12% do topo e 5% das laterais"
+      },
+      "camadas": [
+        "borda",
+        "elemento do topo",
+        "acentos da base",
+        "efeitos"
+      ],
       "luz": "do elemento do topo para baixo",
       "profundidade": "elemento do topo passa por cima da borda",
-      "movimento": ["elemento do topo respira", "partículas descem"],
-      "evitar": ["elemento do topo cobrindo o banner inteiro"]
+      "movimento": [
+        "elemento do topo respira",
+        "partículas descem"
+      ],
+      "evitar": [
+        "elemento do topo cobrindo o banner inteiro"
+      ]
     },
     "FUNDO_VERTICAL_01": {
       "formato": "fundo",
       "descricao": "Wallpaper vertical com o foco no terço de cima e a parte de baixo calma para o conteúdo.",
       "foco": "y 0,10 a 0,40",
-      "zonas": { "livre": "y 0,45 a 1 com contraste baixo" },
-      "camadas": ["céu", "elemento principal", "névoa", "partículas"],
+      "zonas": {
+        "livre": "y 0,45 a 1 com contraste baixo"
+      },
+      "camadas": [
+        "céu",
+        "elemento principal",
+        "névoa",
+        "partículas"
+      ],
       "luz": "do alto, caindo em degradê",
       "profundidade": "4 planos",
-      "movimento": ["névoa sobe devagar", "partículas caem"],
-      "evitar": ["detalhe forte atrás dos cartões"]
+      "movimento": [
+        "névoa sobe devagar",
+        "partículas caem"
+      ],
+      "evitar": [
+        "detalhe forte atrás dos cartões"
+      ]
+    },
+    "DECO_CENA_07": {
+      "formato": "decoracao",
+      "descricao": "Mini cenário no aro (lua, arquitetura, plantas, nuvens) contando uma história, com pesos em pontos opostos.",
+      "foco": "dois pesos opostos (ex.: lua às 10h e construção às 4h)",
+      "zonas": {
+        "livre": "círculo central de raio 0,38",
+        "permitido": "anel inteiro, com o meio calmo"
+      },
+      "camadas": [
+        "atrás: céu ou galáxia correndo por dentro do aro",
+        "meio: aro",
+        "frente: plantas, nuvens e construções"
+      ],
+      "luz": "da fonte da cena (lua, lanterna), suave",
+      "profundidade": "3 planos",
+      "movimento": [
+        "nuvens deslizam",
+        "estrelas piscam",
+        "um elemento flutua (translateY)"
+      ],
+      "evitar": [
+        "cenário espalhado no aro inteiro",
+        "elementos do mesmo tamanho"
+      ]
+    },
+    "DECO_ACENTO_08": {
+      "formato": "decoracao",
+      "descricao": "Aro fino e limpo com um acento forte num ponto (flor, laço, joia) e acentos menores em contraponto.",
+      "foco": "acento principal entre 10h e 11h, contrapontos menores às 1h e às 7h",
+      "zonas": {
+        "livre": "círculo central de raio 0,40",
+        "permitido": "aro fino e os pontos de acento"
+      },
+      "camadas": [
+        "aro fino",
+        "acento principal",
+        "acentos menores e brilhos"
+      ],
+      "luz": "reflexo especular no material do aro, brilhos pontuais",
+      "profundidade": "rasa: fita ou galho passando por cima e por baixo do aro",
+      "movimento": [
+        "brilho corre pelo aro",
+        "fita balança",
+        "pétala cai de vez em quando"
+      ],
+      "evitar": [
+        "acentos iguais em volta toda",
+        "aro grosso"
+      ]
     }
   },
   "analise_de_referencia": [
@@ -177,5 +547,86 @@
     "O que está exagerado ou poderia sair?",
     "O que dá para aprender sem copiar (princípio, não desenho)?",
     "Em que template nosso isso se encaixa?"
-  ]
+  ],
+  "personalizacao": {
+    "_sobre": "O que o usuário escolhe (seção 14). Cada escolha aponta para a biblioteca de estilos, as cores e os níveis de intensidade.",
+    "formatos": [
+      "banner",
+      "wallpaper",
+      "card",
+      "quadro",
+      "fundo",
+      "perfil",
+      "decoracao",
+      "avatar",
+      "capa",
+      "tela_carregamento",
+      "placa"
+    ],
+    "estilos": {
+      "Dark": [
+        "DARK_PREMIUM",
+        "DARK_ANIME"
+      ],
+      "Premium": [
+        "GOLD_PREMIUM",
+        "BLACK_GOLD",
+        "MINIMAL_PREMIUM"
+      ],
+      "Gamer": [
+        "GAMER_PREMIUM",
+        "RED_COMBAT"
+      ],
+      "Anime": [
+        "ANIME_PREMIUM",
+        "DARK_ANIME"
+      ],
+      "Cyberpunk": [
+        "CYBERPUNK",
+        "NEON"
+      ],
+      "Futurista": [
+        "FUTURISTIC",
+        "SCI_FI",
+        "BLUE_TECH",
+        "HOLOGRAPHIC"
+      ],
+      "Fantasy": [
+        "FANTASY",
+        "DEMON",
+        "ICE",
+        "FIRE"
+      ],
+      "Royal": [
+        "ROYAL",
+        "GOLD_PREMIUM"
+      ],
+      "Minimalista": [
+        "MINIMAL_PREMIUM"
+      ],
+      "Cinematográfico": [
+        "GAMER_PREMIUM",
+        "SPACE",
+        "SAMURAI"
+      ]
+    },
+    "cores": [
+      "Preto",
+      "Branco",
+      "Azul",
+      "Vermelho",
+      "Roxo",
+      "Verde",
+      "Ciano",
+      "Dourado",
+      "Rosa"
+    ],
+    "intensidades": [
+      "sutil",
+      "equilibrado",
+      "intenso",
+      "cinematografico",
+      "ultra_detalhado"
+    ]
+  }
 }

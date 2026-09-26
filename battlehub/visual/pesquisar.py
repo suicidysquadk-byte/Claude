@@ -204,7 +204,9 @@ class Navegador:
             dados = pg.evaluate("""() => {
               const out = [];
               for (const i of document.images) {
-                const a = i.closest('a');
+                let a = i.closest('a');
+                for (let el = i.parentElement, k = 0; !a && el && k < 8; el = el.parentElement, k++)
+                  a = el.querySelector('a[href*="/pin/"], a[href*="/gallery/"], a[href*="/shots/"], a[href*="/artwork/"]');
                 out.push({src: i.currentSrc || i.src, w: i.naturalWidth, h: i.naturalHeight,
                           alt: i.alt || '', link: a ? a.href : ''});
               }
