@@ -8,7 +8,7 @@ window.BH = window.BH || {};
   const sa = st.adm;
   sa.caseTab = sa.caseTab || 'abertas';
   const MAX_VIDEO = 50 * 1024 * 1024;
-  const STATUS = { aguardando_video: ['Esperando o vídeo', 'gold'], em_analise: ['Em análise', 'violet'], confirmado: ['Trapaça confirmada', 'red'], descartado: ['Sem trapaça', 'green'] };
+  const STATUS = { aguardando_video: ['Esperando o vídeo', 'gold'], em_analise: ['Em análise', 'violet'], confirmado: ['Trapaça confirmada', 'red'], descartado: ['Sem trapaça', 'green'], recusado: ['Recusou a verificação', 'red'] };
   const statusTag = (s) => '<span class="tag tone-' + STATUS[s][1] + '">' + esc(STATUS[s][0]) + '</span>';
   const refreshMe = async () => { try { await api.refreshMe(); app().header(); } catch (e) { /* segue */ } };
 
@@ -120,7 +120,9 @@ window.BH = window.BH || {};
         (open ? '<section class="card"><h3 class="card-h">' + I('gavel') + 'Resultado</h3>' +
           '<p class="muted small">Se for hack: quem ele matou (ou todos da sala) recebe a inscrição de volta, o saldo dele fica retido, os saques pendentes são recusados e a conta é banida para sempre, com bloqueio do ID do Free Fire, das chaves Pix e do aparelho.</p>' +
           '<div class="btn-row two"><button type="button" class="btn green" data-act="caseClear" data-id="' + c.id + '">' + I('checkCircle') + 'Sem trapaça</button>' +
-          (me.role_level >= 2 ? '<button type="button" class="btn danger" data-act="caseHack" data-id="' + c.id + '">' + I('ban') + 'Confirmar trapaça</button>' : '<p class="muted small">Só admins confirmam trapaça. Marque os prejudicados e avise um admin.</p>') + '</div></section>'
+          (me.role_level >= 2 ? '<button type="button" class="btn danger" data-act="caseHack" data-id="' + c.id + '">' + I('ban') + 'Confirmar trapaça</button>' : '<p class="muted small">Só admins confirmam trapaça. Marque os prejudicados e avise um admin.</p>') + '</div>' +
+          (me.role_level >= 2 ? '<button type="button" class="btn danger-ghost block sm" data-act="caseRefuse" data-id="' + c.id + '">' + I('userX') + 'Recusou a verificação do aparelho</button>' : '') +
+          (c.consent_at ? '<p class="muted small">' + I('checkCircle') + ' Aceitou a verificação do aparelho em ' + U.when(c.consent_at) + '.</p>' : '<p class="muted small">Ainda não aceitou a verificação do aparelho.</p>') + '</section>'
           : resultHtml(c)) + '</section>',
       onMount(root) { mountVideo(root); }
     };
@@ -188,6 +190,29 @@ window.BH = window.BH || {};
     });
   };
   actions.caseMode = (el) => { const s = U.topSheet(); if (!s) return; s.data.mode = el.value; s.render('static'); };
+  // recusou a verificação (ou sumiu depois de chamado): ban permanente e bloqueios; se quiser, trata como trapaça
+  actions.caseRefuse = function (el) {
+    const id = el.dataset.id;
+    if (cv.dirty) return U.toast('Salve os prejudicados antes.', 'bad');
+    U.sheet({
+      title: 'Recusou a verificação', data: { cheat: true, mode: cv.victims.size ? 'prejudicados' : 'todos' },
+      body: (s) => '<form class="form" data-form="caseRefuse" data-id="' + id + '">' +
+        '<p class="note-red">' + I('ban') + '<span>Ban permanente. O ID do Free Fire, as chaves Pix e o aparelho entram na lista de bloqueio: a pessoa não cria outra conta. Só admin ou dono libera depois, na aba Banidos.</span></p>' +
+        '<label class="switch"><input type="checkbox" name="cheat" data-act-change="caseRefuseCheat"' + (s.data.cheat ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span>Tratar como trapaça <small>Devolve as inscrições e retém o saldo dele, como no veredito de trapaça.</small></span></label>' +
+        (s.data.cheat ? '<fieldset class="field"><span>Quem recebe a inscrição de volta</span><div class="radio-list">' +
+          '<label class="radio"><input type="radio" name="mode" value="prejudicados" data-act-change="caseMode"' + (s.data.mode === 'prejudicados' ? ' checked' : '') + (cv.victims.size ? '' : ' disabled') + '><span>Só os prejudicados (' + cv.victims.size + ')</span></label>' +
+          '<label class="radio"><input type="radio" name="mode" value="todos" data-act-change="caseMode"' + (s.data.mode === 'todos' ? ' checked' : '') + '><span>Todos da sala</span></label></div></fieldset>' : '') +
+        '<label class="field"><span>O que aconteceu (fica na auditoria)</span><textarea id="crf-note" name="note" rows="3" maxlength="600" required placeholder="Ex.: na ligação, recusou compartilhar a tela e desligou"></textarea></label>' +
+        '<button class="btn danger block lg">' + I('gavel') + 'Banir para sempre</button></form>'
+    });
+  };
+  actions.caseRefuseCheat = (el) => { const s = U.topSheet(); if (!s) return; s.data.cheat = el.checked; s.render('static'); };
+  forms.caseRefuse = async function (f) {
+    const s = U.topSheet(), cheat = !!(s && s.data.cheat), mode = cheat ? new FormData(f).get('mode') : null;
+    if (!(await U.confirm({ title: 'Banir para sempre?', body: 'A conta e o aparelho ficam bloqueados. Só a administração libera depois.', ok: 'Banir', danger: true }))) return;
+    const r = await U.run(f.querySelector('button.danger'), () => api.rpc('admin_case_refuse', { p_id: f.dataset.id, p_as_cheat: cheat, p_mode: mode, p_note: f.note.value }), 'Conta banida por recusar a verificação.');
+    if (r) { U.closeAll(); await refreshMe(); app().refresh(); }
+  };
   forms.caseResolve = async function (f) {
     const mode = new FormData(f).get('mode');
     if (!(await U.confirm({ title: 'Tem certeza?', body: 'Não dá para desfazer: o dinheiro é devolvido e a conta é banida para sempre.', ok: 'Confirmar', danger: true }))) return;
@@ -198,7 +223,7 @@ window.BH = window.BH || {};
     const r = c.result || {};
     return '<section class="card"><h3 class="card-h">' + I('gavel') + 'Resultado</h3>' + statusTag(c.status) +
       '<blockquote>' + esc(c.verdict_note || '') + '</blockquote><p class="muted small">Por ' + esc(c.resolved_by ? c.resolved_by.nick : '–') + ' · ' + U.date(c.resolved_at) + '</p>' +
-      (c.status === 'confirmado' ? '<div class="tiles3"><div class="tile tone-green"><b>' + U.cents(r.refund_total) + '</b><small>Devolvido (' + (c.refund_mode === 'todos' ? 'todos' : 'prejudicados') + ')</small></div>' +
+      (c.status === 'confirmado' || (c.status === 'recusado' && r.refund_total) ? '<div class="tiles3"><div class="tile tone-green"><b>' + U.cents(r.refund_total) + '</b><small>Devolvido (' + (c.refund_mode === 'todos' ? 'todos' : 'prejudicados') + ')</small></div>' +
         '<div class="tile tone-red"><b>' + U.cents(r.confiscated) + '</b><small>Retido</small></div><div class="tile"><b>' + U.cents(r.withdrawals_refused) + '</b><small>Saques recusados</small></div></div>' +
         '<ul class="mini-log">' + (r.refunds || []).map((x) => '<li>' + esc(x.nick) + ' · ' + U.cents(x.cents) + '</li>').join('') + '</ul>' : '') + '</section>';
   }
@@ -325,6 +350,9 @@ window.BH = window.BH || {};
           '<form class="form" data-form="caseVideo" data-id="' + c.id + '">' +
           '<label class="drop' + (f ? ' has' : '') + '"><input id="cs-file" type="file" accept="video/*" data-case-file><span class="drop-empty">' + I('upload') + '<b>' + (f ? esc(f.name) : 'Escolher o vídeo') + '</b><small>' + (f ? (f.size / 1048576).toFixed(1).replace('.', ',') + ' MB' : 'MP4 da galeria, até 50 MB') + '</small></span></label>' +
           '<label class="field"><span>Ou cole o link do vídeo</span><input id="cs-link" name="link" type="url" inputmode="url" placeholder="https://drive.google.com/…" autocomplete="off"></label>' +
+          '<p class="fine-print">Pelos termos de uso, quando você é chamado para análise, <b>os organizadores têm total direito de acessar e verificar o seu aparelho</b> (por chamada com compartilhamento de tela, vídeo ou outro meio que a equipe indicar) para conferir se há programa de trapaça, APK modificado do jogo ou qualquer software que dê vantagem. <b>Recusar a verificação é tratado como trapaça</b>: a conta é banida para sempre e o ID do Free Fire, as chaves Pix e o aparelho ficam bloqueados, sem poder criar outra conta. Só a administração do BattleHub pode liberar a volta.</p>' +
+          (c.consent_at ? '<p class="muted small">' + I('checkCircle') + ' Você aceitou a verificação em ' + U.when(c.consent_at) + '.</p>'
+            : '<label class="check"><input type="checkbox" name="consent" required><span>Li e aceito a verificação do meu aparelho.</span></label>') +
           '<button class="btn primary block lg">' + I('send') + 'Enviar para a equipe</button></form></section>' +
           (c.thread_id ? '<button type="button" class="btn outline block" data-act="caseChat" data-v="' + c.thread_id + '">' + I('message') + 'Conversar com ' + esc(c.opener ? c.opener.nick : 'a equipe') + '</button>' : '') + '</div>';
       }
@@ -340,13 +368,14 @@ window.BH = window.BH || {};
   forms.caseVideo = async function (f) {
     const s = U.topSheet(), file = s && s.data.file, link = f.link.value.trim();
     if (!file && !link) return U.toast('Escolha o vídeo ou cole o link.', 'bad');
+    if (f.consent && !f.consent.checked) return U.toast('Marque que você aceita a verificação do aparelho.', 'bad');
     const r = await U.run(f.querySelector('button.primary'), async () => {
       let path = null;
       if (file) {
         const ext = ((file.name.match(/\.([a-z0-9]{2,4})$/i) || [])[1] || 'mp4').toLowerCase();
         path = await api.upload('analises', file, { ext, type: file.type || 'video/mp4' });
       }
-      return api.rpc('case_submit_video', { p_case: f.dataset.id, p_path: path, p_link: link || null });
+      return api.rpc('case_submit_video', { p_case: f.dataset.id, p_path: path, p_link: link || null, p_consent: !f.consent || f.consent.checked });
     }, 'Vídeo enviado. A equipe foi avisada.');
     if (r) { U.closeAll(); await refreshMe(); app().refresh(); }
   };

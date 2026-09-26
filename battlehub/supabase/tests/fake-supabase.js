@@ -100,6 +100,12 @@ http.createServer(async (req, res) => {
     if (p === '/auth/v1/logout') return send(res, 204, null);
     if (p === '/auth/v1/settings') return send(res, 200, { external: { email: true, google: true }, disable_signup: false });
     if (p.startsWith('/functions/v1/')) { await readBody(req); return send(res, 501, { error: 'mp_nao_configurado' }); }
+    if (p.startsWith('/storage/v1/object/sign/') && req.method === 'POST' && !p.slice('/storage/v1/object/sign/'.length).includes('/')) {
+      // vários endereços de uma vez (createSignedUrls)
+      const bucket = p.slice('/storage/v1/object/sign/'.length);
+      const b = JSON.parse((await readBody(req)).toString() || '{}');
+      return send(res, 200, (b.paths || []).map((x) => ({ path: x, signedURL: '/object/sign/' + bucket + '/' + x + '?token=teste', error: null })));
+    }
     if (p.startsWith('/storage/v1/object/sign/') && req.method === 'POST') {
       await readBody(req);
       const key = p.slice('/storage/v1/object/sign/'.length);
@@ -109,7 +115,7 @@ http.createServer(async (req, res) => {
       const key = decodeURIComponent(p.replace(/^\/storage\/v1\/object\/(public|sign)\//, ''));
       const file = path.join(FILES, key.replace(/[^a-zA-Z0-9._/-]/g, '_'));
       if (!file.startsWith(FILES) || !fs.existsSync(file)) return send(res, 404, { message: 'not found' });
-      const buf = fs.readFileSync(file), type = { '.mp4': 'video/mp4', '.webm': 'video/webm', '.mov': 'video/quicktime' }[path.extname(file)] || 'image/jpeg';
+      const buf = fs.readFileSync(file), type = { '.mp4': 'video/mp4', '.webm': 'video/webm', '.mov': 'video/quicktime', '.m4a': 'audio/mp4', '.ogg': 'audio/ogg' }[path.extname(file)] || 'image/jpeg';
       const range = /bytes=(\d*)-(\d*)/.exec(req.headers.range || '');
       if (range) { // vídeo: o navegador pede pedaços para poder avançar
         const a = range[1] ? Number(range[1]) : 0, b = range[2] ? Math.min(Number(range[2]), buf.length - 1) : buf.length - 1;

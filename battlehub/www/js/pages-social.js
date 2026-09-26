@@ -216,7 +216,7 @@ window.BH = window.BH || {};
       const [threads, found] = await Promise.all([api.rpc('my_threads', { p_kind: kind }), kind === 'privado' && st.chatQ.trim().length >= 2 ? api.rpc('search_players', { p_q: st.chatQ }) : Promise.resolve([])]);
       body = (kind === 'privado' ? searchBox() + (found.length ? '<ul class="stack">' + found.map(personRow).join('') + '</ul>' : '') : '<p class="note-gold">' + I('crown') + '<span>Mensagens dos organizadores das salas em que você entrou. Responda por aqui ou direto no aviso que aparece no topo.</span></p>') +
         '<ul class="conv-list stagger">' + (threads.length ? threads.map((t) => '<li><button type="button" class="conv ripple" data-act="openThread" data-id="' + t.id + '"><span class="av-wrap">' + U.av(t.other, 'md') + (t.other.online ? '<i class="online"></i>' : '') + '</span>' +
-          '<div class="grow"><b>' + U.nick(t.other) + (t.room ? '<span class="tag tone-cyan">Sala #' + t.room.code + '</span>' : '') + '</b><small>' + (t.last ? (t.last.mine ? 'Você: ' : '') + (t.last.image && !t.last.body ? 'Foto' : esc(t.last.body)) : '') + '</small></div>' +
+          '<div class="grow"><b>' + U.nick(t.other) + (t.room ? '<span class="tag tone-cyan">Sala #' + t.room.code + '</span>' : '') + '</b><small>' + (t.last ? (t.last.mine ? 'Você: ' : '') + (t.last.audio ? '🎤 Mensagem de voz' : t.last.image && !t.last.body ? '📷 Foto' : esc(t.last.body)) : '') + '</small></div>' +
           '<div class="conv-side"><small>' + (t.last ? U.ago(t.last.at) : '') + '</small>' + (t.unread ? '<b class="dot-count">' + t.unread + '</b>' : '') + '</div></button></li>').join('')
           : '<li>' + U.empty(kind === 'sala' ? 'crown' : 'message', kind === 'sala' ? 'Nenhuma mensagem de organizador' : 'Nenhuma conversa ainda', kind === 'sala' ? 'Quando um organizador falar com você, aparece aqui.' : 'Busque um jogador ou vá em Amigos.') + '</li>') + '</ul>';
     }
@@ -245,36 +245,89 @@ window.BH = window.BH || {};
     if (await U.run(el, () => api.rpc('friend_remove', { p_user: el.dataset.id }))) app().refresh();
   };
 
-  /* conversa */
+  /* conversa: abre no fim (como o WhatsApp), com fotos e áudios privados (balde "conversas") */
+  st.convOlder = st.convOlder || {};
+  const conv = { id: null, pinned: true, ro: null, pending: false, keep: null };
+  const docEl = () => document.documentElement;
+  const nearBottom = () => window.innerHeight + window.scrollY >= docEl().scrollHeight - 160;
+  const toBottom = () => window.scrollTo(0, docEl().scrollHeight);
+  window.addEventListener('scroll', () => { if (document.body.dataset.page === 'thread') conv.pinned = nearBottom(); }, { passive: true });
+  const fmtMs = (ms, floor) => { const t = Math.max(0, (floor ? Math.floor : Math.round)((ms || 0) / 1000)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
+  // ondas do áudio: sempre as mesmas para a mesma mensagem
+  function wave(id) {
+    let h = Number(id) || 7, out = '';
+    for (let i = 0; i < 32; i++) { h = (h * 1103515245 + 12345) & 0x7fffffff; out += '<i style="height:' + (22 + (h % 78)) + '%"></i>'; }
+    return out;
+  }
+  function bubble(m, urls) {
+    const url = m.media_path ? urls[m.media_path] : null;
+    let media = '';
+    if (m.media_kind === 'foto') media = url ? '<button type="button" class="msg-img" data-act="viewImage" data-v="' + esc(url) + '"><img src="' + esc(url) + '" alt="Foto"></button>' : '<span class="msg-miss">' + I('image') + 'Foto indisponível</span>';
+    else if (m.media_kind === 'audio') media = '<div class="voice" data-id="' + m.id + '" data-src="' + esc(url || '') + '" data-ms="' + (m.audio_ms || 0) + '"><button type="button" class="voice-play" data-act="voicePlay" aria-label="Ouvir mensagem de voz"' + (url ? '' : ' disabled') + '>' + I('play') + '</button><div class="voice-wave" aria-hidden="true">' + wave(m.id) + '</div><small class="voice-t">' + fmtMs(m.audio_ms) + '</small></div>';
+    else if (m.image_url) media = '<button type="button" class="msg-img" data-act="viewImage" data-v="' + esc(m.image_url) + '"><img src="' + esc(m.image_url) + '" alt="Foto"></button>';
+    return '<div class="bubble' + (m.mine ? ' me' : '') + (m.media_kind === 'foto' || m.image_url ? ' has-img' : '') + (m.media_kind === 'audio' ? ' has-voice' : '') + '">' + media +
+      (m.body ? '<p>' + esc(m.body) + '</p>' : '') + '<small>' + U.hm(m.created_at) + (m.mine ? (m.read ? ' ✓✓' : ' ✓') : '') + '</small></div>';
+  }
   pages.thread = async function (p) {
     const t = await api.rpc('thread_messages', { p_thread: p.id, p_before: null });
     api.refreshMe().then(() => BH.app.header()).catch(() => {});
+    if (conv.id !== p.id) { conv.id = p.id; conv.pinned = true; st.convOlder = {}; }
+    const older = st.convOlder[p.id] || { list: [], more: t.more };
+    const all = older.list.concat(t.messages.filter((m) => !older.list.some((o) => o.id === m.id)));
+    let urls = {};
+    try { urls = await api.signedUrls('conversas', all.filter((m) => m.media_path).map((m) => m.media_path)); } catch (e) { urls = {}; }
     const o = t.other;
     let lastDay = '';
-    const msgs = t.messages.map((m) => {
+    const msgs = all.map((m) => {
       const day = new Date(m.created_at).toDateString();
       const sep = day !== lastDay ? '<div class="day-sep"><span>' + U.when(m.created_at).split(',')[0].split(' · ')[0] + '</span></div>' : '';
       lastDay = day;
-      return sep + '<div class="bubble' + (m.mine ? ' me' : '') + (m.image_url ? ' has-img' : '') + '">' + (m.image_url ? '<button type="button" class="msg-img" data-act="viewImage" data-v="' + esc(m.image_url) + '"><img src="' + esc(m.image_url) + '" alt="Foto" loading="lazy"></button>' : '') +
-        (m.body ? '<p>' + esc(m.body) + '</p>' : '') + '<small>' + U.hm(m.created_at) + (m.mine ? (m.read ? ' ✓✓' : ' ✓') : '') + '</small></div>';
+      return sep + bubble(m, urls);
     }).join('');
+    const more = older.list.length ? older.more : t.more;
     return {
       hideNav: true, bare: true, className: 'conv-page',
       subKey: 'thread:' + p.id,
       subscribe: () => {
-        const ch = api.listenThread(p.id, () => app().refreshSoon());
-        const onEv = () => app().refreshSoon();
-        document.addEventListener('bh:thread', onEv);
-        return () => { api.unlisten(ch); document.removeEventListener('bh:thread', onEv); };
+        // gravando áudio: a tela espera, para não perder a gravação
+        const upd = () => { if (rec.active) conv.pending = true; else app().refreshSoon(); };
+        const ch = api.listenThread(p.id, upd);
+        document.addEventListener('bh:thread', upd);
+        return () => { api.unlisten(ch); document.removeEventListener('bh:thread', upd); if (conv.ro) { conv.ro.disconnect(); conv.ro = null; } };
       },
       html: '<section class="page conv-view"><header class="conv-head"><button type="button" class="icon-btn" data-act="back" aria-label="Voltar">' + I('back') + '</button>' +
         '<button type="button" class="conv-who" data-act="profile" data-id="' + o.id + '"><span class="av-wrap">' + U.av(o, 'sm') + (o.online ? '<i class="online"></i>' : '') + '</span><span><b>' + U.nick(o) + '</b><small>' + (t.thread.room ? 'Sala #' + t.thread.room.code + ' · ' + esc(t.thread.room.title) : o.online ? 'online' : 'offline') + '</small></span></button>' +
         (o.friend === 'nenhum' ? '<button type="button" class="icon-btn" data-act="friendAdd" data-id="' + o.id + '" aria-label="Adicionar amigo">' + I('userPlus') + '</button>' : '') + '</header>' +
         (t.thread.kind === 'sala' ? '<p class="note-gold small">' + I('crown') + '<span>Conversa com o organizador da sala.</span></p>' : '') +
+        '<p class="conv-lock">' + I('lock') + '<span>Conversa protegida: só vocês dois leem. A equipe só abre com denúncia ou ordem judicial, e fica registrado.</span></p>' +
+        (more ? '<button type="button" class="btn ghost sm conv-older" data-act="convOlder" data-id="' + p.id + '" data-before="' + (all[0] ? all[0].id : '') + '">' + I('history') + 'Mensagens anteriores</button>' : '') +
         '<div class="msgs" id="msgs">' + (msgs || '<p class="muted center pad">Diga oi para ' + esc(o.nick) + '.</p>') + '</div>' +
-        '<form class="composer fixed" data-form="dm" data-id="' + p.id + '"><label class="attach ripple" aria-label="Enviar foto">' + I('camera') + '<input type="file" accept="image/*" data-send="thread" data-id="' + p.id + '"></label><input id="dm-input" name="text" placeholder="Mensagem" maxlength="2000" autocomplete="off"><button class="send ripple" aria-label="Enviar">' + I('send') + '</button></form></section>',
-      onMount() { window.scrollTo(0, document.documentElement.scrollHeight); }
+        '<form class="composer fixed" data-form="dm" data-id="' + p.id + '"><label class="attach ripple" aria-label="Enviar foto">' + I('camera') + '<input type="file" accept="image/*" data-send="thread" data-id="' + p.id + '"></label>' +
+        '<input id="dm-input" name="text" placeholder="Mensagem" maxlength="2000" autocomplete="off"><button class="send ripple" aria-label="Enviar">' + I('send') + '</button>' +
+        '<button type="button" class="send mic ripple" data-act="recStart" data-id="' + p.id + '" aria-label="Gravar mensagem de voz">' + I('mic') + '</button>' +
+        '<div class="rec-bar" aria-live="polite"><button type="button" class="icon-btn rec-x" data-act="recCancel" aria-label="Apagar gravação">' + I('trash') + '</button><span class="rec-dot" aria-hidden="true"></span><b class="rec-t">0:00</b><span class="rec-hint">Gravando…</span>' +
+        '<button type="button" class="send ripple" data-act="recSend" aria-label="Enviar mensagem de voz">' + I('send') + '</button></div></form></section>',
+      onMount(view) {
+        const box = view.querySelector('#msgs');
+        if (conv.keep != null) { window.scrollTo(0, docEl().scrollHeight - conv.keep); conv.keep = null; }
+        else if (conv.pinned) { toBottom(); requestAnimationFrame(toBottom); }
+        // fotos terminando de carregar não tiram a conversa do fim
+        if (conv.ro) conv.ro.disconnect();
+        if (box && window.ResizeObserver) { conv.ro = new ResizeObserver(() => { if (conv.pinned) toBottom(); }); conv.ro.observe(box); }
+        view.querySelectorAll('.msgs img').forEach((img) => { if (!img.complete) img.addEventListener('load', () => { if (conv.pinned) toBottom(); }, { once: true }); });
+        voiceSync();
+      }
     };
+  };
+  actions.convOlder = async function (el) {
+    const id = el.dataset.id;
+    const r = await U.run(el, () => api.rpc('thread_messages', { p_thread: id, p_before: Number(el.dataset.before) }));
+    if (!r) return;
+    const cur = st.convOlder[id] || { list: [], more: true };
+    st.convOlder[id] = { list: r.messages.concat(cur.list), more: r.more };
+    conv.pinned = false;
+    conv.keep = docEl().scrollHeight - window.scrollY;
+    app().refresh();
   };
   forms.dm = async function (f) {
     const input = f.querySelector('input[name=text]'), text = input.value.trim();
@@ -282,9 +335,100 @@ window.BH = window.BH || {};
     input.value = '';
     const ok = await U.run(f.querySelector('.send'), () => api.rpc('send_message', { p_thread: f.dataset.id, p_body: text, p_image: null }));
     if (!ok) { input.value = text; return; }
+    conv.pinned = true;
     await app().refresh();
-    window.scrollTo(0, document.documentElement.scrollHeight);
+    toBottom();
     const i = document.getElementById('dm-input'); if (i) i.focus();
+  };
+
+  /* mensagem de voz: tocar */
+  const voice = { audio: null, id: null };
+  function voiceSync() {
+    document.querySelectorAll('.voice').forEach((box) => {
+      const on = !!(voice.audio && box.dataset.id === voice.id);
+      const playing = on && !voice.audio.paused;
+      box.classList.toggle('on', playing);
+      const btn = box.querySelector('.voice-play');
+      if (btn) { btn.innerHTML = I(playing ? 'pause' : 'play'); btn.setAttribute('aria-label', playing ? 'Pausar' : 'Ouvir mensagem de voz'); }
+      const ms = Number(box.dataset.ms) || 0;
+      const pos = on ? voice.audio.currentTime * 1000 : 0;
+      const pct = on && ms ? Math.min(1, pos / ms) : 0;
+      box.querySelectorAll('.voice-wave i').forEach((b, i, all) => b.classList.toggle('p', i / all.length < pct));
+      const tEl = box.querySelector('.voice-t'); if (tEl) tEl.textContent = fmtMs(on && pos ? pos : ms);
+    });
+  }
+  actions.voicePlay = function (el) {
+    const box = el.closest('.voice');
+    if (!box || !box.dataset.src) return;
+    if (voice.audio && voice.id === box.dataset.id) {
+      if (voice.audio.paused) voice.audio.play().catch(U.err); else voice.audio.pause();
+      return voiceSync();
+    }
+    if (voice.audio) voice.audio.pause();
+    const a = new Audio(box.dataset.src);
+    voice.audio = a; voice.id = box.dataset.id;
+    a.addEventListener('timeupdate', voiceSync);
+    a.addEventListener('pause', voiceSync);
+    a.addEventListener('play', voiceSync);
+    a.addEventListener('ended', () => { voice.audio = null; voice.id = null; voiceSync(); });
+    a.addEventListener('error', () => { U.toast('Não consegui tocar esse áudio.', 'bad'); voice.audio = null; voice.id = null; voiceSync(); });
+    a.play().catch(() => {});
+    voiceSync();
+  };
+
+  /* mensagem de voz: gravar (até 2 minutos) */
+  const rec = { active: false, mr: null, stream: null, chunks: [], start: 0, timer: 0, thread: null, type: null, mime: '' };
+  const MIMES = [['audio/webm;codecs=opus', 'webm'], ['audio/webm', 'webm'], ['audio/mp4', 'm4a'], ['audio/ogg;codecs=opus', 'ogg']];
+  function recUi(on) {
+    const f = document.querySelector('form[data-form="dm"]');
+    if (f) f.classList.toggle('recording', on);
+  }
+  function recStop() {
+    clearInterval(rec.timer);
+    return new Promise((res) => {
+      if (!rec.mr || rec.mr.state === 'inactive') return res();
+      rec.mr.addEventListener('stop', () => res(), { once: true });
+      rec.mr.stop();
+    }).then(() => {
+      if (rec.mr) rec.mime = rec.mr.mimeType || '';
+      if (rec.stream) rec.stream.getTracks().forEach((t) => t.stop());
+      rec.stream = null; rec.mr = null; rec.active = false;
+      recUi(false);
+      if (conv.pending) { conv.pending = false; app().refreshSoon(); }
+    });
+  }
+  actions.recStart = async function (el) {
+    if (rec.active) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) return U.toast('Este celular não deixa gravar áudio pelo app.', 'bad');
+    try { rec.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }); }
+    catch (e) { return U.toast('Libere o microfone para o BattleHub nas configurações do celular.', 'bad'); }
+    const pick = MIMES.find((m) => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m[0])) || ['', 'webm'];
+    rec.type = pick; rec.chunks = []; rec.thread = el.dataset.id; rec.active = true; rec.mime = '';
+    rec.mr = new MediaRecorder(rec.stream, pick[0] ? { mimeType: pick[0], audioBitsPerSecond: 32000 } : undefined);
+    rec.mr.addEventListener('dataavailable', (e) => { if (e.data && e.data.size) rec.chunks.push(e.data); });
+    rec.mr.start(250);
+    rec.start = Date.now();
+    recUi(true);
+    if (navigator.vibrate) navigator.vibrate(30);
+    rec.timer = setInterval(() => {
+      const ms = Date.now() - rec.start, t = document.querySelector('.rec-t');
+      if (t) t.textContent = fmtMs(ms, true);
+      if (ms >= 120000) actions.recSend(document.querySelector('[data-act="recSend"]'));
+    }, 250);
+  };
+  actions.recCancel = async function () { await recStop(); rec.chunks = []; };
+  actions.recSend = async function (el) {
+    if (!rec.active) return;
+    const ms = Date.now() - rec.start, thread = rec.thread, type = rec.type;
+    await recStop();
+    if (ms < 800) { rec.chunks = []; return U.toast('Áudio curto demais. Segure um pouco mais.', 'info'); }
+    const blob = new Blob(rec.chunks, { type: (rec.mime || type[0] || 'audio/webm').split(';')[0] });
+    rec.chunks = [];
+    const ok = await U.run(el, async () => {
+      const path = await api.upload('conversas', blob, { ext: type[1], type: blob.type, folder: thread });
+      await api.rpc('send_media', { p_thread: thread, p_path: path, p_kind: 'audio', p_ms: Math.min(ms, 180000), p_body: '' });
+    });
+    if (ok) { conv.pinned = true; await app().refresh(); toBottom(); }
   };
 
   /* ================= PERFIL PÚBLICO ================= */

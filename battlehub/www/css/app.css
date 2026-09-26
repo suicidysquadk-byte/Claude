@@ -1568,3 +1568,57 @@ dl, dd { margin: 0; }
 .push-kinds li > svg { flex: none; width: 20px; height: 20px; margin-top: 1px; color: var(--gold); }
 .push-kinds span { font-size: 13px; line-height: 1.4; color: var(--muted); }
 .push-kinds b { display: block; font-size: 14px; color: var(--text); }
+
+/* conversa: aviso de proteção, mensagens anteriores, foto indisponível */
+.conv-lock { display: flex; gap: 8px; align-items: flex-start; margin: 2px auto 8px; max-width: 420px; padding: 8px 12px; border-radius: 12px; font-size: 11.5px; line-height: 1.45; color: var(--muted); background: var(--surface); border: 1px solid var(--line); }
+.conv-lock svg { flex: none; width: 14px; height: 14px; margin-top: 1px; color: var(--gold); }
+.conv-older { align-self: center; margin: 0 auto 8px; }
+.msg-miss { display: flex; align-items: center; gap: 6px; padding: 10px 12px; font-size: 13px; color: var(--muted); }
+.msg-miss svg { width: 16px; height: 16px; }
+
+/* mensagem de voz */
+.bubble.has-voice { min-width: 232px; padding: 8px 10px 6px; }
+.voice { display: flex; align-items: center; gap: 10px; }
+.voice-play { flex: none; width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; color: var(--ink); background: linear-gradient(180deg, #e2c47a, #b8923f); box-shadow: 0 2px 8px rgba(0, 0, 0, .3); transition: transform .2s var(--spring); }
+.voice-play:active { transform: scale(.92); }
+.voice-play svg { width: 18px; height: 18px; fill: currentColor; stroke: none; }
+.voice-play[disabled] { opacity: .45; }
+.bubble.me .voice-play { color: #c9a24d; background: #16130c; }
+.voice-wave { flex: 1; display: flex; align-items: center; gap: 2px; height: 30px; }
+.voice-wave i { flex: 1; min-width: 2px; border-radius: 2px; background: rgba(255, 255, 255, .28); transition: background .15s; }
+.voice-wave i.p { background: var(--gold-hi, #f0d58c); }
+.bubble.me .voice-wave i { background: rgba(0, 0, 0, .28); }
+.bubble.me .voice-wave i.p { background: #16130c; }
+.voice-t { flex: none; min-width: 32px; font-size: 11.5px !important; font-variant-numeric: tabular-nums; text-align: right; margin: 0 !important; }
+
+/* gravar áudio: microfone quando o campo está vazio, enviar quando tem texto */
+.composer.fixed { align-items: center; }
+.composer .mic { display: none; }
+.composer #dm-input:placeholder-shown ~ .send:not(.mic) { display: none; }
+.composer #dm-input:placeholder-shown ~ .mic { display: grid; }
+.composer .rec-bar { display: none; flex: 1; align-items: center; gap: 10px; min-width: 0; }
+.composer.recording > :not(.rec-bar) { display: none !important; }
+.composer.recording .rec-bar { display: flex; }
+.rec-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--red, #ef4444); box-shadow: 0 0 0 0 rgba(239, 68, 68, .6); animation: rec-pulse 1.2s infinite; }
+.rec-t { font-variant-numeric: tabular-nums; font-size: 15px; }
+.rec-hint { flex: 1; font-size: 13px; color: var(--muted); }
+.rec-x { color: var(--red, #ef4444); }
+@keyframes rec-pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, .55); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+@media (prefers-reduced-motion: reduce) { .rec-dot { animation: none; } }
+
+/* equipe: leitura de conversa com acesso excepcional */
+.audit-msgs { margin: 12px 0; padding: 10px; border-radius: 16px; background: var(--bg-2); border: 1px solid var(--line); max-height: 60vh; overflow-y: auto; }
+.audit-msgs .who { display: block; text-align: left !important; font-weight: 700; color: var(--gold) !important; margin: 0 0 2px !important; }
+.bubble.me .who { color: #16130c !important; }
+.audit-msgs audio { width: 220px; max-width: 100%; }
+.export-box { width: 100%; font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; padding: 10px; border-radius: 12px; background: var(--bg-2); color: var(--text); border: 1px solid var(--line); margin: 8px 0 12px; }
+
+/* aba Banidos */
+.ban-card { display: grid; gap: 10px; }
+.ban-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ban-why { display: flex; gap: 8px; align-items: flex-start; font-size: 14px; }
+.ban-why svg { flex: none; width: 16px; height: 16px; margin-top: 2px; color: var(--red); }
+.ban-card .chips { flex-wrap: wrap; }
+.ban-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.fine-print { margin: 12px 0 8px; padding: 10px 12px; border-radius: 12px; font-size: 11.5px; line-height: 1.5; color: var(--muted); background: var(--bg-2); border: 1px dashed var(--line-2); }
+.fine-print b { color: var(--text-2, var(--text)); }

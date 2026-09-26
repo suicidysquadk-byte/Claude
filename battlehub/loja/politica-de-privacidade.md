@@ -21,10 +21,12 @@ quais dados coletamos, para que usamos e quais são os seus direitos pela Lei Ge
   saque.
 - **Partidas e competições**: salas e eventos em que você entrou, abates, colocação, tempo vivo, pontos, XP e
   prêmios.
-- **Social**: mensagens e fotos enviadas no chat privado e no chat das salas, pedidos de amizade, guilda e
-  denúncias.
+- **Social**: mensagens, fotos e mensagens de voz enviadas no chat privado, mensagens e fotos do chat das salas,
+  pedidos de amizade, guilda, line e denúncias.
 - **Uso técnico**: data do último acesso (para mostrar quem está online), o **identificador do aparelho** (para
-  impedir que quem foi banido por trapaça volte com outra conta) e registros de ações da equipe (auditoria).
+  impedir que quem foi banido por trapaça volte com outra conta), o token de notificação do celular, registros de
+  ações da equipe (auditoria) e os **registros de acesso ao app** (data, hora, IP e aparelho de cada acesso), que a
+  lei obriga a guardar (Marco Civil da Internet, Lei 12.965/2014, art. 15).
 - **Análise de partida**: se você for chamado para análise por suspeita de trapaça, o **vídeo da partida** que você
   enviar (ou o link dele) e o resultado da análise. Só você e a equipe veem o vídeo.
 
@@ -54,9 +56,23 @@ quais dados coletamos, para que usamos e quais são os seus direitos pela Lei Ge
 Não vendemos seus dados. Organizadores de sala veem o nick e o ID do Free Fire dos inscritos da sala dele, para
 conferir quem entrou na partida.
 
+## Suas conversas
+
+- O texto das conversas privadas fica **criptografado** no nosso banco de dados, e as fotos e mensagens de voz ficam
+  num armazenamento privado. Só você e a pessoa com quem conversa leem.
+- A equipe **não lê** as conversas no dia a dia. O acesso só acontece em casos específicos:
+  - **denúncia** envolvendo um dos participantes da conversa;
+  - **segurança**: suspeita de golpe, ameaça ou risco a alguém;
+  - **ordem judicial** ou pedido de autoridade com base na lei.
+- Cada acesso exige o motivo, vale por 24 horas e fica **registrado para sempre** com o nome de quem acessou, a data e
+  o motivo. Nenhuma pessoa da equipe consegue apagar esse registro pelo app.
+- Só entregamos o conteúdo de conversas ou os registros de acesso a terceiros com **ordem judicial** (Marco Civil da
+  Internet, art. 10 e art. 22).
+
 ## Por quanto tempo guardamos
 
-Enquanto a conta estiver ativa. Vídeos de análise ficam guardados enquanto a análise puder ser revista. A lista de
+Enquanto a conta estiver ativa. Os registros de acesso ao app ficam guardados por **6 meses**, como exige o Marco
+Civil da Internet, e depois são apagados. Vídeos de análise ficam guardados enquanto a análise puder ser revista. A lista de
 bloqueio por trapaça é mantida mesmo depois que a conta é excluída. Registros financeiros (depósitos, saques, prêmios e taxas) são mantidos pelo
 prazo exigido em lei, sem os seus dados pessoais depois que a conta é excluída.
 
@@ -79,7 +95,8 @@ Você pode pedir acesso, correção, portabilidade ou exclusão dos seus dados, 
 
 As regras de acesso ficam no banco de dados. Cada pessoa só lê o que é dela ou o que é público, e todo movimento
 de dinheiro passa por funções do servidor. Os prints do Free Fire ficam num armazenamento privado que só a equipe
-acessa.
+acessa. O texto das conversas é criptografado com AES-256, e a chave fica guardada separada do banco (Supabase
+Vault).
 
 ## Menores de idade
 

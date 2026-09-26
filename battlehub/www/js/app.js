@@ -173,9 +173,11 @@ window.BH = window.BH || {};
     const cur = current();
     if (cur.page === 'thread' && cur.params.id === m.thread_id) { document.dispatchEvent(new CustomEvent('bh:thread', { detail: m })); return; }
     try { await api.refreshMe(); header(); } catch (e) { /* ignora */ }
-    const who = await cardOf(m.sender_id);
+    // o texto chega criptografado pelo tempo real: a prévia vem do servidor, só para quem está na conversa
+    const [who, pv] = await Promise.all([cardOf(m.sender_id), api.rpc('message_preview', { p_id: m.id }).catch(() => null)]);
+    const text = pv ? pv.body || (pv.media_kind === 'audio' ? '🎤 Mensagem de voz' : pv.media_kind === 'foto' ? '📷 Foto' : '') : 'Nova mensagem';
     U.headsUp({
-      avatar: U.av(who, 'sm'), title: who.nick || 'Mensagem', body: m.image_url && !m.body ? 'Enviou uma foto' : m.body, meta: 'agora',
+      avatar: U.av(who, 'sm'), title: who.nick || 'Mensagem', body: text, meta: 'agora',
       open: () => { U.closeAll(); push('thread', { id: m.thread_id }); },
       reply: async (text) => { await api.rpc('send_message', { p_thread: m.thread_id, p_body: text, p_image: null }); }
     });

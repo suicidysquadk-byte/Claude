@@ -269,9 +269,14 @@ window.BH = window.BH || {};
     const label = inp.closest('label');
     await U.run(label, async () => {
       const blob = await U.compressImage(inp.files[0], 1280);
-      const url = api.publicUrl('chat', await api.upload('chat', blob));
-      if (inp.dataset.send === 'room') await api.rpc('send_room_message', { p_room: inp.dataset.id, p_body: '', p_image: url });
-      else await api.rpc('send_message', { p_thread: inp.dataset.id, p_body: '', p_image: url });
+      if (inp.dataset.send === 'room') {
+        const url = api.publicUrl('chat', await api.upload('chat', blob));
+        await api.rpc('send_room_message', { p_room: inp.dataset.id, p_body: '', p_image: url });
+      } else {
+        // conversa privada: a foto vai para o balde privado, só os dois abrem
+        const path = await api.upload('conversas', blob, { folder: inp.dataset.id });
+        await api.rpc('send_media', { p_thread: inp.dataset.id, p_path: path, p_kind: 'foto', p_ms: null, p_body: '' });
+      }
     });
     inp.value = '';
     app().refresh();

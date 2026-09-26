@@ -61,6 +61,13 @@ permanentemente, e ter o saldo retido enquanto houver investigação.
 - O jogador tem **24 horas** para enviar o vídeo da partida pelo app (até 50 MB) ou por link. Sem o vídeo, a equipe decide
   com as provas que tiver.
 - A equipe pode chamar o jogador para uma ligação de voz e pedir que ele compartilhe a tela.
+- **Verificação do aparelho**: ao usar o BattleHub, você concorda que, quando for chamado para análise, **os
+  organizadores têm o direito de verificar o seu aparelho** (por chamada com compartilhamento de tela, vídeo ou outro
+  meio indicado pela equipe) para conferir se há programas de trapaça, APK modificado do jogo ou qualquer software que
+  dê vantagem indevida.
+- **Recusar a verificação** (ou não se apresentar depois de chamado) é tratado como trapaça: a conta é **banida para
+  sempre** e o ID do Free Fire, as chaves Pix e o aparelho entram na lista de bloqueio, sem poder criar outra conta.
+  Só a administração do BattleHub pode liberar a volta.
 - O app pode ler o texto do killfeed do vídeo para achar os jogadores abatidos. A decisão final é sempre de uma pessoa da
   equipe, que confere o vídeo.
 - **Trapaça confirmada**:
@@ -71,6 +78,13 @@ permanentemente, e ter o saldo retido enquanto houver investigação.
     podem ser usados em outra conta.
 - Sem trapaça, a análise é encerrada e os saques voltam ao normal.
 - Quem se sentir injustiçado pode pedir revisão pelo e-mail de suporte.
+
+## 5.2 Conversas
+
+- As conversas privadas são protegidas: o texto fica criptografado e fotos e áudios ficam em armazenamento privado.
+- A equipe só abre uma conversa se houver denúncia envolvendo um dos participantes, risco de segurança (golpe,
+  ameaça) ou ordem judicial. Todo acesso fica registrado com o motivo.
+- Não combine pagamentos fora do app nem passe senhas pelo chat. A equipe nunca pede sua senha ou código de acesso.
 
 ## 6. Exclusão da conta
 

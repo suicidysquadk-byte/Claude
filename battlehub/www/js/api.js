@@ -132,20 +132,40 @@ window.BH = window.BH || {};
         if (paths.length) await sb.storage.from(bucket).remove(paths);
       } catch (e) { /* segue mesmo se um balde falhar */ }
     }
+    // conversas: uma pasta por conversa dentro da pasta da pessoa
+    try {
+      const { data: dirs } = await sb.storage.from('conversas').list(s.user.id, { limit: 1000 });
+      for (const d of dirs || []) {
+        const { data } = await sb.storage.from('conversas').list(s.user.id + '/' + d.name, { limit: 1000 });
+        const paths = (data || []).map((f) => s.user.id + '/' + d.name + '/' + f.name);
+        if (paths.length) await sb.storage.from('conversas').remove(paths);
+      }
+    } catch (e) { /* idem */ }
   };
 
   /* ---------- fotos ---------- */
-  // opt: { ext, type } para arquivos que não são foto (vídeo da análise)
+  // opt: { ext, type } para arquivos que não são foto (vídeo da análise, áudio); folder: subpasta (id da conversa)
   api.upload = async function (bucket, blob, opt) {
     const o = opt || {};
     const s = await api.session();
     if (!s) throw new Error('Entre na sua conta para enviar fotos.');
-    const path = s.user.id + '/' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8) + '.' + (o.ext || 'jpg');
+    const path = s.user.id + '/' + (o.folder ? o.folder + '/' : '') + Date.now().toString(36) + Math.random().toString(36).slice(2, 8) + '.' + (o.ext || 'jpg');
     const { error } = await sb.storage.from(bucket).upload(path, blob, { contentType: o.type || 'image/jpeg', upsert: false, cacheControl: '31536000' });
     if (error) throw fail(error);
     return path;
   };
   api.publicUrl = (bucket, path) => sb.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+  // vários endereços temporários de uma vez (fotos e áudios privados das conversas); guarda por 50 minutos
+  const signedCache = {};
+  api.signedUrls = async function (bucket, paths) {
+    const now = Date.now(), out = {}, missing = [];
+    (paths || []).forEach((p) => { const c = signedCache[bucket + ':' + p]; if (c && c.exp > now) out[p] = c.url; else if (missing.indexOf(p) < 0) missing.push(p); });
+    if (!missing.length) return out;
+    const { data, error } = await sb.storage.from(bucket).createSignedUrls(missing, 3600);
+    if (error) throw fail(error);
+    (data || []).forEach((d) => { if (d && d.signedUrl) { out[d.path] = d.signedUrl; signedCache[bucket + ':' + d.path] = { url: d.signedUrl, exp: now + 50 * 60e3 }; } });
+    return out;
+  };
   api.signedUrl = async function (path, bucket) {
     const { data, error } = await sb.storage.from(bucket || 'verificacoes').createSignedUrl(path, bucket === 'analises' ? 3600 : 900);
     if (error) throw fail(error);

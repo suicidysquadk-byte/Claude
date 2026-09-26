@@ -64,21 +64,15 @@ async function fromNotifications(db: SupabaseClient, ids: number[]): Promise<Pus
 }
 
 async function fromMessages(db: SupabaseClient, ids: number[]): Promise<Push[]> {
-  const { data: msgs, error } = await db.from('messages').select('id, thread_id, sender_id, recipient_id, body, image_url').in('id', ids);
+  // o texto das conversas fica criptografado no banco: quem abre é a função svc_message_previews (só service_role)
+  const { data, error } = await db.rpc('svc_message_previews', { p_ids: ids });
   if (error) throw error;
-  if (!msgs?.length) return [];
-  const [{ data: threads }, { data: senders }] = await Promise.all([
-    db.from('threads').select('id, kind').in('id', [...new Set(msgs.map((m) => m.thread_id))]),
-    db.from('profiles').select('id, nick').in('id', [...new Set(msgs.map((m) => m.sender_id))]),
-  ]);
-  const kind = new Map((threads ?? []).map((t) => [t.id, t.kind]));
-  const nick = new Map((senders ?? []).map((p) => [p.id, p.nick]));
-  return msgs.map((m) => {
-    const sala = kind.get(m.thread_id) === 'sala';
+  return ((data ?? []) as Array<Record<string, string>>).map((m) => {
+    const sala = m.thread_kind === 'sala';
     return {
       user: m.recipient_id,
-      title: cut((nick.get(m.sender_id) ?? 'Jogador') + (sala ? ' · sala' : ''), 120),
-      body: m.body ? cut(m.body, 400) : m.image_url ? 'Enviou uma foto' : 'Nova mensagem',
+      title: cut((m.sender_nick ?? 'Jogador') + (sala ? ' · sala' : ''), 120),
+      body: m.body ? cut(m.body, 400) : m.media_kind === 'audio' ? '🎤 Mensagem de voz' : m.media_kind === 'foto' ? '📷 Foto' : 'Nova mensagem',
       data: strings({ kind: sala ? 'mensagem_sala' : 'mensagem', thread_id: m.thread_id, mid: m.id }),
       channel: 'bh_chat', tag: 'conversa-' + m.thread_id,
     };
