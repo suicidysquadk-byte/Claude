@@ -25,9 +25,24 @@ ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu c
 
 ---
 
+## Atualização automática do app (a partir da 2.10.0)
+
+- Cada envio para o GitHub gera o app e **publica sozinho** no Supabase (bucket público `app`):
+  o pacote das telas, o `versao.json` e o instalador em
+  **https://tjaqjirsayclexzaycti.supabase.co/storage/v1/object/public/app/BattleHub.apk**
+- O app instalado confere o `versao.json` ao abrir (e a cada 30 min). Se houver versão nova, baixa em segundo plano
+  e pergunta "Atualizar agora"; se a pessoa tocar em "Depois", entra sozinha na próxima abertura.
+- Quando muda a parte nativa (um plugin novo, por exemplo), o app mostra o aviso para baixar o APK novo, que instala
+  **por cima**, sem perder nada.
+- A chave de assinatura fica guardada no Supabase (bucket privado `privado`, pasta `assinatura`) e é sempre a mesma.
+  Não apague esse bucket: sem a chave, o Android não aceita a próxima versão por cima.
+- **Uma única vez:** quem tem um APK antigo (2.9.0 ou antes) precisa baixar o novo pelo link acima. Se o celular não
+  deixar instalar por cima, desinstale o antigo primeiro (conta, saldo e itens ficam no servidor). Já existe um aviso
+  fixado no início do app e uma notificação para todos explicando isso.
+
 ## Mandar para alguém testar
 
-1. Mande o arquivo **BattleHub-2.9.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
+1. Mande o link do **BattleHub.apk** (acima) e o **GUIA-DO-TESTADOR.md** para a pessoa.
 2. Ela instala, digita o e-mail no app e entra com o **código de 6 dígitos** que chega do battlehubofc@gmail.com.
 
 Se o e-mail dela demorar ou cair no spam, use o **convite**:
@@ -216,7 +231,7 @@ mandam Pix pela API. Me avise que eu integro.
 
 ## 5. Configurar a plataforma no app · 5 min
 
-1. Instale o **BattleHub-2.9.0.apk** no seu celular (por cima do anterior, sem desinstalar).
+1. Instale o **BattleHub.apk** (link em "Atualização automática", acima) no seu celular.
 2. Painel admin → *Configurações*:
    - Coloque a **chave Pix da plataforma**, o nome e a cidade (usados no Pix manual).
    - Confira a **parte da plataforma**: padrão 10% da arrecadação das salas dos organizadores.
@@ -284,7 +299,7 @@ Vídeos pelo app vão até **50 MB** (limite do plano grátis do Supabase). No p
    - Idioma: português (Brasil).
    - Tipo: jogo.
    - Grátis.
-4. Envie o arquivo **`BattleHub-2.9.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
+4. Envie o arquivo **`BattleHub-2.10.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
 5. Preencha a ficha com os textos de `loja/descricao.md` e as imagens da pasta `loja/` (ícone, destaque e as 8
    telas novas em preto e dourado).
 6. Preencha os formulários:
@@ -293,7 +308,8 @@ Vídeos pelo app vão até **50 MB** (limite do plano grátis do Supabase). No p
    - **Público-alvo**: 18+.
    - **Exclusão de conta**: o app tem o botão "Excluir minha conta" no perfil. Informe também o e-mail de
      suporte para pedidos pela web.
-7. **Guarde a chave de assinatura** que eu te mandei (`battlehub-upload.jks` + `SENHA-DA-CHAVE.txt`):
+7. **Guarde a chave de assinatura**: ela fica no Supabase, em *Storage → privado → assinatura* (`battlehub.jks` e
+   `assinatura.json`, com a senha). Baixe os dois arquivos e:
    - Faça cópia no Google Drive e num pendrive.
    - Sem ela você não consegue atualizar o app.
    - No Console, deixe ativada a "Assinatura de apps do Google Play".

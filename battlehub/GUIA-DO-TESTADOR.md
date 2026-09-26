@@ -5,7 +5,10 @@ em teste: use valores pequenos e conte tudo o que achar estranho.
 
 ## 1. Instalar (Android)
 
-1. Abra o arquivo **BattleHub-2.9.0.apk** que você recebeu.
+1. Baixe o app em **https://tjaqjirsayclexzaycti.supabase.co/storage/v1/object/public/app/BattleHub.apk** e abra o arquivo.
+   - Se você já tinha uma versão antiga e o celular não deixar instalar por cima, desinstale a antiga antes
+     (sua conta fica salva, é só entrar de novo).
+   - Depois disso o app **se atualiza sozinho**: quando sair versão nova, ele avisa "Atualização pronta".
 2. Se o celular avisar sobre "fontes desconhecidas", toque em **Configurações** e ligue **Permitir desta fonte**.
 3. Toque em **Instalar**.
    - O app ainda não está na Play Store, por isso aparece esse aviso.

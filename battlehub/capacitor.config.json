@@ -13,6 +13,14 @@
       "insetsHandling": "css",
       "style": "DARK",
       "initialViewportFitValueHint": "cover"
+    },
+    "CapacitorUpdater": {
+      "autoUpdate": false,
+      "resetWhenUpdate": true,
+      "appReadyTimeout": 15000,
+      "statsUrl": "",
+      "updateUrl": "",
+      "channelUrl": ""
     }
   }
 }
