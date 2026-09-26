@@ -1,0 +1,59 @@
+# Pesquisa de referências visuais. Roda quando um pedido novo entra em battlehub/visual/pesquisa/.
+# Busca as imagens na internet, mede a qualidade e sobe miniaturas + folhas de contato como artifact
+# de 2 dias (nada disso fica no repositório). Não usa nenhuma chave.
+name: BattleHub · pesquisa de referências
+
+on:
+  push:
+    branches: [claude/aprenda-tudo-kettmg]
+    paths: ['battlehub/visual/pesquisa/*.json', '!battlehub/visual/pesquisa/rejeitadas.json']
+  workflow_dispatch:
+    inputs:
+      pedido:
+        description: Arquivo do pedido (ex. 2026-09-26-decoracoes-01.json)
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  pesquisar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Instalar
+        run: pip install --quiet pillow numpy
+
+      - name: Escolher o pedido
+        id: pedido
+        env:
+          ENTRADA: ${{ github.event.inputs.pedido }}
+          ANTES: ${{ github.event.before }}
+        run: |
+          cd battlehub/visual/pesquisa
+          if [ -n "$ENTRADA" ]; then
+            arq="$ENTRADA"
+          else
+            arq=$(git diff --name-only --diff-filter=AM "$ANTES" "$GITHUB_SHA" -- . 2>/dev/null | grep -v rejeitadas | xargs -r -n1 basename | sort | tail -1)
+            [ -n "$arq" ] || arq=$(ls *.json | grep -v rejeitadas | sort | tail -1)
+          fi
+          echo "arquivo=$arq" >> "$GITHUB_OUTPUT"
+          echo "nome=${arq%.json}" >> "$GITHUB_OUTPUT"
+          echo "Pedido: $arq"
+
+      - name: Pesquisar
+        run: python battlehub/visual/pesquisar.py "battlehub/visual/pesquisa/${{ steps.pedido.outputs.arquivo }}" saida
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: referencias-${{ steps.pedido.outputs.nome }}
+          path: saida
+          retention-days: 2

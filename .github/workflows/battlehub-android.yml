@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'battlehub/**'
+      - '!battlehub/visual/**'
       - '.github/workflows/battlehub-android.yml'
   workflow_dispatch:
 

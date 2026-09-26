@@ -1,0 +1,37 @@
+{
+  "_sobre": "Checklist de qualidade. Toda referência e toda arte gerada recebe nota de 0 a 10 em cada critério. Só passa com média 8 ou mais e nenhum critério abaixo de 6.",
+  "aprovacao": { "media_minima": 8, "criterio_minimo": 6 },
+  "criterios": {
+    "composicao": { "pergunta": "Tem um ponto focal claro e hierarquia?", "0": "tudo com o mesmo peso", "5": "foco existe mas disputa com outros", "10": "o olho vai direto ao foco e depois percorre o resto" },
+    "iluminacao": { "pergunta": "A luz tem direção e cria volume?", "0": "luz chapada", "5": "luz com direção mas sem rim light", "10": "luz principal, rim light e sombras coerentes" },
+    "profundidade": { "pergunta": "Existem planos separados?", "0": "tudo no mesmo plano", "5": "2 planos", "10": "3 ou mais planos com perspectiva atmosférica" },
+    "acabamento": { "pergunta": "As bordas e o recorte estão limpos?", "0": "halo branco, serrilhado, restos de fundo", "5": "pequenos defeitos visíveis de perto", "10": "limpo em qualquer fundo" },
+    "cores": { "pergunta": "A paleta é coesa e tem um destaque?", "0": "cores brigando", "5": "coesa mas sem destaque", "10": "3 a 5 cores e um destaque que guia o olho" },
+    "detalhamento": { "pergunta": "Os detalhes estão no lugar certo?", "0": "sem detalhe ou ruído em tudo", "5": "detalhe espalhado", "10": "detalhe concentrado no foco, calma no resto" },
+    "coerencia": { "pergunta": "Estilo, luz e materiais combinam entre si?", "0": "estilos misturados", "5": "pequenas quebras", "10": "tudo parece da mesma arte" },
+    "legibilidade": { "pergunta": "O rosto, o nick e o conteúdo continuam visíveis?", "0": "cobre o rosto ou o texto", "5": "atrapalha um pouco", "10": "enfeita sem atrapalhar" },
+    "silhueta": { "pergunta": "Dá para entender a peça em 48 px?", "0": "vira borrão", "5": "lê só de perto", "10": "forma reconhecível em qualquer tamanho" },
+    "desempenho": { "pergunta": "É leve e anima só transform e opacity?", "0": "trava o celular", "5": "pesada em aparelho fraco", "10": "leve e fluida (60 fps)" }
+  },
+  "arte_generica": [
+    "brilho em tudo, sem uma área calma",
+    "gradiente roxo e azul sem forma nenhuma",
+    "simetria perfeita sem intenção",
+    "partículas espalhadas sem direção",
+    "texto, marca d'água ou assinatura na imagem",
+    "halo branco ou borda suja no recorte",
+    "anatomia deformada (mãos, olhos, patas)",
+    "objetos derretidos ou sem forma",
+    "estilos misturados (3D realista com flat)",
+    "sem ponto focal",
+    "detalhe que some em tamanho pequeno",
+    "logo, personagem ou arte protegida de terceiros"
+  ],
+  "metricas_automaticas": {
+    "_sobre": "O script de pesquisa calcula isto em cada imagem para filtrar antes da análise visual.",
+    "lado_minimo_px": 400,
+    "nitidez_minima": 60,
+    "contraste_minimo": 38,
+    "nota": "nitidez = variância do laplaciano numa cópia de 512 px; contraste = desvio padrão da luminância; colorido = métrica de Hasler e Süsstrunk"
+  }
+}

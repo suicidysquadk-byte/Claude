@@ -1,0 +1,20 @@
+{
+  "_sobre": "Perfil visual aprovado pelo usuário. É daqui que sai o briefing de geração. Nada é gerado sem um perfil aprovado.",
+  "id": "deco-raposa-lunar",
+  "formato": "decoracao",
+  "pesquisa": "2026-09-26-decoracoes-01",
+  "referencia_principal": 7,
+  "referencias_secundarias": [3, 11],
+  "composicao_de": 7,
+  "luz_de": 3,
+  "paleta_de": 11,
+  "estilo": "FANTASY",
+  "template": "DECO_CRIATURA_05",
+  "variacao_de_cor": "Ice",
+  "intensidade": "equilibrado",
+  "paleta": ["#0b0b12", "#1e2a4a", "#9fd8ff", "#ffffff"],
+  "efeitos": ["partículas de gelo subindo", "brilho frio na borda"],
+  "evitar": ["cobrir o rosto", "brilho em tudo"],
+  "rejeitadas": [2, 5],
+  "aprovado_em": "2026-09-26"
+}
