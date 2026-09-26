@@ -5,7 +5,7 @@ em teste: use valores pequenos e conte tudo o que achar estranho.
 
 ## 1. Instalar (Android)
 
-1. Abra o arquivo **BattleHub-2.5.0.apk** que você recebeu.
+1. Abra o arquivo **BattleHub-2.6.0.apk** que você recebeu.
 2. Se o celular avisar sobre "fontes desconhecidas", toque em **Configurações** e ligue **Permitir desta fonte**.
 3. Toque em **Instalar**.
    - O app ainda não está na Play Store, por isso aparece esse aviso.
@@ -51,6 +51,7 @@ Marque o que conseguiu fazer e anote o que deu errado:
   - Ver a classificação.
 - [ ] **Loja**
   - Ver os banners animados, os acessórios 3D (coroa, chapéu de palha, cartola, máscara oni…) e os fundos animados.
+  - Ver as **molduras novas** (Fênix Imortal, Rei Supremo, Abismo Celestial…) e os **títulos** com a cor da raridade.
   - Tocar num item para ver a prévia no seu perfil.
   - Equipar algum item em Perfil → Visual.
 - [ ] **Perfil**
@@ -60,8 +61,12 @@ Marque o que conseguiu fazer e anote o que deu errado:
 - [ ] **Ranking e guildas**
   - Ver o ranking.
   - Criar ou entrar numa guilda.
+  - Criar uma **line** (dupla ou squad) e passar o código para um amigo entrar.
+  - Em **Guildas → Lines recrutando**, pedir para entrar numa line.
 - [ ] **Chat**
-  - Mandar mensagem para um amigo.
+  - Mandar mensagem para um amigo. A conversa tem que abrir no fim, na última mensagem.
+  - Mandar uma **mensagem de voz**: toque no microfone, fale e toque em enviar. Ouça a resposta.
+  - Mandar uma foto.
 - [ ] **Notificações**
   - Com o app fechado, peça para um amigo te mandar mensagem: a notificação chega e, ao tocar, abre a conversa.
   - Em **Perfil → Notificações no celular**, desligar e ligar de novo.

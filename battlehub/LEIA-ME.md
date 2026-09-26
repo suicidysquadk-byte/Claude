@@ -25,6 +25,17 @@ O passo a passo do que **você** precisa fazer (contas, chaves, loja) está em
   palha, cartola, boné, capacete tático, headset, óculos, máscaras oni e tengu, laço, flor de sakura, asas),
   **fundos animados** do perfil, molduras, títulos, cor do nick e **prioridade na fila** de salas lotadas. Na loja
   tudo fica parado (leve em celular simples) e a **prévia** mostra o item animado no seu perfil.
+  - **Raridade** no padrão do Free Fire (simples, comum verde, raro azul, épico roxo, mítico amarelo, lendário
+    vermelho). Quanto mais elaborado, mais caro: de R$ 1,90 (comum) a R$ 49,90 (lendário).
+  - **19 molduras desenhadas** em SVG com camadas e animação (asas douradas, coroa real, dragão, fênix de fogo, abismo
+    celestial com planetas, mestre das sombras, cyber, nove caudas, chamas, gelo, relâmpago...). Em listas pequenas
+    aparece só o aro colorido, para não pesar.
+  - **Banners com cena** (fênix, trono dourado, mira sniper, lobo, synthwave, amanhecer, terror do lobby, grande final)
+    e fundos animados novos (nevasca, vagalumes, colmeia dourada, luzes da final).
+  - **35+ títulos** no estilo do Free Fire (O Bravo, Sniper, Exterminador, Lobo Solitário, Rei do Gelo, Headshot,
+    Clutch King, Predador, Imparável, Assassino Silencioso, O Mito, Deus da Mira...), cada um com visual da raridade
+    (brilho que corre, fogo, sombra, luz divina) e **títulos de conquista** que chegam sozinhos (Centurião com 100
+    abates, Chacina com 500, Mil Abates, Rei do Booyah com 25 vitórias, Caçador de Reis, Veterano, Primeiro Sangue).
   - Os acessórios são do **Fluent Emoji** da Microsoft (licença MIT, uso comercial liberado; o aviso de licença vai
     junto, em `www/img/acessorios/LICENCA-FLUENT-EMOJI.txt`). Banners e fundos são desenhados no app (SVG e CSS).
 - Opção de ficar anônimo no ranking (o valor ganho continua visível).
@@ -49,6 +60,8 @@ O passo a passo do que **você** precisa fazer (contas, chaves, loja) está em
 
 **Salas**
 - Só quem tem permissão cria sala (o dono dá a permissão em Usuários). A administração cria **salas oficiais**.
+- O **organizador (e a equipe) pode jogar a própria sala**: paga a inscrição e, se ganhar, recebe o prêmio. Todos os
+  inscritos veem o aviso "o organizador também está jogando" e a auditoria registra a entrada e o resultado.
 - Modelos prontos: **Treino, Base, Intermediária, Elite, Domínio, Ancestral (solo, dupla e squad)** — a tabela
   Ancestral é a da imagem de referência (70% da arrecadação em prêmios até o 4º lugar).
 - Mecânicas: Kill paga, Primeira kill, Player Rei (roleta), Líder de abates (top killer), Booyah, Rei do lobby,
@@ -71,7 +84,18 @@ O passo a passo do que **você** precisa fazer (contas, chaves, loja) está em
 - Campeões ganham o título "Campeão da Semana" e a moldura de campeão; ranking de guildas da semana.
 
 **Social**
-- Chat privado com fotos, lista de amigos (com sugestões de quem jogou com você).
+- Chat privado com fotos e **mensagem de voz** (até 2 minutos, com ondas e tempo), lista de amigos (com sugestões de
+  quem jogou com você). A conversa abre **no fim**, como no WhatsApp, e "Mensagens anteriores" carrega o histórico.
+- **Conversas protegidas**: o texto fica criptografado no banco (AES-256, chave no Supabase Vault) e fotos e áudios num
+  armazenamento privado; só os dois leem. A equipe só abre com **motivo** (denúncia, segurança ou ordem judicial), por
+  24 horas, e cada acesso fica registrado para sempre. Exportação completa com resumo SHA-256 só pelo dono, para
+  entregar à Justiça. Registro de acesso (data, hora, IP, aparelho) guardado 6 meses (Marco Civil, art. 15).
+- **Lines dentro da guilda** (solo, dupla, trio ou squad): entrar pelo **código** da line; lines **recrutando**
+  aparecem na busca de guildas sem precisar de código, com até **2 critérios** do líder (nível, abates, vitórias,
+  salas, média de abates ou ID verificado) e a lista "querem entrar" separada dos membros.
+- **Sinergia**: cada sala em que 2+ jogadores da line jogam juntos soma pontos; nos níveis todos da line ganham
+  recompensa (título Entrosados, banner Sinergia, moldura Laço de Sangue, título Irmãos de Guerra, moldura Sinergia
+  Suprema).
 - Organizador fala com qualquer inscrito: a mensagem chega numa aba separada do chat e aparece num
   **balão no topo** (estilo WhatsApp) com resposta rápida.
 - Ranking de abates, salas jogadas, sobrevivência, ganhos, vitórias e XP (semana, mês, geral).
@@ -101,12 +125,18 @@ O passo a passo do que **você** precisa fazer (contas, chaves, loja) está em
 - **Veredito**: trapaça confirmada devolve a inscrição para os prejudicados (ou todos da sala), retém todo o saldo
   do trapaceiro, recusa os saques pendentes, bane para sempre e bloqueia o ID do Free Fire, as chaves Pix e o
   aparelho. Sem trapaça, os saques voltam.
+- **Verificação do aparelho** (letrinhas miúdas): ao ser chamado, o jogador lê que os organizadores podem verificar o
+  aparelho (programa de trapaça ou APK modificado) e marca o aceite para mandar o vídeo.
+- **Recusou a verificação**: ban permanente e bloqueio do ID do Free Fire, das chaves Pix e do aparelho, sem poder
+  criar outra conta. A equipe escolhe se também trata como trapaça (devolve inscrições e retém o saldo).
+- **Aba Banidos**: só admin ou dono liberam, de três jeitos: deixar criar outra conta (tira os bloqueios), voltar para
+  esta conta (tira o ban, saldo retido continua retido) ou reativar (tira tudo e devolve o saldo retido).
 
 **Painel administrativo** (dono, admin e moderador)
 - Visão geral, receita por origem, usuários (cargos, permissão de criar sala, taxa do organizador,
   suspensão com tempo, ajuste de saldo, extrato, apagar bio ou foto), verificação de ID, financeiro (depósitos
   manuais e saques), salas, eventos, modelos de sala, denúncias, análise de partida, fotos de perfil, guildas,
-  avisos, loja, configurações (com as palavras proibidas) e auditoria.
+  avisos, loja, configurações (com as palavras proibidas), banidos, acessos a conversas e auditoria.
 
 ## Estrutura
 
@@ -119,6 +149,11 @@ www/                  o app (index.html, css/, js/, fonts/, vendor/)
   js/pages-mod.js     moderação: fotos, análise de partida, aviso do suspeito
   js/killfeed.js      leitura do killfeed no vídeo (Tesseract.js baixado do jsDelivr só quando usado)
   js/push.js          notificação no celular: permissão, cadastro do aparelho e toque no aviso
+  js/pages-lines.js   lines da guilda, recrutamento e sinergia
+  js/pages-seguranca.js  acesso excepcional às conversas, registro de acesso e aba Banidos
+  js/molduras.js      molduras de avatar desenhadas em SVG (comum a lendária)
+  js/visuais.js       cenas de banner e fundos animados novos
+  css/molduras.css    animação das molduras, raridade e estilos dos títulos
   css/ouro.css        visual preto e dourado (sóbrio) e a loja
   css/entrada.css     abertura (coroa desenhada, zoom), boas-vindas com mural e login
   css/claro.css       tema Branco
@@ -185,12 +220,11 @@ No GitHub, o workflow **BattleHub Android** gera APK/AAB a cada push. Segredos u
 Precisa de um Postgres local vazio (não usa o Supabase):
 
 ```bash
-PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh ./supabase/tests/reset.sh
-PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh node supabase/tests/money.test.js        # cerca de 208 verificações
-PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh ./supabase/tests/reset.sh
-PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh node supabase/tests/competitivo.test.js  # 400 verificações
-PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh ./supabase/tests/reset.sh
-PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh node supabase/tests/push.test.js         # 39 verificações
+export PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh
+for t in money competitivo push chat banidos organizador lines customizacao; do
+  ./supabase/tests/reset.sh && node supabase/tests/$t.test.js
+done
+# money 211 · competitivo 400 · push 39 · chat 66 · banidos 47 · organizador 16 · lines 50 · customizacao 22
 ```
 
 Para abrir o app no navegador sem internet: `node supabase/tests/fake-supabase.js 8790` e acesse
