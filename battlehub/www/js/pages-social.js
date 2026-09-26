@@ -436,10 +436,16 @@ window.BH = window.BH || {};
   pages.player = async function (p) {
     const u = await api.rpc('get_profile', { p_user: p.id });
     const s = u.stats;
+    const look = u.look || {};
+    const pfx = BH.cosm.pageFx(look, u.id);
+    BH.state.czLook = look;
+    const stageLook = Object.assign({}, look); delete stageLook.fundo;
+    if (!stageLook.banner && (u.banner_data || u.banner_bg)) stageLook.banner = { data: u.banner_data || { bg: u.banner_bg } };
     return {
-      html: '<section class="page profile' + (u.background_data && u.background_data.fx ? ' with-fx' : '') + '">' + (u.background_data && u.background_data.fx ? BH.cos.fx(u.background_data.fx, u.id, 'p-fx') : '') + BH.backRow() +
-        BH.cos.banner(u.banner_data || { bg: u.banner_bg }, 'p-banner', '', u.id) +
-        '<div class="p-id">' + U.av(u, 'xl', 'pop') + '<h1 class="h1">' + U.nick(u) + '</h1>' + U.title(u) +
+      onMount: (v) => BH.cosm.mount(v),
+      html: '<section class="page profile' + (pfx ? ' with-fx' : '') + '">' + pfx + BH.backRow() +
+        BH.cosm.stage(u, stageLook, { play: true }) +
+        '<div class="p-id cz-under">' +
         '<div class="p-badges"><span class="lvl-tag">Nível ' + u.level + '</span>' + U.role(u.role) + (u.guild ? '<button type="button" class="tag tone-violet" data-act="openGuild" data-id="' + u.guild.id + '">' + I('shield') + esc(u.guild.tag) + '</button>' : '') + '<span class="chip mono">#' + u.code + '</span></div>' +
         (u.bio ? '<p class="p-bio">' + esc(u.bio) + '</p>' : '') + '<p class="muted small">' + (u.online ? 'Online agora' : 'Visto ' + U.ago(u.last_seen_at)) + (u.ff_nick ? ' · Free Fire: ' + esc(u.ff_nick) : '') + '</p></div>' +
         '<div class="btn-row two">' + (u.friend === 'amigos' ? '<button type="button" class="btn ghost" data-act="friendRemove" data-id="' + u.id + '">' + I('userCheck') + 'Amigos</button>' : u.friend === 'enviado' ? '<button type="button" class="btn ghost" disabled>' + I('clock') + 'Pedido enviado</button>' : u.friend === 'recebido' ? '<button type="button" class="btn primary" data-act="friendAccept" data-id="' + u.id + '">' + I('check') + 'Aceitar amizade</button>' : '<button type="button" class="btn primary" data-act="friendAdd" data-id="' + u.id + '">' + I('userPlus') + 'Adicionar amigo</button>') +

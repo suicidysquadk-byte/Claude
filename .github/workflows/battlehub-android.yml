@@ -61,6 +61,9 @@ jobs:
           PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres PGDATABASE=bh node supabase/tests/lines.test.js
           PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres PGDATABASE=bh ./supabase/tests/reset.sh
           PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres PGDATABASE=bh node supabase/tests/customizacao.test.js
+          PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres PGDATABASE=bh ./supabase/tests/reset.sh
+          PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres PGDATABASE=bh node supabase/tests/personalizacao.test.js
+          node scripts/cosmeticos/verificar.js
 
       - name: Copiar o app para o projeto Android
         run: npx cap sync android

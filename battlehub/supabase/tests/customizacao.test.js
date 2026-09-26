@@ -2,7 +2,8 @@
 // Uso: tests/reset.sh e depois  node supabase/tests/customizacao.test.js
 const H = require('./_util')();
 const { db, call, ok, must, refuse, q1, count, mk } = H;
-const RANGE = { comum: [190, 390], raro: [290, 790], epico: [790, 1490], mitico: [1490, 2990], lendario: [2990, 5990] };
+// escala nova (2.7.0): Comum, Incomum, Raro, Épico, Lendário, Mítico; Limitado é de evento; bundles têm preço próprio
+const RANGE = { comum: [90, 290], incomum: [190, 390], raro: [290, 790], epico: [790, 1490], lendario: [1490, 2990], mitico: [2990, 5990], limitado: [990, 2990] };
 
 H.run(async () => {
   const dono = await mk('dono@bh.gg'), A = await mk('a@bh.gg');
@@ -12,10 +13,10 @@ H.run(async () => {
   // ---------------- raridade e preço
   const items = (await db.query('select id, kind, rarity, price_cents, data from shop_items where active')).rows;
   ok(items.length >= 120, 'loja com mais de 120 itens', items.length);
-  const bad = items.filter((i) => i.price_cents != null && RANGE[i.rarity] && (i.price_cents < RANGE[i.rarity][0] || i.price_cents > RANGE[i.rarity][1]));
+  const bad = items.filter((i) => i.price_cents != null && i.kind !== 'bundle' && RANGE[i.rarity] && (i.price_cents < RANGE[i.rarity][0] || i.price_cents > RANGE[i.rarity][1]));
   ok(bad.length === 0, 'cada preço dentro da faixa da raridade', bad.map((b) => b.id + ' ' + b.rarity + ' ' + b.price_cents));
-  const avg = async (r) => Number((await q1("select avg(price_cents) v from shop_items where rarity = $1 and price_cents is not null", [r])).v);
-  ok((await avg('comum')) < (await avg('raro')) && (await avg('raro')) < (await avg('epico')) && (await avg('epico')) < (await avg('mitico')) && (await avg('mitico')) < (await avg('lendario')), 'mais raro, mais caro');
+  const avg = async (r) => Number((await q1("select avg(price_cents) v from shop_items where rarity = $1 and price_cents is not null and kind <> 'bundle'", [r])).v);
+  ok((await avg('comum')) < (await avg('incomum')) && (await avg('incomum')) < (await avg('raro')) && (await avg('raro')) < (await avg('epico')) && (await avg('epico')) < (await avg('lendario')) && (await avg('lendario')) < (await avg('mitico')), 'mais raro, mais caro');
   const frames = items.filter((i) => i.kind === 'moldura' && i.data.fr);
   ok(frames.length >= 19 && frames.every((f) => f.data.ring), 'molduras desenhadas com aro de reserva para listas', frames.length);
   ok(items.filter((i) => i.kind === 'titulo').length >= 35, 'mais de 35 títulos');

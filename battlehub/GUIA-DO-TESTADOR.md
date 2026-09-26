@@ -5,7 +5,7 @@ em teste: use valores pequenos e conte tudo o que achar estranho.
 
 ## 1. Instalar (Android)
 
-1. Abra o arquivo **BattleHub-2.6.0.apk** que você recebeu.
+1. Abra o arquivo **BattleHub-2.7.0.apk** que você recebeu.
 2. Se o celular avisar sobre "fontes desconhecidas", toque em **Configurações** e ligue **Permitir desta fonte**.
 3. Toque em **Instalar**.
    - O app ainda não está na Play Store, por isso aparece esse aviso.
@@ -58,6 +58,15 @@ Marque o que conseguiu fazer e anote o que deu errado:
   - Trocar a foto.
   - Em **Aparência**, testar os temas Sistema, Preto e Branco.
   - Ver o nível e o caminho de recompensas.
+- [ ] **Personalização** (Perfil → Personalização)
+  - Tocar em itens de várias categorias e ver a prévia mudar na hora (avatar, pet, arma, chaveiro, chapéu, capa).
+  - Trocar a cor de um item nas bolinhas de cor.
+  - Rolar a lista: o chaveiro balança e volta devagar para o centro quando para.
+  - Obter um item e ver que ele já fica equipado; depois tocar em **Remover**.
+  - Na **Loja**, abrir **Bundles**, obter um e ver o visual completo. Em ⓘ, tirar só uma parte.
+  - Em **Combinações**, salvar o visual, trocar tudo e aplicar de volta.
+  - Em **Coleções**, ver o progresso e a recompensa exclusiva.
+  - Abrir o próprio perfil: o efeito de abertura toca uma vez; o botão ✦ repete.
 - [ ] **Ranking e guildas**
   - Ver o ranking.
   - Criar ou entrar numa guilda.

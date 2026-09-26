@@ -9,10 +9,18 @@
 - A versão **2.6.0** traz chat com áudio (abrindo no fim), conversas protegidas, lines e sinergia, organizador jogando
   a própria sala, aba Banidos, recusa da verificação e a loja nova com raridade (a lista completa está em
   [`PEDIDOS.md`](PEDIDOS.md)).
-- **Para as versões 2.5.0 e 2.6.0 funcionarem no servidor**, eu preciso publicar a atualização do banco (migrações 14 a
-  20) e as funções novas. Para isso, me mande um **Access Token do Supabase** novo
-  (*supabase.com/dashboard/account/tokens → Generate new token*). Depois de publicar, você pode apagar o token.
-  - Até lá, instale o APK 2.4.0. O 2.6.0 precisa do servidor atualizado: sem isso, o chat e a loja nova dão erro.
+- A versão **2.7.0** traz a aba **Personalização** completa: avatares vivos, pets, chaveiros que balançam com a
+  rolagem, armas, chapéus, molduras, capas, banners, temas, cores de nick, efeitos ao abrir o perfil, bundles,
+  coleções com recompensa exclusiva, combinações salvas e eventos de temporada (mais de 500 itens novos).
+- **Para as versões 2.5.0 a 2.7.0 funcionarem no servidor**, falta publicar a atualização do banco (migrações 14 a
+  22). Você já me mandou o Access Token, mas a rede deste ambiente bloqueia `api.supabase.com`. Escolha um caminho:
+  1. **Liberar o acesso aqui:** no menu do ambiente (título da sessão → *Edit*), em *Network access*, adicione
+     `api.supabase.com` aos domínios permitidos (ou escolha um nível de acesso mais amplo) e me avise. Eu publico na hora.
+  2. **Rodar no seu computador**, na pasta `battlehub`:
+     `SUPABASE_ACCESS_TOKEN=seu_token SUPABASE_PROJECT_REF=tjaqjirsayclexzaycti node scripts/aplicar-migracoes.js`
+  - Depois de publicar, **apague o token** em *supabase.com/dashboard/account/tokens* (ele foi colado no chat) e gere
+    outro quando precisar.
+  - Até lá, instale o APK 2.4.0. As versões novas precisam do servidor atualizado: sem isso, o chat e a loja dão erro.
 
 O que falta são contas nos serviços, que só você pode criar (ficam no seu nome e no seu CPF/CNPJ). Faça **na
 ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu conecto.
@@ -24,7 +32,7 @@ ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu c
 
 ## Mandar para alguém testar
 
-1. Mande o arquivo **BattleHub-2.6.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
+1. Mande o arquivo **BattleHub-2.7.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
 2. Ela instala, digita o e-mail no app e entra com o **código de 6 dígitos** que chega do battlehubofc@gmail.com.
 
 Se o e-mail dela demorar ou cair no spam, use o **convite**:
@@ -161,7 +169,7 @@ mandam Pix pela API. Me avise que eu integro.
 
 ## 5. Configurar a plataforma no app · 5 min
 
-1. Instale o **BattleHub-2.6.0.apk** no seu celular (por cima do anterior, sem desinstalar).
+1. Instale o **BattleHub-2.7.0.apk** no seu celular (por cima do anterior, sem desinstalar).
 2. Painel admin → *Configurações*:
    - Coloque a **chave Pix da plataforma**, o nome e a cidade (usados no Pix manual).
    - Confira a **parte da plataforma**: padrão 10% da arrecadação das salas dos organizadores.
@@ -229,7 +237,7 @@ Vídeos pelo app vão até **50 MB** (limite do plano grátis do Supabase). No p
    - Idioma: português (Brasil).
    - Tipo: jogo.
    - Grátis.
-4. Envie o arquivo **`BattleHub-2.6.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
+4. Envie o arquivo **`BattleHub-2.7.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
 5. Preencha a ficha com os textos de `loja/descricao.md` e as imagens da pasta `loja/` (ícone, destaque e as 8
    telas novas em preto e dourado).
 6. Preencha os formulários:
@@ -271,6 +279,6 @@ Vídeos pelo app vão até **50 MB** (limite do plano grátis do Supabase). No p
 |---|---|
 | 4 | Access Token e assinatura secreta do Mercado Pago |
 | 3 | (opcional) ID do cliente e chave secreta do Google |
-| 2.6.0 | **Access Token do Supabase** (para publicar a atualização do servidor) |
+| 2.6.0 / 2.7.0 | **Access Token do Supabase** (recebido; falta liberar `api.supabase.com` na rede do ambiente) |
 | 3.1 | `google-services.json` e a chave da conta de serviço do Firebase |
 | 3.2 | (depois) chave de API do Asaas no sandbox |

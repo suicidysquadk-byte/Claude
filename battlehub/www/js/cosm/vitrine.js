@@ -54,6 +54,8 @@
     const bn = bannerHtml(look.banner, u.id, still);
     return '<div class="cz-stage cz-' + (opts.size || 'lg') + (still ? ' still' : '') + (opts.play && !still ? ' cz-play' : '') + (themeP ? ' has-tema' : '') + (capa ? ' has-capa' : '') + '"' +
       (themeP ? ' style="' + C.themeVars(themeP) + '"' : '') + (opts.id ? ' id="' + esc(opts.id) + '"' : '') + '>' +
+      (ok('fundo', look.fundo) ? '<div class="cz-tema cz-fundo">' + D('fundo', look.fundo, { still, size: [400, 320] }) + '</div>'
+        : look.fundo && look.fundo.data && look.fundo.data.fx && BH.cos && BH.cos.fx ? '<div class="cz-tema cz-fundo">' + BH.cos.fx(look.fundo.data.fx, u.id) + '</div>' : '') +
       (themeP ? '<div class="cz-tema">' + D('tema', tema, { still }) + '</div>' : '') +
       (ok('capa', capa) ? '<div class="cz-capa">' + C.draw('capa', capa.data, capa.v, { still }) + '</div>' : '') +
       (bn ? '<div class="cz-banner">' + bn + '</div>' : '') +
@@ -63,7 +65,7 @@
       (ok('pet', look.pet) ? '<div class="cz-pet">' + D('pet', look.pet, { still }) + '</div>' : '') + '</div>' +
       '<div class="cz-name">' + nick(u, look, still) + (u.verified && BH.ui.verified ? BH.ui.verified(u) : '') + '</div>' +
       (cardU.title ? '<div class="cz-title">' + BH.ui.title(cardU) + '</div>' : '') + '</div>' +
-      (ok('entrada', ent) && !still ? '<div class="cz-ent">' + C.draw('entrada', ent.data, ent.v, {}) + '</div>' : '') +
+      (ok('entrada', ent) && !still && opts.play ? '<div class="cz-ent">' + C.draw('entrada', ent.data, ent.v, {}) + '</div>' : '') +
       (ok('efeito', ef) && !still ? '<div class="cz-ef">' + (opts.play ? C.draw('efeito', ef.data, ef.v, { seed: u.id }) : '') + '</div>' +
         '<button type="button" class="cz-replay" data-act="czReplay" aria-label="Ver o efeito de novo">✦</button>' : '') +
       (opts.edit || '') + '</div>';
@@ -163,5 +165,13 @@
     st._efT = setTimeout(() => st.classList.add('cz-played'), C.EFFECT_MS || 2600);
   }
 
-  Object.assign(C, { card, nick, stage, thumb, mount, replay, kick });
+  // fundo da página inteira do perfil (fundo antigo de partículas ou cena nova)
+  function pageFx(look, seed) {
+    const f = look && look.fundo;
+    if (!f || !f.data) return '';
+    if (ok('fundo', f)) return '<div class="fx p-fx cz-pagefx" aria-hidden="true">' + C.draw('fundo', f.data, f.v, {}) + '</div>';
+    return f.data.fx && BH.cos && BH.cos.fx ? BH.cos.fx(f.data.fx, seed, 'p-fx') : '';
+  }
+
+  Object.assign(C, { card, nick, stage, thumb, mount, replay, kick, pageFx });
 })();

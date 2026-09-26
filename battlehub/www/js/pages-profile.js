@@ -4,7 +4,6 @@ window.BH = window.BH || {};
   const U = BH.ui, I = BH.icon, api = BH.api, esc = U.esc;
   const pages = BH.pages, actions = BH.actions, forms = BH.forms, flows = BH.flows, st = BH.state;
   const app = () => BH.app;
-  st.shopTab = st.shopTab || 'banner';
 
   const LEDGER = {
     deposito: ['Depósito', 'arrowIn'], saque: ['Saque', 'arrowOut'], saque_estorno: ['Saque devolvido', 'refresh'], inscricao: ['Inscrição', 'gamepad'],
@@ -41,20 +40,28 @@ window.BH = window.BH || {};
   };
 
   pages.perfil = async function () {
+    setTimeout(() => { st.czPlayed = true; }, 0);
     const me = await api.refreshMe();
     const e = me.equipped || {};
     const xpPct = (me.xp - me.xp_level) / Math.max(1, me.xp_next - me.xp_level);
     const s = me.stats;
     const fs = ffStatus[me.ff.status] || ffStatus.nao_enviado;
     const card = { id: me.id, nick: me.nick, avatar_url: me.avatar_url, frame: e.frame_data, color: e.color_hex, verified: me.ff.status === 'aprovado', title: e.title_text, title_fx: e.title_fx, accessory: e.accessory_key };
-    const bgFx = e.background_data && e.background_data.fx;
+    const look = me.look || {};
+    const pfx = BH.cosm.pageFx(look, me.id);
+    const bgFx = !!pfx;
+    st.czLook = look;
+    const stageLook = Object.assign({}, look); delete stageLook.fundo;
+    if (!stageLook.banner && (e.banner_data || e.banner_bg)) stageLook.banner = { data: e.banner_data || { bg: e.banner_bg } };
     const pend = me.admin_pending;
     const pendN = pend ? (pend.ff || 0) + (pend.reports || 0) + (me.role_level >= 2 ? (pend.deposits || 0) + (pend.withdrawals || 0) : 0) : 0;
     return {
-      html: '<section class="page profile' + (bgFx ? ' with-fx' : '') + '">' + (bgFx ? BH.cos.fx(bgFx, me.id, 'p-fx') : '') +
-        BH.cos.banner(e.banner_data || { bg: e.banner_bg }, 'p-banner', '<button type="button" class="p-edit icon-btn" data-act="lookSheet" aria-label="Trocar visual">' + I('palette') + '</button>', me.id) +
-        '<div class="p-id"><button type="button" class="p-av" data-act="editProfile" aria-label="Trocar foto">' + U.av(card, 'xl', 'pop') + '<span class="p-cam">' + I('camera') + '</span></button>' +
-        '<h1 class="h1">' + U.nick(card) + '</h1>' + U.title(card) +
+      onMount: (v) => BH.cosm.mount(v),
+      html: '<section class="page profile' + (bgFx ? ' with-fx' : '') + '">' + pfx +
+        BH.cosm.stage({ id: me.id, nick: me.nick, avatar_url: me.avatar_url, verified: card.verified }, stageLook, { play: !st.czPlayed, id: 'my-stage',
+          avatarWrap: (av) => '<button type="button" class="p-av" data-act="editProfile" aria-label="Trocar foto">' + av + '<span class="p-cam">' + I('camera') + '</span></button>',
+          edit: '<div class="cz-edit"><button type="button" class="icon-btn" data-act="page" data-v="personalizacao" aria-label="Personalizar">' + I('palette') + '</button></div>' }) +
+        '<div class="p-id cz-under">' +
         '<div class="p-badges"><span class="lvl-tag">Nível ' + me.level + '</span>' + U.role(me.role) + (me.guild ? '<button type="button" class="tag tone-violet" data-act="openGuild" data-id="' + me.guild.id + '">' + I('shield') + esc(me.guild.tag) + '</button>' : '') +
         '<button type="button" class="chip mono ripple" data-act="copy" data-v="' + me.code + '">' + I('hash') + me.code + '</button>' + (me.anonymous ? '<span class="chip tone-muted">' + I('eyeOff') + 'Anônimo no ranking</span>' : '') + '</div>' +
         (me.bio ? '<p class="p-bio">' + esc(me.bio) + '</p>' : '') + (me.avatar_pending ? '<p class="pend-photo">' + I('clock') + '<span>Foto nova em análise. Os outros ainda veem a anterior.</span></p>' : '') + '<p class="muted small">' + esc(me.email || '') + '</p></div>' +
@@ -65,9 +72,9 @@ window.BH = window.BH || {};
         U.num(me.balance_cents, 'cents', 'wallet-num') + (me.held_cents ? '<small class="held">' + U.cents(me.held_cents) + ' em saque</small>' : '') +
         '<div class="btn-row two"><button type="button" class="btn primary" data-act="deposit">' + I('plus') + 'Depositar</button><button type="button" class="btn dark" data-act="withdraw">' + I('arrowOut') + 'Sacar</button></div></section>' +
         '<div class="quick-grid stagger">' +
-        '<button type="button" class="quick ripple" data-act="shop"><span>' + I('bag') + '</span><b>Loja</b><small>Visual e prioridade</small></button>' +
+        '<button type="button" class="quick ripple" data-act="page" data-v="personalizacao"><span>' + I('bag') + '</span><b>Loja</b><small>Visual, bundles e fila</small></button>' +
         '<button type="button" class="quick ripple" data-act="track"><span>' + I('gift') + '</span><b>Recompensas</b><small>Caminho de níveis</small></button>' +
-        '<button type="button" class="quick ripple" data-act="lookSheet"><span>' + I('palette') + '</span><b>Visual</b><small>Seus itens</small></button>' +
+        '<button type="button" class="quick ripple" data-act="page" data-v="personalizacao"><span>' + I('palette') + '</span><b>Personalização</b><small>Avatar, pets, armas...</small></button>' +
         '<button type="button" class="quick ripple" data-act="page" data-v="myRooms"><span>' + I('trophy') + '</span><b>Minhas salas</b><small>Jogadas e criadas</small></button></div>' +
         '<div class="stat-grid stagger">' + [['crosshair', s.kills, 'Abates'], ['gamepad', s.matches, 'Salas'], ['trophy', s.wins, 'Vitórias'], ['target', s.top3, 'Top 3'], ['timer', s.survival_min, 'Min vivo'], ['dollar', Math.round(s.earnings_cents / 100), 'Ganhos (R$)']]
           .map((x) => '<div class="sg"><span>' + I(x[0]) + '</span>' + U.num(x[1]) + '<small>' + x[2] + '</small></div>').join('') + '</div>' +
@@ -248,28 +255,9 @@ window.BH = window.BH || {};
     if (it.kind === 'cor') return '<b class="nk" style="color:' + esc(d.color) + '">' + esc(api.me.nick) + '</b>';
     return '<span class="prio-ic">' + I('zap') + '</span>';
   }
-  const KINDS = [{ id: 'banner', label: 'Banners', icon: 'image' }, { id: 'acessorio', label: 'Acessórios', icon: 'crown' }, { id: 'fundo', label: 'Fundos', icon: 'sparkles' }, { id: 'moldura', label: 'Molduras', icon: 'user' },
-    { id: 'titulo', label: 'Títulos', icon: 'hash' }, { id: 'cor', label: 'Cor', icon: 'palette' }, { id: 'prioridade', label: 'Fila', icon: 'zap' }];
-  // abas da loja em fileira que rola (são muitas para um controle segmentado)
-  const shopTabs = (active) => '<div class="shop-tabs" role="tablist">' + KINDS.map((k) => '<button type="button" role="tab" aria-selected="' + (k.id === active) + '" class="chip-btn' + (k.id === active ? ' on' : '') + '" data-act="shopTab" data-v="' + k.id + '">' + I(k.icon) + k.label + '</button>').join('') + '</div>';
-  actions.shop = function () {
-    U.sheet({
-      title: 'Loja', size: 'lg',
-      body: async () => {
-        const s = await api.rpc('shop');
-        const RK = { comum: 0, incomum: 1, raro: 2, epico: 3, lendario: 4, mitico: 5, limitado: 5.5, exclusivo: 6 };
-        const items = s.items.filter((i) => i.kind === st.shopTab && i.price_cents != null).sort((a, b) => (RK[b.rarity] || 0) - (RK[a.rarity] || 0) || b.price_cents - a.price_cents);
-        return '<div class="pix-amount"><small>Seu saldo</small><b>' + U.cents(api.me.balance_cents) + '</b></div>' + shopTabs(st.shopTab) +
-          (st.shopTab === 'prioridade' ? '<p class="note-gold">' + I('zap') + '<span>Quando uma sala lota, você passa na frente da fila de espera. Se abrir vaga, é sua primeiro.</span></p>' : '') +
-          '<ul class="shop-grid stagger">' + (items.length ? items.map((it) => '<li class="shop-item' + (it.owned ? ' owned' : '') + (it.rarity ? ' r-' + it.rarity : '') + '"><div class="shop-pv"' + (PREVIEW[it.kind] ? ' data-act="shopPreview" data-id="' + esc(it.id) + '" role="button" tabindex="0" aria-label="Ver prévia de ' + esc(it.name) + '"' : '') + '>' + itemPreview(it) + (PREVIEW[it.kind] ? '<span class="pv-hint">' + I('eye') + 'Prévia</span>' : '') + '</div>' + U.rarity(it.rarity) + '<b>' + esc(it.name) + '</b><small>' + esc(it.description) + '</small>' +
-            (it.kind === 'prioridade'
-              ? (it.owned ? '<span class="chip tone-green">Ativa até ' + U.date(it.expires_at).slice(0, 5) + '</span>' : '') + '<button type="button" class="btn primary sm" data-act="buy" data-id="' + it.id + '" data-price="' + it.price_cents + '">' + (it.owned ? 'Estender · ' : '') + U.cents(it.price_cents) + '</button>'
-              : it.owned ? (it.equipped ? '<span class="chip tone-green">' + I('check') + 'Em uso</span>' : '<button type="button" class="btn ghost sm" data-act="equip" data-id="' + it.id + '">Usar</button>')
-                : '<button type="button" class="btn primary sm" data-act="buy" data-id="' + it.id + '" data-price="' + it.price_cents + '">' + U.cents(it.price_cents) + '</button>') + '</li>').join('') : '<li class="muted pad">Nada à venda nessa categoria.</li>') + '</ul>' +
-          '<p class="muted small center">Itens de recompensa saem no caminho de níveis.</p>';
-      }
-    });
-  };
+  // loja e visual antigos agora abrem a Personalização
+  actions.shop = () => { U.closeAll(); app().push('personalizacao', { tab: 'loja' }); };
+  actions.lookSheet = () => { U.closeAll(); app().push('personalizacao', {}); };
   // prévia: mostra o item animado no seu perfil (na grade da loja tudo fica parado, para não pesar)
   const PREVIEW = { banner: 1, fundo: 1, acessorio: 1, moldura: 1, titulo: 1 };
   actions.shopPreview = function (el) {
@@ -296,7 +284,6 @@ window.BH = window.BH || {};
       }
     });
   };
-  actions.shopTab = (el) => { st.shopTab = el.dataset.v; U.topSheet().render('soft'); };
   actions.buy = async function (el) {
     const price = Number(el.dataset.price);
     if (api.me.balance_cents < price) {
@@ -355,20 +342,6 @@ window.BH = window.BH || {};
     const s = U.topSheet(); if (s) s.render('static'); app().refresh();
   };
   actions.themeSet = (el) => { BH.theme.set(el.dataset.v); const s = U.topSheet(); if (s) s.render('static'); app().refresh(); };
-  actions.lookSheet = function () {
-    U.sheet({
-      title: 'Seu visual', size: 'lg',
-      body: async () => {
-        const s = await api.rpc('shop');
-        const owned = s.items.filter((i) => i.owned && i.kind !== 'prioridade');
-        return KINDS.filter((k) => k.id !== 'prioridade').map((k) => {
-          const list = owned.filter((i) => i.kind === k.id);
-          return '<h4 class="sub-h">' + k.label + (k.id !== 'banner' && list.some((i) => i.equipped) ? '<button type="button" class="link" data-act="unequip" data-v="' + k.id + '">Remover</button>' : '') + '</h4>' +
-            (list.length ? '<ul class="look-row">' + list.map((it) => '<li><button type="button" class="look-pick' + (it.equipped ? ' on' : '') + '" data-act="equip" data-id="' + it.id + '">' + itemPreview(it) + '<small>' + esc(it.name) + '</small></button></li>').join('') + '</ul>' : '<p class="muted small">Nenhum item ainda. Suba de nível ou compre na loja.</p>');
-        }).join('') + '<button type="button" class="btn outline block" data-act="shop">' + I('bag') + 'Abrir a loja</button>';
-      }
-    });
-  };
   actions.track = function () {
     U.sheet({
       title: 'Caminho de recompensas', size: 'lg',

@@ -360,12 +360,16 @@ window.BH = window.BH || {};
     U.sheet({
       title: it.id ? 'Editar item' : 'Novo item', loading: false,
       body: '<form class="form" data-form="aItem"><div class="grid2"><label class="field"><span>Código</span><input id="it-id" name="id" required value="' + esc(it.id) + '"' + (it.id ? ' readonly' : '') + ' placeholder="banner-verao"></label>' +
-        '<label class="field"><span>Tipo</span><select id="it-kind" name="kind">' + ['banner', 'acessorio', 'fundo', 'moldura', 'titulo', 'cor', 'prioridade'].map((k) => '<option' + (it.kind === k ? ' selected' : '') + '>' + k + '</option>').join('') + '</select></label></div>' +
+        '<label class="field"><span>Tipo</span><select id="it-kind" name="kind">' + ['avatar', 'banner', 'capa', 'moldura', 'bundle', 'efeito', 'entrada', 'pet', 'chaveiro', 'chapeu', 'arma', 'acessorio', 'animacao', 'tema', 'cor', 'titulo', 'fundo', 'prioridade'].map((k) => '<option' + (it.kind === k ? ' selected' : '') + '>' + k + '</option>').join('') + '</select></label></div>' +
+        '<div class="grid2"><label class="field"><span>Raridade</span><select id="it-rar" name="rarity">' + Object.keys(U.RARITY).map((r) => '<option value="' + r + '"' + ((it.rarity || 'comum') === r ? ' selected' : '') + '>' + U.RARITY[r] + '</option>').join('') + '</select></label>' +
+        '<label class="field"><span>Evento (opcional)</span><input id="it-ev" name="event_key" value="' + esc(it.event_key || '') + '" placeholder="halloween"></label></div>' +
+        '<div class="grid2"><label class="field"><span>À venda de</span><input id="it-from" name="from" type="datetime-local" value="' + (it.available_from ? U.localInput(it.available_from) : '') + '"></label>' +
+        '<label class="field"><span>Até</span><input id="it-until" name="until" type="datetime-local" value="' + (it.available_until ? U.localInput(it.available_until) : '') + '"></label></div>' +
         '<label class="field"><span>Nome</span><input id="it-name" name="name" required value="' + esc(it.name) + '"></label>' +
         '<label class="field"><span>Descrição</span><input id="it-desc" name="description" value="' + esc(it.description) + '"></label>' +
         '<div class="grid2"><label class="field money-field"><span>Preço (vazio = só recompensa)</span><b>R$</b><input id="it-price" name="price" inputmode="decimal" value="' + (it.price_cents != null ? U.centsInput(it.price_cents) : '') + '"></label>' +
         '<label class="field"><span>Dias (prioridade)</span><input id="it-days" name="days" type="number" inputmode="numeric" value="' + esc(it.duration_days || '') + '"></label></div>' +
-        '<label class="field"><span>Visual (JSON): bg, anim (' + ['shimmer', 'goldline', 'grain', 'embers', 'lightning', 'sakura', 'flames', 'rain', 'moon', 'waves'].join(', ') + ') e art (torii, kitsune, city, samurai, wave, dragon) para banner; acc (' + BH.cos.ACC_KEYS.join(', ') + ') para acessório; fx (' + BH.cos.FX_KEYS.join(', ') + ') para fundo; ring e glow para moldura; text para título; color para cor</span><textarea id="it-data" name="data" rows="3">' + esc(JSON.stringify(it.data || {})) + '</textarea></label>' +
+        '<label class="field"><span>Visual (JSON). Personalização: {"art": desenho, "pal": paleta, "variants": [cores], "fx": efeito}; bundle: {"items": [códigos]}. Itens antigos: bg, anim (' + ['shimmer', 'goldline', 'grain', 'embers', 'lightning', 'sakura', 'flames', 'rain', 'moon', 'waves'].join(', ') + ') e art (torii, kitsune, city, samurai, wave, dragon) para banner; acc (' + BH.cos.ACC_KEYS.join(', ') + ') para acessório; fx (' + BH.cos.FX_KEYS.join(', ') + ') para fundo; ring e glow para moldura; text para título; color para cor</span><textarea id="it-data" name="data" rows="3">' + esc(JSON.stringify(it.data || {})) + '</textarea></label>' +
         '<label class="switch"><input id="it-active" type="checkbox" name="active"' + (it.active ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span>Ativo</span></label>' +
         '<button class="btn primary block">' + I('check') + 'Salvar item</button></form>'
     });
@@ -373,7 +377,10 @@ window.BH = window.BH || {};
   forms.aItem = async function (f) {
     let data;
     try { data = JSON.parse(f.data.value || '{}'); } catch (e) { return U.toast('O visual precisa ser um JSON válido.', 'bad'); }
-    const p = { id: f.id.value, kind: f.kind.value, name: f.name.value, description: f.description.value, price_cents: f.price.value.trim() ? U.toCents(f.price.value) : '', duration_days: f.days.value || '', data, active: f.active.checked };
+    const when = (v) => (v ? new Date(v).toISOString() : '');
+    const p = { id: f.id.value, kind: f.kind.value, name: f.name.value, description: f.description.value, price_cents: f.price.value.trim() ? U.toCents(f.price.value) : '', duration_days: f.days.value || '', data, active: f.active.checked,
+      rarity: f.rarity.value, event_key: f.event_key.value.trim(), available_from: when(f.from.value), available_until: when(f.until.value) };
+    if (data.art && BH.cosm && BH.cosm.reg[p.kind] && !BH.cosm.has(p.kind, data.art)) return U.toast('Desenho "' + data.art + '" não existe para ' + p.kind + '. Opções: ' + Object.keys(BH.cosm.reg[p.kind]).join(', '), 'bad');
     if (await U.run(f.querySelector('button'), () => api.rpc('admin_shop_save', { p }), 'Item salvo.')) { U.closeAll(); app().refresh(); }
   };
 

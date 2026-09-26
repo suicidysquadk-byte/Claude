@@ -263,14 +263,14 @@
 .cz-play .cz-hero.ent-zoom { animation: ent-zoom .8s var(--ease-out, ease-out) both; }
 .cz-play .cz-hero.ent-surgir { animation: ent-surgir .8s var(--ease-out, ease-out) both; }
 .cz-play .en * { animation-fill-mode: both; animation-iteration-count: 1; }
-.cz-play .en-dust { transform-box: fill-box; transform-origin: 50% 50%; animation: en-dust .8s ease-out .45s; }
-.cz-play .en-trail { animation: en-trail .9s ease-out; }
-.cz-play .en-ring { transform-box: fill-box; transform-origin: 50% 50%; animation: en-ring 1s ease-out; }
+.cz-play .en-dust { transform-box: fill-box; transform-origin: 50% 50%; animation: en-dust .8s ease-out .45s both; }
+.cz-play .en-trail { animation: en-trail .9s ease-out both; }
+.cz-play .en-ring { transform-box: fill-box; transform-origin: 50% 50%; animation: en-ring 1s ease-out both; }
 .cz-play .en-ring.d2 { animation-duration: 1.2s; }
-.cz-play .en-bars { animation: ef-glitch .8s steps(5); }
-.cz-play .en-flash { animation: ef-flash .5s ease-out .2s; }
-.cz-play .en-bolt { animation: ef-bolt .6s steps(1) .15s; }
-.cz-play .en-puff { transform-box: fill-box; transform-origin: 50% 50%; animation: en-puff 1.3s ease-out; }
+.cz-play .en-bars { animation: ef-glitch .8s steps(5) both; }
+.cz-play .en-flash { animation: ef-flash .5s ease-out .2s both; }
+.cz-play .en-bolt { animation: ef-bolt .6s steps(1) .15s both; }
+.cz-play .en-puff { transform-box: fill-box; transform-origin: 50% 50%; animation: en-puff 1.3s ease-out both; }
 .cz-played .cz-ef, .cz-played .cz-ent { display: none; }
 @keyframes ent-queda { 0% { transform: translateY(-160px); opacity: 0; } 60% { opacity: 1; } 100% { transform: translateY(0); } }
 @keyframes ent-giro { 0% { transform: rotate(-360deg) scale(.2); opacity: 0; } 100% { transform: none; opacity: 1; } }
@@ -366,6 +366,17 @@
 /* ---------- vitrine ---------- */
 .cz-stage { position: relative; isolation: isolate; overflow: hidden; border-radius: 22px; background: radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--tg, #d4af5a) 14%, transparent), transparent 70%), var(--surface); border: 1px solid color-mix(in srgb, var(--tg, #d4af5a) 32%, var(--line)); min-height: 318px; contain: layout paint; }
 .cz-md { min-height: 286px; }
+.cz-sm { min-height: 0; border-radius: 18px; }
+.cz-sm .cz-banner { height: 92px; }
+.cz-sm .cz-hero { padding: 40px 12px 12px; }
+.cz-sm .cz-fig { width: 78px; height: 78px; margin-bottom: 30px; }
+.cz-sm .cz-av > .av { font-size: 32px; }
+.cz-sm .cz-kc { left: -42px; top: 6px; width: 30px; height: 66px; }
+.cz-sm .cz-pet { right: -60px; bottom: -12px; width: 54px; height: 54px; }
+.cz-sm .cz-name { font-size: 20px; }
+.cz-fundo { opacity: .85; }
+.cz-fundo .fx { position: absolute; inset: 0; }
+.cz-tema.cz-fundo + .cz-tema { opacity: .55; }
 .cz-tema, .cz-capa, .cz-banner, .cz-ef, .cz-ent { position: absolute; pointer-events: none; }
 .cz-tema { inset: 0; z-index: 0; }
 .cz-tema svg, .cz-capa svg, .cz-banner > svg, .cz-ef svg, .cz-ent svg { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -377,12 +388,12 @@
 .cz-bn-old { position: absolute; inset: 0; }
 .cz-hero { position: relative; z-index: 3; display: flex; flex-direction: column; align-items: center; padding: 70px 16px 20px; text-align: center; }
 .cz-md .cz-hero { padding-top: 62px; }
-.cz-fig { position: relative; width: 112px; height: 112px; margin-bottom: 16px; }
+.cz-fig { position: relative; width: 112px; height: 112px; margin-bottom: 38px; }
 .cz-md .cz-fig { width: 100px; height: 100px; }
 .cz-fig > .cz-av { position: absolute; inset: 0; z-index: 2; }
 .cz-av > .av, .cz-av > button > .av { --s: 100%; width: 100%; height: 100%; font-size: 44px; }
 .cz-av > button { display: block; width: 100%; height: 100%; position: relative; z-index: 1; border-radius: 50%; }
-.cz-arma { position: absolute; left: -40%; top: -40%; width: 180%; height: 180%; z-index: 1; pointer-events: none; }
+.cz-arma { position: absolute; left: -75%; top: -75%; width: 250%; height: 250%; z-index: 1; pointer-events: none; }
 .cz-arma svg, .cz-hat svg, .cz-face svg, .cz-pet svg, .cz-kc svg { display: block; width: 100%; height: 100%; }
 .cz-hat, .cz-face { position: absolute; left: -25%; top: -45%; width: 150%; height: 150%; pointer-events: none; }
 .cz-face { z-index: 3; }
@@ -411,7 +422,6 @@
 .th-av .th-circle { width: 76%; aspect-ratio: 1; border-radius: 50%; overflow: hidden; display: block; box-shadow: 0 0 0 3px rgba(255, 255, 255, .08); }
 .th-fr .av { --s: 58px; }
 .th-pet > svg { width: 86%; height: 86%; }
-.th-kc > svg { width: auto; height: 94%; }
 .th-hat .cz-av, .th-an .cz-av { position: relative; width: 50%; aspect-ratio: 1; margin-top: 18%; }
 .th-an .cz-av { margin-top: 0; width: 54%; }
 .th-hat .cz-av > .av, .th-an .cz-av > .av { --s: 100%; width: 100%; height: 100%; font-size: 22px; }
@@ -433,7 +443,7 @@
 .th-prio { font-size: 36px; }
 
 /* ---------- tela de Personalização ---------- */
-.pz-page .pz-sticky { position: sticky; top: calc(var(--safe-t) + 4px); z-index: 20; margin: 0 -4px; padding: 0 4px 8px; background: linear-gradient(180deg, var(--bg) 88%, transparent); }
+.pz-page .pz-sticky { position: sticky; top: calc(var(--safe-t) + 64px); z-index: 20; margin: 0 -4px; padding: 0 4px 8px; background: linear-gradient(180deg, var(--bg) 88%, transparent); }
 .pz-page .pz-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .pz-page .pz-top h1 { flex: 1; }
 .pz-bal { font: 700 14px/1 var(--display); color: var(--gold); display: inline-flex; gap: 6px; align-items: center; padding: 7px 12px; border-radius: 999px; background: rgba(212, 175, 90, .1); border: 1px solid rgba(212, 175, 90, .3); }
@@ -505,3 +515,34 @@
 .pz-slot .th { width: 100%; border-radius: 8px; }
 .pz-slot.on { border-color: color-mix(in srgb, var(--gold) 45%, var(--line)); color: var(--text-2); }
 .pz-slot .pz-slot-e { aspect-ratio: 1; width: 100%; display: grid; place-items: center; border-radius: 8px; background: #111115; font-size: 20px; }
+.pz-bar { display: grid; grid-template-columns: 1fr auto; gap: 8px 10px; align-items: center; margin-top: 8px; padding: 10px 12px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+.pz-bar.sel { border-color: color-mix(in srgb, var(--gold) 40%, var(--line)); }
+.pz-bar-t { min-width: 0; display: grid; gap: 3px; }
+.pz-bar-t b { font: 800 16px/1.15 var(--display); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pz-bar-t small { color: var(--muted); font-size: 12px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.pz-bar-a { display: flex; align-items: center; gap: 6px; }
+.pz-bar .pz-swatches { grid-column: 1 / -1; }
+.pz-sticky { position: relative; }
+.pz-mini { position: absolute; right: 12px; margin-top: -14px; z-index: 8; width: 28px; height: 28px; border-radius: 50%; background: var(--surface-3); border: 1px solid var(--line-2); display: grid; place-items: center; font-size: 12px; color: var(--text-2); }
+.pz-mini-old { display: block; margin: 4px auto 0; font: 700 11px/1 var(--display); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 6px 10px; }
+.pz-col .pz-row button { flex: none; width: 64px; border-radius: 12px; }
+.pz-col .pz-row .th { width: 64px; }
+.pz-slot .th { width: 100%; }
+
+.cz-stage:not(.cz-play) .cz-ent, .cz-stage:not(.cz-play) .cz-ef { display: none; }
+.p-id.cz-under { margin-top: 14px; }
+.cz-stage .p-av .p-cam { width: 26px; height: 26px; right: -2px; bottom: -2px; z-index: 6; }
+.th-bundle .th > svg, .th-bundle .th-kc > svg, .th-bundle .th-pet > svg { width: 100%; height: 100%; }
+.th-bundle .th-fr .av { --s: 44%; width: 44%; height: 44%; font-size: 10px; }
+/* miniaturas paradas: mostra cada efeito no meio do movimento (a posição inicial fica escondida) */
+.th-kc > svg { position: absolute; left: 0; top: 4%; width: 100%; height: 92%; }
+.ef.still .ef-star, .ef.still .ef-shard, .ef.still .ef-conf, .ef.still .ef-puff { transform: translate(calc(var(--sx, 0px) * .5), calc(var(--sy, 0px) * .5)); }
+.ef.still .ef-fall { transform: translate(var(--dx, 0px), 170px); }
+.ef.still .ef-flash { opacity: 0; }
+.ef.still .ef-ring { transform-box: fill-box; transform-origin: 50% 50%; transform: scale(2.2); opacity: .7; }
+.sc.still .sc-rise { transform: translate(0, calc(var(--dy, -120px) * .5)); opacity: 1; }
+.sc.still .sc-glitch { opacity: .6 !important; }
+.sc.still .sc-fall { transform: translate(0, calc(var(--dy, 200px) * .4)); }
+.sc.still .sc-rain { transform: translate(0, 60px); }
+.an.still .an-snow { transform: translate(0, 70px); opacity: 1; }
+.an.still .an-part { transform: translate(0, -30px); opacity: 1; }

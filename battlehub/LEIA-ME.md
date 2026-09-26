@@ -153,6 +153,11 @@ www/                  o app (index.html, css/, js/, fonts/, vendor/)
   js/pages-seguranca.js  acesso excepcional às conversas, registro de acesso e aba Banidos
   js/molduras.js      molduras de avatar desenhadas em SVG (comum a lendária)
   js/visuais.js       cenas de banner e fundos animados novos
+  js/cosm/            motor da Personalização: core (paletas, raridade, registro), avatares, pets, chaveiros,
+                      chapeus, armas, efeitos, cenas (banner/capa/fundo, temas, cor do nick), molduras e
+                      vitrine (junta tudo no perfil, física dos chaveiros, pausa fora da tela)
+  js/pages-personalizacao.js  tela PERSONALIZAÇÃO: prévia ao vivo, categorias, loja, bundles, coleções, combinações
+  css/cosm.css        animações da Personalização, vitrine, miniaturas e raridades
   css/molduras.css    animação das molduras, raridade e estilos dos títulos
   css/ouro.css        visual preto e dourado (sóbrio) e a loja
   css/entrada.css     abertura (coroa desenhada, zoom), boas-vindas com mural e login
@@ -165,6 +170,8 @@ supabase/
   functions/          pix-criar e pix-webhook (Mercado Pago), convite (link de entrada para testador),
                       push-enviar (notificação no celular pelo Firebase)
   tests/              testes das regras de dinheiro e da notificação, e servidor de teste para rodar o app sem internet
+scripts/cosmeticos/  gerar.js (gera o catálogo em supabase/migrations/…22_catalogo_personalizacao.sql)
+                      e verificar.js (confere cada item e cada cor contra os desenhos)
 scripts/configurar.sh conecta tudo ao seu Supabase (lê scripts/conexao.env)
 scripts/ligar-push.js instala o google-services.json do Firebase e liga a notificação no app
 android/              projeto Android gerado pelo Capacitor
@@ -221,11 +228,22 @@ Precisa de um Postgres local vazio (não usa o Supabase):
 
 ```bash
 export PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh
-for t in money competitivo push chat banidos organizador lines customizacao; do
+for t in money competitivo push chat banidos organizador lines customizacao personalizacao; do
   ./supabase/tests/reset.sh && node supabase/tests/$t.test.js
 done
+node scripts/cosmeticos/verificar.js
 # money 211 · competitivo 400 · push 39 · chat 66 · banidos 47 · organizador 16 · lines 50 · customizacao 22
+# personalizacao 66 · desenhos 1085
 ```
 
 Para abrir o app no navegador sem internet: `node supabase/tests/fake-supabase.js 8790` e acesse
 `http://localhost:8790` (qualquer e-mail, código `123456`).
+
+## Personalização: como acrescentar itens
+
+Cada item é uma linha em `shop_items` com `data.art` (qual desenho), `data.pal` (paleta) e `data.variants` (cores
+extras). Para um item novo com desenho que já existe, basta a linha (pelo painel ou em `scripts/cosmeticos/gerar.js`).
+Para um desenho novo, registre-o num dos arquivos `www/js/cosm/*.js` com `BH.cosm.register(tipo, chave, função)`.
+Eventos de temporada ficam em `cosmetic_events` (datas de início e fim); itens do evento usam `event_key`,
+`available_from` e `available_until`. Coleções ficam em `cosmetic_collections` com o item exclusivo de recompensa.
+Depois de mexer no gerador: `node scripts/cosmeticos/gerar.js && node scripts/cosmeticos/verificar.js`.
