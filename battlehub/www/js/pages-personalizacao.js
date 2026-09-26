@@ -14,7 +14,9 @@ window.BH = window.BH || {};
     { id: 'avatar', e: '👤', label: 'Avatar', kinds: ['avatar'] },
     { id: 'banner', e: '🖼️', label: 'Banners', kinds: ['banner'] },
     { id: 'capa', e: '🏞️', label: 'Capas', kinds: ['capa'] },
-    { id: 'moldura', e: '🔲', label: 'Molduras', kinds: ['moldura'] },
+    { id: 'moldura', e: '🔲', label: 'Decorações', kinds: ['moldura'] },
+    { id: 'placa', e: '🏷️', label: 'Placas', kinds: ['placa'] },
+    { id: 'perfil', e: '🖼️', label: 'Molduras de perfil', kinds: ['perfil'] },
     { id: 'bundle', e: '🎁', label: 'Bundles', kinds: ['bundle'] },
     { id: 'efeito', e: '✨', label: 'Efeitos de Perfil', kinds: ['efeito', 'entrada'] },
     { id: 'pet', e: '🐾', label: 'Pets', kinds: ['pet'] },
@@ -33,13 +35,13 @@ window.BH = window.BH || {};
     { id: 'prioridade', e: '⚡', label: 'Fila', kinds: ['prioridade'] }
   ];
   const FILTERS = [['todos', 'Todos'], ['novos', 'Novos'], ['populares', 'Populares'], ['raro', 'Raros'], ['epico', 'Épicos'], ['lendario', 'Lendários'], ['mitico', 'Míticos'], ['exclusivos', 'Exclusivos'],
-    ['bundle', 'Bundles'], ['animacao', 'Animações'], ['pet', 'Pets'], ['moldura', 'Molduras'], ['avatar', 'Avatares'], ['banner', 'Banners'], ['chaveiro', 'Chaveiros']];
-  const KIND_NAME = { avatar: 'Avatar', banner: 'Banner', capa: 'Capa', moldura: 'Moldura', bundle: 'Bundle', efeito: 'Efeito de perfil', entrada: 'Entrada', pet: 'Pet', chaveiro: 'Chaveiro',
+    ['bundle', 'Bundles'], ['animacao', 'Animações'], ['pet', 'Pets'], ['moldura', 'Decorações'], ['placa', 'Placas'], ['perfil', 'Molduras de perfil'], ['avatar', 'Avatares'], ['banner', 'Banners'], ['chaveiro', 'Chaveiros']];
+  const KIND_NAME = { placa: 'Placa de identificação', perfil: 'Moldura de perfil', avatar: 'Avatar', banner: 'Banner', capa: 'Capa', moldura: 'Decoração de avatar', bundle: 'Bundle', efeito: 'Efeito de perfil', entrada: 'Entrada', pet: 'Pet', chaveiro: 'Chaveiro',
     chapeu: 'Chapéu', arma: 'Arma', acessorio: 'Acessório', animacao: 'Animação', tema: 'Tema', cor: 'Cor do nick', titulo: 'Título', fundo: 'Fundo', prioridade: 'Fila prioritária' };
   const RK = { comum: 0, incomum: 1, raro: 2, epico: 3, lendario: 4, mitico: 5, limitado: 5.5, exclusivo: 6 };
-  const LOOK = ['avatar', 'banner', 'capa', 'moldura', 'pet', 'chaveiro', 'chapeu', 'arma', 'acessorio', 'efeito', 'entrada', 'animacao', 'tema', 'cor', 'fundo', 'titulo'];
+  const LOOK = ['placa', 'perfil', 'avatar', 'banner', 'capa', 'moldura', 'pet', 'chaveiro', 'chapeu', 'arma', 'acessorio', 'efeito', 'entrada', 'animacao', 'tema', 'cor', 'fundo', 'titulo'];
 
-  const S = { data: null, byId: {}, tab: 'visual', cat: 'avatar', filter: 'todos', mine: false, sel: null, v: null, draft: {}, shown: PAGE, mini: false, play: false };
+  const S = { col: null, data: null, byId: {}, tab: 'visual', cat: 'avatar', filter: 'todos', mine: false, sel: null, v: null, draft: {}, shown: PAGE, mini: false, play: false };
   BH.pz = S;
 
   async function load() {
@@ -162,8 +164,11 @@ window.BH = window.BH || {};
   }
 
   function stageHtml() {
-    return C().stage(userCard(), resolved(S.draft), { size: 'sm', play: S.play, id: 'pz-stage',
-      edit: '<div class="cz-edit"><button type="button" class="icon-btn" data-act="pzReset" aria-label="Voltar ao visual equipado">' + I('refresh') + '</button></div>' });
+    const look = resolved(S.draft), u = userCard();
+    // placa: mostra como os outros veem numa lista (viva)
+    const pl = look.placa ? '<div class="pz-plmock has-pl">' + U.plate(Object.assign({}, u, { plate: look.placa.data, plate_v: look.placa.v }), true) + U.av(u, 'sm') + '<b>' + esc(u.nick || 'Você') + '</b><small>Nível ' + (me().level || 1) + '</small></div>' : '';
+    return C().stage(u, look, { size: 'sm', play: S.play, id: 'pz-stage',
+      edit: '<div class="cz-edit"><button type="button" class="icon-btn" data-act="pzReset" aria-label="Voltar ao visual equipado">' + I('refresh') + '</button></div>' }) + pl;
   }
   function sticky() {
     return (S.mini ? '' : stageHtml()) + bar().replace('<div class="pz-bar', '<button type="button" class="pz-mini" data-act="pzMini" aria-label="' + (S.mini ? 'Mostrar prévia' : 'Esconder prévia') + '">' + (S.mini ? '▾' : '▴') + '</button><div class="pz-bar');
@@ -172,7 +177,8 @@ window.BH = window.BH || {};
   function tabBody() {
     if (S.tab === 'colecoes') return collections();
     if (S.tab === 'combos') return combos();
-    if (S.tab === 'loja') return events() + '<div class="pz-filters" role="tablist" aria-label="Filtros da loja">' + FILTERS.map((f) => '<button type="button" role="tab" aria-selected="' + (S.filter === f[0]) + '" class="' + (S.filter === f[0] ? 'on' : '') + '" data-act="pzFilter" data-v="' + f[0] + '">' + f[1] + '</button>').join('') + '</div>' +
+    if (S.tab === 'loja' && S.col) { const c = COLS.find((x) => x.id === S.col); if (c) return shopCol(c); }
+    if (S.tab === 'loja') return (S.filter === 'todos' ? shopHome() : '') + events() + (S.filter === 'todos' ? '<h3 class="sub-h lj-all">Tudo na loja</h3>' : '') + '<div class="pz-filters" role="tablist" aria-label="Filtros da loja">' + FILTERS.map((f) => '<button type="button" role="tab" aria-selected="' + (S.filter === f[0]) + '" class="' + (S.filter === f[0] ? 'on' : '') + '" data-act="pzFilter" data-v="' + f[0] + '">' + f[1] + '</button>').join('') + '</div>' +
       '<div id="pz-grid">' + grid() + '</div>';
     const counts = {};
     CATS.forEach((c) => { counts[c.id] = S.data.items.filter((it) => it.owned && (c.kinds ? c.kinds.includes(it.kind) : c.rar.includes(it.rarity))).length; });
@@ -180,6 +186,86 @@ window.BH = window.BH || {};
       '<div class="pz-filters"><button type="button" class="' + (S.mine ? '' : 'on') + '" data-act="pzMine" data-v="0">Todos</button><button type="button" class="' + (S.mine ? 'on' : '') + '" data-act="pzMine" data-v="1">Só os meus</button></div>' +
       '<div id="pz-grid">' + grid() + '</div>';
   }
+
+  /* ---------------- Loja no formato da Loja do Discord ----------------
+     Coleções com banner ilustrado e uma fileira de itens embaixo; tocar abre a folha com prévia grande. */
+  const COLS = [
+    { id: 'orelhas', title: 'Todas as Orelhas', sub: 'Orelhas, caudas e pelagens', scene: 'kitsune', pal: 'azul-ciano', items: ['bundle-pac-guaxinim', 'bundle-pac-leopardo', 'bundle-pac-lobo-lunar', 'mold-dc-raposa', 'mold-dc-tigre', 'mold-dc-panda-vermelho', 'mold-dc-gato', 'mold-dc-kitsune', 'placa-olho-lobo', 'placa-guaxinim', 'placa-leopardo', 'perfil-guaxinim'] },
+    { id: 'outono', title: 'Folhas de Outono', sub: 'Bordo, cerejeira e chuva', scene: 'amanhecer', pal: 'laranja', items: ['bundle-pac-bordo', 'bundle-pac-sakura', 'mold-dc-bordo', 'mold-dc-sakura', 'mold-dc-chapeu-palha', 'placa-bordo', 'placa-sakura', 'perfil-bordo', 'perfil-sakura'] },
+    { id: 'lendas', title: 'Lendas do Oriente', sub: 'Dragões, katanas e espíritos', scene: 'dragao', pal: 'vermelho', items: ['bundle-pac-dragao', 'mold-dc-dragao', 'mold-dc-dragao-neon', 'mold-dc-katana', 'placa-dragao', 'perfil-dragao', 'capa2-dragao', 'capa2-samurai', 'capa2-kitsune'] },
+    { id: 'ceu', title: 'Céu e Abismo', sub: 'Anjos, demônios e coroas', scene: 'realeza', pal: 'royal', items: ['mold-dc-anjo-caido', 'mold-dc-anjo', 'mold-dc-demonio', 'mold-dc-coroa', 'perfil-dourado', 'placa-ouro', 'capa2-realeza', 'capa2-fenix'] },
+    { id: 'neon', title: 'Dimensão Neon', sub: 'Portais, HUD e luz', scene: 'grade', pal: 'cyberpunk', items: ['bundle-pac-yoru', 'bundle-pac-neon', 'mold-dc-portal', 'mold-dc-cyber', 'mold-dc-holo', 'mold-dc-fones', 'mold-dc-raio', 'placa-synth', 'placa-cidade', 'perfil-neon'] },
+    { id: 'elementos', title: 'Elementos', sub: 'Fogo, gelo e tempestade', scene: 'chamas', pal: 'fogo', items: ['mold-dc-chamas', 'mold-dc-gelo', 'mold-dc-orbita', 'mold-dc-coracoes', 'perfil-chamas', 'perfil-gelo', 'placa-chamas', 'placa-raios', 'placa-cristais', 'placa-galaxia'] }
+  ];
+  function colBanner(c) {
+    return '<button type="button" class="lj-col ripple" data-act="pzCol" data-v="' + c.id + '"><span class="lj-col-art">' + C().draw('banner', { art: c.scene, pal: c.pal }, null, { still: true }) + '</span>' +
+      '<span class="lj-col-t"><b>' + esc(c.title) + '</b><small>' + esc(c.sub) + '</small></span><span class="lj-col-go">' + I('right') + '</span></button>';
+  }
+  function shopCard(it) {
+    const st = status(it);
+    return '<button type="button" class="lj-card r-' + esc(it.rarity) + '" data-act="pzShop" data-id="' + esc(it.id) + '" aria-label="' + esc(it.name) + '">' +
+      (it.kind === 'bundle' ? '<span class="lj-tag">' + ((it.data.items || []).length) + ' itens</span>' : isNew(it) && !it.owned ? '<span class="lj-tag novo">Novo</span>' : '') +
+      // pacote: mostra a peça principal grande (como a loja do Discord), não uma colagem
+      '<span class="lj-pv">' + C().thumb(it.kind === 'bundle' && S.byId[(it.data.items || [])[0]] ? S.byId[it.data.items[0]] : it, null, { id: 'loja', nick: me().nick }, S.byId) + '</span><b>' + esc(it.name) + '</b>' +
+      '<small class="' + st.k + '">' + (st.k === 'eq' ? '✓ ' : '') + esc(st.t) + '</small></button>';
+  }
+  function shopHome() {
+    return COLS.map((c) => { const its = c.items.map((id) => S.byId[id]).filter(Boolean); if (!its.length) return ''; return '<section class="lj-sec">' + colBanner(c) + '<div class="lj-row">' + its.map(shopCard).join('') + '</div></section>'; }).join('');
+  }
+  function shopCol(c) {
+    const its = c.items.map((id) => S.byId[id]).filter(Boolean);
+    return '<button type="button" class="link lj-back" data-act="pzCol" data-v="">' + I('back') + 'Loja</button>' + colBanner(c).replace('data-act="pzCol"', 'data-act="noop"') + '<div class="lj-grid">' + its.map(shopCard).join('') + '</div>';
+  }
+
+  /* folha do item: prévia grande (decoração no avatar, placa numa lista, moldura no cartão; pacote passa as peças) */
+  function bigPreview(it, v) {
+    const u = Object.assign({}, userCard(), { id: 'pv' });
+    const d = it.data || {};
+    if (it.kind === 'moldura') return '<div class="sp-av">' + U.av(Object.assign({}, u, { frame: d, frame_v: v }), 'xl') + '</div>';
+    if (it.kind === 'placa') {
+      const row = (x, pl) => '<li class="sp-row' + (pl ? ' has-pl' : '') + '">' + (pl ? U.plate(Object.assign({}, x, { plate: d, plate_v: v }), true) : '') + U.av(x, 'sm') + '<b>' + esc(x.nick) + '</b></li>';
+      return '<div class="sp-list"><small>Online — 3</small><ul>' + row({ id: 'a', nick: 'Phibi' }) + row(u, true) + row({ id: 'c', nick: 'Locke' }) + '</ul></div>';
+    }
+    if (it.kind === 'perfil') return '<div class="sp-card">' + C().stage(u, { perfil: { data: d, v }, banner: equipped().banner ? resolved({ banner: equipped().banner }).banner : { data: { art: 'ouro', pal: 'dourado' } } }, { size: 'sm' }) + '</div>';
+    if (it.kind === 'banner' || it.kind === 'capa' || it.kind === 'efeito' || it.kind === 'tema' || it.kind === 'fundo') { const look = {}; look[it.kind] = { data: d, v }; return '<div class="sp-card">' + C().stage(u, look, { size: 'sm', play: true }) + '</div>'; }
+    return '<div class="sp-thumb">' + C().thumb(it, v, u, S.byId) + '</div>';
+  }
+  actions.pzCol = (el) => { S.col = el.dataset.v || null; paintBody(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  actions.pzShop = (el) => {
+    const it = S.byId[el.dataset.id]; if (!it) return;
+    const parts = it.kind === 'bundle' ? (it.data.items || []).map((id) => S.byId[id]).filter(Boolean) : [];
+    const data = { part: 0, v: null };
+    U.sheet({
+      title: it.kind === 'bundle' ? 'Pacote' : KIND_NAME[it.kind] || 'Item', size: 'lg', loading: false, data,
+      body: (sh) => {
+        const cur = parts.length ? parts[sh.data.part] : it;
+        const vs = [cur.data && cur.data.pal].concat((cur.data && cur.data.variants) || []).filter(Boolean);
+        const st = status(it);
+        const buy = it.owned ? (it.kind === 'bundle' ? '<button type="button" class="btn primary block" data-act="pzEquipBundle" data-id="' + esc(it.id) + '">' + I('check') + 'Equipar tudo</button>'
+            : '<button type="button" class="btn primary block" data-act="pzShopEquip" data-id="' + esc(it.id) + '">' + I('check') + 'Equipar</button>')
+          : st.k === 'price' ? '<button type="button" class="btn primary block" data-act="pzBuy" data-id="' + esc(it.id) + '">' + I('bag') + (it.kind === 'bundle' ? 'Comprar pacote' : 'Comprar') + ' · ' + U.cents(it.price_cents) + '</button>'
+            : '<p class="note-gold">' + I('lock') + '<span>' + esc(st.t) + '. ' + esc(howToGet(it)) + '</span></p>';
+        return '<div class="sp">' +
+          '<div class="sp-stage">' + bigPreview(cur, sh.data.v) + '<button type="button" class="icon-btn sp-eye" data-act="pzTry" data-id="' + esc(cur.id) + '" aria-label="Ver no meu perfil">' + I('eye') + '</button></div>' +
+          '<h2 class="sp-name">' + esc(it.name) + '</h2>' +
+          (parts.length ? '<p class="muted small">O pacote inclui ' + parts.length + ' itens</p><div class="sp-parts">' + parts.map((p, i) => '<button type="button" class="' + (i === sh.data.part ? 'on' : '') + '" data-act="pzPart" data-i="' + i + '" aria-label="' + esc(p.name) + '">' + C().thumb(p, null, userCard(), S.byId) + '</button>').join('') + '</div>' +
+            '<p class="sp-cap"><b>' + esc(cur.name) + '</b> · ' + esc(KIND_NAME[cur.kind] || '') + '</p>' : '<p class="muted">' + esc(it.description || '') + '</p>') +
+          (vs.length > 1 ? '<div class="sp-opts"><b>Cor</b> ' + esc(C().PAL[sh.data.v || vs[0]].name) + '<div class="pz-swatches">' + vs.map((x) => '<button type="button" class="' + ((sh.data.v || vs[0]) === x ? 'on' : '') + '" style="--a:' + C().PAL[x].a + ';--b:' + C().PAL[x].g + '" data-act="pzSpVar" data-v="' + x + '" aria-label="' + esc(C().PAL[x].name) + '"></button>').join('') + '</div></div>' : '') +
+          buy + '<p class="muted small center">' + U.rarity(it.rarity) + (it.owners ? ' · ' + U.int(it.owners) + ' ' + (it.owners === 1 ? 'jogador tem' : 'jogadores têm') : '') + '</p></div>';
+      },
+      onMount: (sh) => {
+        C().mount(sh.body);
+        // pacote: passa sozinho de uma peça para a outra, como na loja do Discord
+        clearInterval(sh._cyc);
+        if (parts.length > 1) sh._cyc = setInterval(() => { if (sh.closed || !document.body.contains(sh.el)) return clearInterval(sh._cyc); if (sh._hold && Date.now() - sh._hold < 6000) return; sh.data.part = (sh.data.part + 1) % parts.length; sh.data.v = null; sh.render('static'); }, 3200);
+      }
+    });
+  };
+  actions.pzPart = (el) => { const sh = U.topSheet(); if (!sh) return; sh.data.part = Number(el.dataset.i); sh.data.v = null; sh._hold = Date.now(); sh.render('static'); };
+  actions.pzSpVar = (el) => { const sh = U.topSheet(); if (!sh) return; sh.data.v = el.dataset.v; sh._hold = Date.now(); sh.render('static'); };
+  // olho: veste o item na vitrine lá em cima (prévia no seu perfil)
+  actions.pzTry = (el) => { const sh = U.topSheet(); const v = sh && sh.data.v; if (sh) sh.close && sh.close(); pick(el.dataset.id); if (v) { const it = S.byId[el.dataset.id]; if (it && S.draft[it.kind]) { S.v = v; S.draft[it.kind].v = v; paintSticky(); } } window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  actions.pzShopEquip = async (el) => { const it = S.byId[el.dataset.id]; const sh = U.topSheet(); const v = sh && sh.data.v; if (await U.run(el, () => api.rpc('set_look', { p: { [it.kind]: { i: it.id, v: v || null } } }), 'Equipado.')) { await reload(); if (sh && sh.close) sh.close(); } };
 
   function events() {
     const now = Date.now();
@@ -234,6 +320,7 @@ window.BH = window.BH || {};
   pages.personalizacao = async function (p) {
     await load();
     if (p && p.tab) S.tab = p.tab;
+    S.mini = S.tab === 'loja';
     if (p && p.cat) { S.cat = p.cat; S.tab = 'visual'; }
     resetDraft();
     S.sel = null; S.v = null; S.shown = PAGE;
@@ -241,7 +328,7 @@ window.BH = window.BH || {};
   };
 
   /* ---------------- ações ---------------- */
-  actions.pzTab = (el) => { S.tab = el.dataset.v; S.shown = PAGE; paintTabs(); paintBody(); };
+  actions.pzTab = (el) => { S.tab = el.dataset.v; S.col = null; S.shown = PAGE; const m = S.tab === 'loja'; if (m !== S.mini && !S.sel) { S.mini = m; paintSticky(); } paintTabs(); paintBody(); };
   actions.pzCat = (el) => { S.cat = el.dataset.v; S.shown = PAGE; paintBody(); const b = document.querySelector('.pz-cats .on'); if (b) b.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); };
   actions.pzFilter = (el) => { S.filter = el.dataset.v; S.shown = PAGE; paintBody(); };
   actions.pzMine = (el) => { S.mine = el.dataset.v === '1'; S.shown = PAGE; paintBody(); };

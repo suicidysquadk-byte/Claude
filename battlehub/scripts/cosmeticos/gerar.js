@@ -9,7 +9,7 @@ const ROOT = path.join(__dirname, '..', '..');
 
 // carrega o motor de desenho para conferir cada item
 global.window = global; global.BH = {}; global.document = { documentElement: { classList: { contains: () => false } } };
-for (const f of ['core', 'pets', 'chaveiros', 'chapeus', 'armas', 'avatares', 'efeitos', 'cenas', 'cenarios', 'molduras']) require(path.join(ROOT, 'www/js/cosm', f + '.js'));
+for (const f of ['core', 'pets', 'chaveiros', 'chapeus', 'armas', 'avatares', 'efeitos', 'cenas', 'cenarios', 'molduras', 'decoracoes', 'placas']) require(path.join(ROOT, 'www/js/cosm', f + '.js'));
 const C = BH.cosm;
 
 /* ---------------- preço por raridade ---------------- */

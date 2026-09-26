@@ -178,7 +178,7 @@ window.BH = window.BH || {};
 
     const playersHtml = r.player_list.length ? '<ul class="plist stagger">' + r.player_list.map((u) => {
       const lines = byUser[u.id] || [];
-      return '<li><button type="button" class="prow ripple" data-act="roomPlayer" data-id="' + u.id + '" data-room="' + r.id + '">' +
+      return '<li><button type="button" class="prow ripple' + (u.plate ? ' has-pl' : '') + '" data-act="roomPlayer" data-id="' + u.id + '" data-room="' + r.id + '">' + U.plate(u) +
         (res ? '<span class="medal m-' + (u.placement === 1 ? 'gold' : u.placement === 2 ? 'silver' : u.placement === 3 ? 'bronze' : 'slate') + '">' + (u.placement ? u.placement + 'º' : '–') + '</span>' : '') +
         U.av(u, 'sm') + '<div class="grow"><span class="prow-name">' + U.nick(u, { level: true }) + (r.king && r.king.id === u.id ? '<span class="tag tone-gold">' + I('crown') + 'Rei</span>' : '') + (u.line ? '<span class="tag tone-violet">' + esc(u.line.name) + '</span>' : '') + '</span>' +
         '<small>' + (u.ff_nick ? esc(u.ff_nick) : '') + (u.ff_id ? ' · ID ' + esc(u.ff_id) : '') + (res ? ' · ' + U.plural(u.kills, 'abate', 'abates') + (u.survival_min ? ' · ' + u.survival_min + ' min' : '') : '') + '</small></div>' +

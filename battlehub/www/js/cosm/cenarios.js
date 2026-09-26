@@ -9,7 +9,7 @@
 (function () {
   const C = BH.cosm;
   const f = (n) => Math.round(n * 10) / 10;
-  const SIZE = { banner: [480, 180], capa: [400, 240], fundo: [360, 720] };
+  const SIZE = { banner: [480, 180], capa: [400, 240], fundo: [360, 720], placa: [320, 56] };
   const lite = () => document.documentElement.classList.contains('bh-lite');
 
   /* ---------------- ajudantes de desenho ---------------- */
@@ -81,7 +81,7 @@
 
   /* ---------------- partículas (HTML: só transform e opacity) ----------------
      tipos: neve, chuva, brasa, petala, folha, estrela, bokeh, bolha, faisca, vagalume, pacote, carro, passaro, cinza, poeira, fogo-fatuo */
-  const PMAX = { banner: 1, capa: 1.1, fundo: 1.3, deco: 1 };
+  const PMAX = { banner: 1, capa: 1.1, fundo: 1.3, deco: 1, placa: .45 };
   function particles(list, k) {
     if (!list || !list.length) return '';
     const r = C.rng('pt' + k.u), mul = (PMAX[k.kind] || 1) * (k.lite ? .5 : 1);

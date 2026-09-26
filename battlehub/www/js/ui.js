@@ -54,6 +54,12 @@ window.BH = window.BH || {};
   /* ---------- jogadores ---------- */
   function hash(str) { let h = 2166136261; for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
   const GRADS = [['#7a5410', '#f3d27a'], ['#b91c1c', '#fb923c'], ['#0e7490', '#67e8f9'], ['#3f3a33', '#bdb2a0'], ['#15803d', '#86efac'], ['#be185d', '#f9a8d4'], ['#1d4ed8', '#93c5fd']];
+  // placa de identificação atrás do nome (listas): parada nas listas para não pesar; viva só onde pedir
+  U.plate = function (u, live) {
+    const cz = BH.cosm, d = u && u.plate;
+    if (!d || !d.art || !cz || !cz.has('placa', d.art)) return '';
+    return '<span class="pl-slot" aria-hidden="true">' + cz.draw('placa', d, u.plate_v, { still: !live }) + '</span>';
+  };
   U.av = function (u, size, extra) {
     const s = size || 'md';
     if (!u) return '<span class="av av-' + s + ' av-anon' + (extra ? ' ' + extra : '') + '">' + I('user') + '</span>';

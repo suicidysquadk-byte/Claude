@@ -52,7 +52,7 @@
     const kc = D('chaveiro', look.chaveiro, { still, user: u });
     const kcW = look.chaveiro && look.chaveiro.data && look.chaveiro.data.peso ? look.chaveiro.data.peso : 1;
     const bn = bannerHtml(look.banner, u.id, still);
-    return '<div class="cz-stage cz-dc cz-' + (opts.size || 'lg') + (still ? ' still' : '') + (kc ? ' has-kc' : '') + (ok('pet', look.pet) ? ' has-pet' : '') + (bn ? '' : ' no-bn') + (opts.play && !still ? ' cz-play' : '') + (themeP ? ' has-tema' : '') + (capa ? ' has-capa' : '') + '"' +
+    return '<div class="cz-stage cz-dc cz-' + (opts.size || 'lg') + (still ? ' still' : '') + (kc ? ' has-kc' : '') + (ok('perfil', look.perfil) ? ' has-pf' : '') + (ok('pet', look.pet) ? ' has-pet' : '') + (bn ? '' : ' no-bn') + (opts.play && !still ? ' cz-play' : '') + (themeP ? ' has-tema' : '') + (capa ? ' has-capa' : '') + '"' +
       (themeP ? ' style="' + C.themeVars(themeP) + '"' : '') + (opts.id ? ' id="' + esc(opts.id) + '"' : '') + '>' +
       (ok('fundo', look.fundo) ? '<div class="cz-tema cz-fundo">' + D('fundo', look.fundo, { still, size: [400, 320] }) + '</div>'
         : look.fundo && look.fundo.data && look.fundo.data.fx && BH.cos && BH.cos.fx ? '<div class="cz-tema cz-fundo">' + BH.cos.fx(look.fundo.data.fx, u.id) + '</div>' : '') +
@@ -69,6 +69,8 @@
       (ok('entrada', ent) && !still && opts.play ? '<div class="cz-ent">' + C.draw('entrada', ent.data, ent.v, {}) + '</div>' : '') +
       (ok('efeito', ef) && !still ? '<div class="cz-ef">' + (opts.play ? C.draw('efeito', ef.data, ef.v, { seed: u.id }) : '') + '</div>' +
         '<button type="button" class="cz-replay" data-act="czReplay" aria-label="Ver o efeito de novo">✦</button>' : '') +
+      // moldura de perfil: contorno do cartão inteiro (desenhada no tamanho real ao montar)
+      (ok('perfil', look.perfil) ? '<div class="cz-pf">' + C.draw('perfil', look.perfil.data, look.perfil.v, { still }) + '</div>' : '') +
       (opts.edit || '') + '</div>';
   }
 
@@ -92,6 +94,8 @@
       case 'fundo': return '<div class="th th-fundo">' + (ok('fundo', e) ? D('fundo', e, o) : (BH.cos && BH.cos.fx ? BH.cos.fx(d.fx, it.id) : '')) + '</div>';
       case 'moldura': return '<div class="th th-fr">' + BH.ui.av({ id: (u && u.id) || 'x', nick: (u && u.nick) || '?', avatar_url: u && u.avatar_url, frame: d, frame_v: v }, 'md', 'still') + '</div>';
       case 'pet': return '<div class="th th-pet">' + D('pet', e, o) + '</div>';
+      case 'placa': return '<div class="th th-placa"><span class="th-plrow">' + D('placa', e, o) + PH(u).replace('av-lg', 'av-sm') + '<b>' + esc((u && u.nick) || 'Nick') + '</b></span></div>';
+      case 'perfil': return '<div class="th th-perfil"><span class="th-card"><i></i>' + D('perfil', e, o) + '</span></div>';
       case 'chaveiro': return '<div class="th th-kc">' + D('chaveiro', e, o) + '</div>';
       case 'chapeu': return '<div class="th th-hat"><div class="cz-av">' + PH(u) + '<div class="cz-hat">' + D('chapeu', e, o) + '</div></div></div>';
       case 'acessorio':
@@ -159,6 +163,7 @@
       if (st.classList.contains('cz-play')) setTimeout(() => st.classList.add('cz-played'), C.EFFECT_MS || 2600);
     });
     prune();
+    if (C.drawFrames) C.drawFrames(root);
     // tela pesada: confere se o celular aguenta (no automático liga o modo leve se travar)
     if (BH.anim && BH.anim.guard) BH.anim.guard();
   }
