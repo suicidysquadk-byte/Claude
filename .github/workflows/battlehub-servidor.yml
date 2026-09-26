@@ -61,16 +61,12 @@ jobs:
           EFI_WEBHOOK_TOKEN: ${{ secrets.EFI_WEBHOOK_TOKEN }}
         run: |
           umask 077
+          # cada valor entre aspas simples: chaves com $ (como a do Asaas) não viram variável
+          q() { printf "%s='%s'\n" "$1" "$(printf '%s' "${!1}" | sed "s/'/'\\\\''/g")"; }
           {
-            echo "SUPABASE_ACCESS_TOKEN=$SUPABASE_ACCESS_TOKEN"
-            echo "SUPABASE_PROJECT_REF=$SUPABASE_PROJECT_REF"
-            [ -n "$MP_ACCESS_TOKEN" ] && echo "MP_ACCESS_TOKEN=$MP_ACCESS_TOKEN"
-            [ -n "$MP_WEBHOOK_SECRET" ] && echo "MP_WEBHOOK_SECRET=$MP_WEBHOOK_SECRET"
-            [ -n "$ASAAS_API_KEY" ] && echo "ASAAS_API_KEY=$ASAAS_API_KEY"
-            [ -n "$ASAAS_ENV" ] && echo "ASAAS_ENV=$ASAAS_ENV"
-            [ -n "$ASAAS_WEBHOOK_TOKEN" ] && echo "ASAAS_WEBHOOK_TOKEN=$ASAAS_WEBHOOK_TOKEN"
-            for v in EFI_CLIENT_ID EFI_CLIENT_SECRET EFI_PIX_KEY EFI_ENV EFI_CERT_P12 EFI_WEBHOOK_TOKEN; do
-              [ -n "${!v}" ] && echo "$v=${!v}"
+            for v in SUPABASE_ACCESS_TOKEN SUPABASE_PROJECT_REF MP_ACCESS_TOKEN MP_WEBHOOK_SECRET ASAAS_API_KEY ASAAS_ENV ASAAS_WEBHOOK_TOKEN \
+                     EFI_CLIENT_ID EFI_CLIENT_SECRET EFI_PIX_KEY EFI_ENV EFI_CERT_P12 EFI_WEBHOOK_TOKEN; do
+              [ -n "${!v}" ] && q "$v"
             done
             true
           } > "$RUNNER_TEMP/conexao.env"
