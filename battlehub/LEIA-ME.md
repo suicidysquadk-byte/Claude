@@ -168,8 +168,8 @@ www/                  o app (index.html, css/, js/, fonts/, vendor/)
 supabase/
   migrations/         banco: tabelas, regras de dinheiro, API, admin, fotos, competitivo, eventos, conta
   functions/          pix-criar e pix-webhook (Mercado Pago), convite (link de entrada para testador),
-                      push-enviar (notificação no celular pelo Firebase), asaas-saque, asaas-webhook e
-                      asaas-validar (gateway Asaas; a lógica fica em functions/_shared/asaas.ts)
+                      push-enviar (notificação no celular pelo Firebase), saque-enviar, asaas-webhook,
+                      asaas-validar e efi-webhook (gateways Asaas e Efí; lógica em functions/_shared/asaas.ts e efi.ts)
   tests/              testes das regras de dinheiro e da notificação, e servidor de teste para rodar o app sem internet
 scripts/cosmeticos/  gerar.js (gera o catálogo em supabase/migrations/…22_catalogo_personalizacao.sql)
                       e verificar.js (confere cada item e cada cor contra os desenhos)
@@ -233,8 +233,9 @@ for t in money competitivo push chat banidos organizador lines customizacao pers
   ./supabase/tests/reset.sh && node supabase/tests/$t.test.js
 done
 ./supabase/tests/reset.sh && node --experimental-strip-types supabase/tests/asaas.test.js
+./supabase/tests/reset.sh && node --experimental-strip-types supabase/tests/efi.test.js
 node scripts/cosmeticos/verificar.js
-# asaas 52 · money 211 · competitivo 400 · push 39 · chat 66 · banidos 47 · organizador 16 · lines 50 · customizacao 22
+# asaas 52 · efi 34 · money 211 · competitivo 400 · push 39 · chat 66 · banidos 47 · organizador 16 · lines 50 · customizacao 22
 # personalizacao 66 · desenhos 1085
 ```
 

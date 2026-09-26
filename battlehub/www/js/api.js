@@ -185,11 +185,11 @@ window.BH = window.BH || {};
 
   // envia pelo Asaas um saque que está "processando" (saque automático ou botão do painel)
   api.sendWithdrawal = async function (id) {
-    const { data, error } = await sb.functions.invoke('asaas-saque', { body: { id } });
+    const { data, error } = await sb.functions.invoke('saque-enviar', { body: { id } });
     if (!error) return data;
     let body = null;
     try { body = error.context && typeof error.context.json === 'function' ? await error.context.json() : null; } catch (e) { body = null; }
-    throw fail(body && body.error ? (body.error === 'asaas_nao_configurado' ? 'O Asaas ainda não foi ligado no servidor.' : body.error) : error);
+    throw fail(body && body.error ? ({ asaas_nao_configurado: 'O Asaas ainda não foi ligado no servidor.', efi_nao_configurado: 'O Efí ainda não foi ligado no servidor.' }[body.error] || body.error) : error);
   };
 
   // identificador do aparelho (bloqueio de quem foi banido por trapaça). No navegador, um código salvo no aparelho.

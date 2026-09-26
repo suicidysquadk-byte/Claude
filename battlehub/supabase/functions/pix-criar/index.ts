@@ -3,6 +3,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { cors, env, json, mpDate, serviceDeps } from '../_shared/util.ts';
 import { AsaasError, createDeposit } from '../_shared/asaas.ts';
+import * as efi from '../_shared/efi.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
@@ -11,7 +12,9 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}));
     const hdr = { global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } } };
     const info = await createClient(url, env('SUPABASE_ANON_KEY'), hdr).rpc('my_payment_info');
-    if (info.data?.deposit_provider === 'asaas' && Deno.env.get('ASAAS_API_KEY')) {
+    const gw = info.data?.deposit_provider;
+    const efiDeps = { env: (n: string) => Deno.env.get(n), rpc: async () => null };
+    if ((gw === 'asaas' && Deno.env.get('ASAAS_API_KEY')) || (gw === 'efi' && efi.efiReady(efiDeps))) {
       const { data: auth } = await createClient(url, env('SUPABASE_ANON_KEY'), hdr).auth.getUser();
       if (!auth?.user) return json({ error: 'Entre na sua conta para continuar.' }, 401);
       const cents = Math.round(Number(body.amount_cents));
@@ -20,9 +23,10 @@ Deno.serve(async (req) => {
         return json({ error: `O depósito vai de R$ ${(lim.min_deposit_cents / 100).toFixed(2).replace('.', ',')} a R$ ${(lim.max_deposit_cents / 100).toFixed(2).replace('.', ',')}.` }, 400);
       }
       try {
-        return json(await createDeposit(serviceDeps(createClient(url, env('SUPABASE_SERVICE_ROLE_KEY'))), auth.user.id, cents, body.cpf || undefined));
+        const d = serviceDeps(createClient(url, env('SUPABASE_SERVICE_ROLE_KEY')));
+        return json(gw === 'efi' ? await efi.createDeposit(d, auth.user.id, cents, body.cpf || undefined) : await createDeposit(d, auth.user.id, cents, body.cpf || undefined));
       } catch (e) {
-        return json({ error: e instanceof Error ? e.message : String(e) }, e instanceof AsaasError ? e.status : 400);
+        return json({ error: e instanceof Error ? e.message : String(e) }, e instanceof AsaasError || e instanceof efi.EfiError ? e.status : 400);
       }
     }
 

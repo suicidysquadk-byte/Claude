@@ -14,7 +14,8 @@
   coleções com recompensa exclusiva, combinações salvas e eventos de temporada (mais de 500 itens novos).
 - **Servidor atualizado** (banco e funções) pelo GitHub, com o secret `SUPABASE_ACCESS_TOKEN`. Toda atualização
   nova do banco é publicada sozinha quando eu envio. Pode instalar o APK mais novo.
-- A versão **2.8.0** liga o **Asaas** (depósito e saque automático). Falta criar a conta e os secrets: passo **3.2**.
+- A versão **2.8.0** liga o **Asaas** e a **2.9.0** o **Efí Bank** (os dois recebem e pagam Pix sozinhos). Falta criar
+  as contas e os secrets: passos **3.2** e **3.3**.
 
 O que falta são contas nos serviços, que só você pode criar (ficam no seu nome e no seu CPF/CNPJ). Faça **na
 ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu conecto.
@@ -26,7 +27,7 @@ ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu c
 
 ## Mandar para alguém testar
 
-1. Mande o arquivo **BattleHub-2.8.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
+1. Mande o arquivo **BattleHub-2.9.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
 2. Ela instala, digita o e-mail no app e entra com o **código de 6 dígitos** que chega do battlehubofc@gmail.com.
 
 Se o e-mail dela demorar ou cair no spam, use o **convite**:
@@ -152,6 +153,35 @@ de **Saques** do painel, com o botão **Pagar pelo Asaas**. Detalhes e custos em
 produção e troque no GitHub: `ASAAS_API_KEY` = chave de produção e `ASAAS_ENV` = `producao`. Refaça os passos 6 e 7
 na conta de produção e me avise.
 
+## 3.3 Efí Bank: segundo gateway, também recebe e paga sozinho · 30 min (integração pronta)
+
+O Efí (antigo Gerencianet) faz o mesmo que o Asaas e ainda **confere se a chave Pix do saque é do CPF do jogador**:
+se for de outra pessoa, o Pix não sai e o saque volta para a fila. No painel você escolhe qual gateway gera o
+depósito (Mercado Pago, Asaas ou Efí) e qual paga os saques (Asaas ou Efí). Dá para ter os dois ligados.
+
+**Comece pela homologação (teste):**
+1. Abra a conta no **Efí Bank** (app ou site efipay.com.br). Para receber e pagar Pix pela API precisa ser conta
+   **PJ** com a **API Pix** liberada.
+2. No site do Efí, vá em **API → Aplicações → Nova aplicação** e marque os escopos de **API Pix**: cobranças,
+   webhooks e **Envio de Pix** (e, se aparecer, "Consultar Pix enviado").
+3. Na aplicação, copie o **Client ID** e o **Client Secret** de **Homologação**.
+4. Em **API → Meus certificados**, gere um certificado de **Homologação** e baixe o arquivo **.p12**.
+5. No app BattleHub: **Painel → Configurações → Gateway de pagamento → Certificado do Efí**, escolha o arquivo .p12
+   e toque em **Copiar texto**. A conversão acontece só no seu celular.
+6. Tenha uma **chave Pix** cadastrada na conta Efí (e-mail ou aleatória): ela recebe os depósitos e paga os saques.
+7. Invente uma **senha longa** (32 letras e números ou mais) para os avisos do Efí.
+8. No GitHub (**Settings → Secrets and variables → Actions → New repository secret**), crie:
+   - `EFI_CLIENT_ID` e `EFI_CLIENT_SECRET` (passo 3)
+   - `EFI_PIX_KEY` = a chave Pix do passo 6
+   - `EFI_ENV` = `homologacao`
+   - `EFI_CERT_P12` = o texto copiado no passo 5
+   - `EFI_WEBHOOK_TOKEN` = a senha do passo 7
+9. **Me avise.** Eu publico; a publicação já cadastra sozinha o aviso de Pix no Efí.
+10. No painel do app, em **Configurações → Gateway de pagamento**, escolha **Efí Bank** no depósito e/ou no saque.
+
+**Depois dos testes:** gere Client ID, Client Secret e certificado de **Produção**, troque os três secrets e mude
+`EFI_ENV` para `producao`. Me avise para publicar de novo.
+
 ## 4. Pagamento automático (Pix): Mercado Pago · 20 min (comece por aqui)
 
 O app já está pronto para o Mercado Pago:
@@ -186,7 +216,7 @@ mandam Pix pela API. Me avise que eu integro.
 
 ## 5. Configurar a plataforma no app · 5 min
 
-1. Instale o **BattleHub-2.8.0.apk** no seu celular (por cima do anterior, sem desinstalar).
+1. Instale o **BattleHub-2.9.0.apk** no seu celular (por cima do anterior, sem desinstalar).
 2. Painel admin → *Configurações*:
    - Coloque a **chave Pix da plataforma**, o nome e a cidade (usados no Pix manual).
    - Confira a **parte da plataforma**: padrão 10% da arrecadação das salas dos organizadores.
@@ -254,7 +284,7 @@ Vídeos pelo app vão até **50 MB** (limite do plano grátis do Supabase). No p
    - Idioma: português (Brasil).
    - Tipo: jogo.
    - Grátis.
-4. Envie o arquivo **`BattleHub-2.8.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
+4. Envie o arquivo **`BattleHub-2.9.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
 5. Preencha a ficha com os textos de `loja/descricao.md` e as imagens da pasta `loja/` (ícone, destaque e as 8
    telas novas em preto e dourado).
 6. Preencha os formulários:
@@ -299,3 +329,4 @@ Vídeos pelo app vão até **50 MB** (limite do plano grátis do Supabase). No p
 | 2.6.0 / 2.7.0 | **Access Token do Supabase** (recebido; falta liberar `api.supabase.com` na rede do ambiente) |
 | 3.1 | `google-services.json` e a chave da conta de serviço do Firebase |
 | 3.2 | Secrets `ASAAS_API_KEY`, `ASAAS_ENV` e `ASAAS_WEBHOOK_TOKEN` no GitHub (não mande aqui) |
+| 3.3 | Secrets `EFI_CLIENT_ID`, `EFI_CLIENT_SECRET`, `EFI_PIX_KEY`, `EFI_ENV`, `EFI_CERT_P12` e `EFI_WEBHOOK_TOKEN` no GitHub |

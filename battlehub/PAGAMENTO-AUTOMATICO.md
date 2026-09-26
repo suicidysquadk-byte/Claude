@@ -72,9 +72,10 @@ A opção **"Receber prêmio direto no Pix"** no perfil faria o saque automátic
 
 ## O que você precisa fazer
 
-A integração com o Asaas já está pronta (versão 2.8.0): depósito, saque automático com os limites acima, validação de
-cada transferência pelo nosso servidor e o botão **Pagar pelo Asaas** no painel. O passo a passo para ligar está em
-[`O-QUE-VOCE-PRECISA-FAZER.md`](O-QUE-VOCE-PRECISA-FAZER.md), item **3.2**. A opção "receber prêmio direto no Pix"
+As integrações com o **Asaas** (versão 2.8.0) e com o **Efí Bank** (versão 2.9.0) já estão prontas. No painel, você
+escolhe qual gera o Pix de depósito e qual paga os saques; o Efí ainda confere se a chave é do CPF do jogador. A integração com o Asaas tem: depósito, saque automático com os limites acima, validação de
+cada transferência pelo nosso servidor e o botão **Pagar pelo gateway** no painel. O passo a passo para ligar está em
+[`O-QUE-VOCE-PRECISA-FAZER.md`](O-QUE-VOCE-PRECISA-FAZER.md), itens **3.2** (Asaas) e **3.3** (Efí). A opção "receber prêmio direto no Pix"
 fica para depois dos testes no sandbox.
 
 ## Fontes

@@ -29,9 +29,10 @@ $SB functions deploy pix-criar --project-ref "$REF" --use-api
 $SB functions deploy pix-webhook --project-ref "$REF" --no-verify-jwt --use-api
 $SB functions deploy convite --project-ref "$REF" --use-api
 $SB functions deploy push-enviar --project-ref "$REF" --no-verify-jwt --use-api
-$SB functions deploy asaas-saque --project-ref "$REF" --use-api
+$SB functions deploy saque-enviar --project-ref "$REF" --use-api
 $SB functions deploy asaas-webhook --project-ref "$REF" --no-verify-jwt --use-api
 $SB functions deploy asaas-validar --project-ref "$REF" --no-verify-jwt --use-api
+$SB functions deploy efi-webhook --project-ref "$REF" --no-verify-jwt --use-api
 
 echo "4/7 Guardando as chaves do Mercado Pago"
 if [ -n "${MP_ACCESS_TOKEN:-}" ]; then
@@ -51,6 +52,31 @@ if [ -n "${ASAAS_API_KEY:-}" ]; then
   echo "   Nos dois, o token de autenticação é o mesmo ASAAS_WEBHOOK_TOKEN."
 else
   echo "   Sem ASAAS_API_KEY: depósito e saque seguem pelo Mercado Pago e pela fila manual."
+fi
+
+echo "4c/7 Guardando as chaves do Efí Bank"
+if [ -n "${EFI_CLIENT_ID:-}" ]; then
+  for v in EFI_CLIENT_SECRET EFI_PIX_KEY EFI_CERT_P12 EFI_WEBHOOK_TOKEN; do [ -n "${!v:-}" ] || { echo "   Falta $v."; exit 1; }; done
+  # certificado .p12 (em base64) → certificado e chave PEM, guardados em base64
+  TMPD=$(mktemp -d); umask 077
+  echo "$EFI_CERT_P12" | base64 -d > "$TMPD/c.p12"
+  openssl pkcs12 -in "$TMPD/c.p12" -clcerts -nokeys -passin pass:"${EFI_CERT_PASS:-}" -legacy -out "$TMPD/cert.pem" 2>/dev/null \
+    || openssl pkcs12 -in "$TMPD/c.p12" -clcerts -nokeys -passin pass:"${EFI_CERT_PASS:-}" -out "$TMPD/cert.pem"
+  openssl pkcs12 -in "$TMPD/c.p12" -nocerts -nodes -passin pass:"${EFI_CERT_PASS:-}" -legacy -out "$TMPD/key.pem" 2>/dev/null \
+    || openssl pkcs12 -in "$TMPD/c.p12" -nocerts -nodes -passin pass:"${EFI_CERT_PASS:-}" -out "$TMPD/key.pem"
+  grep -q "BEGIN CERTIFICATE" "$TMPD/cert.pem" && grep -q "PRIVATE KEY" "$TMPD/key.pem" || { echo "   O certificado do Efí não abriu. Confira o EFI_CERT_P12."; rm -rf "$TMPD"; exit 1; }
+  $SB secrets set --project-ref "$REF" "EFI_CLIENT_ID=$EFI_CLIENT_ID" "EFI_CLIENT_SECRET=$EFI_CLIENT_SECRET" "EFI_PIX_KEY=$EFI_PIX_KEY" \
+    "EFI_ENV=${EFI_ENV:-homologacao}" "EFI_WEBHOOK_TOKEN=$EFI_WEBHOOK_TOKEN" "EFI_CERT=$(base64 -w0 "$TMPD/cert.pem")" "EFI_KEY=$(base64 -w0 "$TMPD/key.pem")" > /dev/null
+  rm -rf "$TMPD"
+  echo "   Ambiente: ${EFI_ENV:-homologacao}. Cadastrando o aviso de Pix no Efí..."
+  sleep 5
+  if curl -fsS -X POST "$URL/functions/v1/efi-webhook?registrar=1&t=$(python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1]))' "$EFI_WEBHOOK_TOKEN")" > /dev/null; then
+    echo "   Aviso cadastrado: $URL/functions/v1/efi-webhook"
+  else
+    echo "   Não consegui cadastrar o aviso agora. Rode a publicação de novo em alguns minutos."
+  fi
+else
+  echo "   Sem EFI_CLIENT_ID: o Efí fica desligado."
 fi
 
 echo "5/7 Ligando a notificação no celular (Firebase)"
