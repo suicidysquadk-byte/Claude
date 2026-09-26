@@ -257,7 +257,7 @@ window.BH = window.BH || {};
       title: 'Loja', size: 'lg',
       body: async () => {
         const s = await api.rpc('shop');
-        const RK = { simples: 0, comum: 1, raro: 2, epico: 3, mitico: 4, lendario: 5 };
+        const RK = { comum: 0, incomum: 1, raro: 2, epico: 3, lendario: 4, mitico: 5, limitado: 5.5, exclusivo: 6 };
         const items = s.items.filter((i) => i.kind === st.shopTab && i.price_cents != null).sort((a, b) => (RK[b.rarity] || 0) - (RK[a.rarity] || 0) || b.price_cents - a.price_cents);
         return '<div class="pix-amount"><small>Seu saldo</small><b>' + U.cents(api.me.balance_cents) + '</b></div>' + shopTabs(st.shopTab) +
           (st.shopTab === 'prioridade' ? '<p class="note-gold">' + I('zap') + '<span>Quando uma sala lota, você passa na frente da fila de espera. Se abrir vaga, é sua primeiro.</span></p>' : '') +

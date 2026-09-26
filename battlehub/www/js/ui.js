@@ -58,13 +58,20 @@ window.BH = window.BH || {};
     const s = size || 'md';
     if (!u) return '<span class="av av-' + s + ' av-anon' + (extra ? ' ' + extra : '') + '">' + I('user') + '</span>';
     const frame = u.frame || null;
+    const small = s === 'xs' || s === 'sm', still = small || /(^| )still( |$)/.test(extra || '');
+    const cz = BH.cosm;
     let ring = '', style = '', fr = '';
     // moldura desenhada (SVG) a partir do tamanho médio; em listas pequenas fica só o aro colorido, mais leve
-    if (frame && frame.fr && BH.cos && BH.cos.frame && !(s === 'xs' || s === 'sm')) fr = BH.cos.frame(frame.fr, /(^| )still( |$)/.test(extra || ''));
+    if (frame && frame.art && cz && cz.has('moldura', frame.art)) {
+      if (!small) fr = cz.draw('moldura', frame, u.frame_v, { still });
+      else { ring = ' ring-color'; style = '--ring:' + cz.palOf(frame, u.frame_v).g + ';'; }
+    } else if (frame && frame.fr && BH.cos && BH.cos.frame && !small) fr = BH.cos.frame(frame.fr, still);
     else if (frame && frame.ring) { ring = frame.ring === 'conic' ? ' ring-conic' : ' ring-color'; style = frame.ring === 'conic' ? '' : '--ring:' + frame.ring + ';'; if (frame.glow) ring += ' ring-glow'; }
     const acc = (u.accessory && BH.cos ? BH.cos.acc(u.accessory) : '') + fr;
     const cls = 'av av-' + s + ring + (acc ? ' has-acc' : '') + (fr ? ' has-fr' : '') + (extra ? ' ' + extra : '');
     if (!u.id && u.anonymous) return '<span class="' + cls + ' av-anon" role="img" aria-label="Jogador anônimo">' + I('user') + '</span>';
+    // avatar desenhado da Personalização (vivo no perfil, parado em listas)
+    if (u.av_art && u.av_art.art && cz && cz.has('avatar', u.av_art.art)) return '<span class="' + cls + ' av-drawn" style="' + style + '" role="img" aria-label="' + U.esc(u.nick || 'Jogador') + '"><span class="av-photo">' + cz.draw('avatar', u.av_art, u.av_v, { still }) + '</span>' + acc + '</span>';
     // a foto fica dentro de um círculo próprio que corta o que sobra (foto vertical, foto grande)
     if (u.avatar_url) return '<span class="' + cls + '" style="' + style + '"><span class="av-photo"><img src="' + U.esc(u.avatar_url) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>' + acc + '</span>';
     const g = GRADS[hash(String(u.id || u.nick || '?')) % GRADS.length];
@@ -104,8 +111,8 @@ window.BH = window.BH || {};
       (opts.tag && u.guild_tag ? '<span class="gtag">' + U.esc(u.guild_tag) + '</span>' : '');
   };
   U.title = (u) => (u && u.title ? '<span class="ptitle' + (u.title_fx ? ' t-' + U.esc(u.title_fx) : '') + '">' + U.esc(u.title) + '</span>' : '');
-  // raridade no padrão do Free Fire
-  U.RARITY = { simples: 'Simples', comum: 'Comum', raro: 'Raro', epico: 'Épico', mitico: 'Mítico', lendario: 'Lendário' };
+  // raridade: Comum (cinza), Incomum (verde), Raro (azul), Épico (roxo), Lendário (dourado), Mítico (vermelho), Exclusivo e Limitado
+  U.RARITY = { comum: 'Comum', incomum: 'Incomum', raro: 'Raro', epico: 'Épico', lendario: 'Lendário', mitico: 'Mítico', exclusivo: 'Exclusivo', limitado: 'Limitado' };
   U.rarity = (r) => (r && U.RARITY[r] ? '<span class="rar rar-' + r + '">' + U.RARITY[r] + '</span>' : '');
   U.role = function (role) {
     if (!role || role === 'jogador') return '';

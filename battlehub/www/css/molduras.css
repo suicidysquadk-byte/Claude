@@ -27,12 +27,15 @@
 .fr.still *, .shop-pv .fr *, .look-pick .fr * { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { .fr * { animation: none !important; } }
 
-/* raridade (cores do Free Fire: verde comum, azul raro, roxo épico, amarelo mítico, vermelho lendário) */
+/* raridade: Comum cinza, Incomum verde, Raro azul, Épico roxo, Lendário dourado, Mítico vermelho, Exclusivo (efeito especial), Limitado (evento) */
 .rar { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font: 700 10px/1.5 var(--display); letter-spacing: .1em; text-transform: uppercase; color: var(--rc); background: color-mix(in srgb, var(--rc) 14%, transparent); border: 1px solid color-mix(in srgb, var(--rc) 45%, transparent); }
-.rar-simples { --rc: #d4d4d8; } .rar-comum { --rc: #4ade80; } .rar-raro { --rc: #60a5fa; } .rar-epico { --rc: #c084fc; } .rar-mitico { --rc: #facc15; } .rar-lendario { --rc: #f87171; }
+.rar-comum { --rc: #9ca3af; } .rar-incomum { --rc: #4ade80; } .rar-raro { --rc: #60a5fa; } .rar-epico { --rc: #c084fc; } .rar-lendario { --rc: #facc15; } .rar-mitico { --rc: #f87171; } .rar-limitado { --rc: #22d3ee; }
+.rar-exclusivo { --rc: #f0abfc; color: #fff; border-color: transparent; background: linear-gradient(90deg, #ff2975, #8b5cf6, #22d3ee, #ff2975) 0 0 / 200% 100%; animation: t-slide 4s linear infinite; text-shadow: 0 1px 2px rgba(0, 0, 0, .4); }
+.rar-limitado::before { content: '⏳'; font-size: 9px; }
 .shop-item.r-epico { box-shadow: inset 0 0 0 1px rgba(192, 132, 252, .35); }
-.shop-item.r-mitico { box-shadow: inset 0 0 0 1px rgba(250, 204, 21, .45), 0 0 18px rgba(250, 204, 21, .08); }
-.shop-item.r-lendario { box-shadow: inset 0 0 0 1px rgba(248, 113, 113, .55), 0 0 22px rgba(248, 113, 113, .12); }
+.shop-item.r-lendario { box-shadow: inset 0 0 0 1px rgba(250, 204, 21, .45), 0 0 18px rgba(250, 204, 21, .08); }
+.shop-item.r-mitico { box-shadow: inset 0 0 0 1px rgba(248, 113, 113, .55), 0 0 22px rgba(248, 113, 113, .12); }
+.shop-item.r-exclusivo { box-shadow: inset 0 0 0 1px rgba(240, 171, 252, .6), 0 0 22px rgba(139, 92, 246, .18); }
 
 /* títulos com estilo (dados "fx" do título) */
 .ptitle.t-prata { color: #e5e7eb; background: linear-gradient(90deg, rgba(229, 231, 235, .16), rgba(229, 231, 235, .03)); border-color: rgba(229, 231, 235, .35); }
