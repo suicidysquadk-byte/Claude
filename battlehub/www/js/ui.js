@@ -63,12 +63,12 @@ window.BH = window.BH || {};
     let ring = '', style = '', fr = '';
     // moldura desenhada (SVG) a partir do tamanho médio; em listas pequenas fica só o aro colorido, mais leve
     if (frame && frame.art && cz && cz.has('moldura', frame.art)) {
-      if (!small) fr = cz.draw('moldura', frame, u.frame_v, { still });
+      if (!small) { fr = cz.draw('moldura', frame, u.frame_v, { still }); if (!still) fr = cz.lift(fr); }
       else { ring = ' ring-color'; style = '--ring:' + cz.palOf(frame, u.frame_v).g + ';'; }
-    } else if (frame && frame.fr && BH.cos && BH.cos.frame && !small) fr = BH.cos.frame(frame.fr, still);
+    } else if (frame && frame.fr && BH.cos && BH.cos.frame && !small) { fr = BH.cos.frame(frame.fr, still); if (!still && cz && cz.lift) fr = cz.lift(fr); }
     else if (frame && frame.ring) { ring = frame.ring === 'conic' ? ' ring-conic' : ' ring-color'; style = frame.ring === 'conic' ? '' : '--ring:' + frame.ring + ';'; if (frame.glow) ring += ' ring-glow'; }
     const acc = (u.accessory && BH.cos ? BH.cos.acc(u.accessory) : '') + fr;
-    const cls = 'av av-' + s + ring + (acc ? ' has-acc' : '') + (fr ? ' has-fr' : '') + (extra ? ' ' + extra : '');
+    const cls = 'av av-' + s + ring + (acc ? ' has-acc' : '') + (fr ? ' has-fr' : '') + (fr && frame && /^dc-/.test(frame.art || '') ? ' has-dc' : '') + (extra ? ' ' + extra : '');
     if (!u.id && u.anonymous) return '<span class="' + cls + ' av-anon" role="img" aria-label="Jogador anônimo">' + I('user') + '</span>';
     // avatar desenhado da Personalização (vivo no perfil, parado em listas)
     if (u.av_art && u.av_art.art && cz && cz.has('avatar', u.av_art.art)) return '<span class="' + cls + ' av-drawn" style="' + style + '" role="img" aria-label="' + U.esc(u.nick || 'Jogador') + '"><span class="av-photo">' + cz.draw('avatar', u.av_art, u.av_v, { still }) + '</span>' + acc + '</span>';
@@ -95,6 +95,34 @@ window.BH = window.BH || {};
       return light;
     }
   };
+  /* ---------- animações: automático, completas ou leves ----------
+     Leve = menos partículas e enfeites parados (bom em celular fraco). No automático o app mede o FPS nas telas
+     pesadas (perfil e Personalização); se ficar travando, liga o modo leve sozinho e avisa. */
+  const ANIM_KEY = 'bh.anim', AUTO_KEY = 'bh.anim.auto';
+  const store = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { /* sem armazenamento */ } } };
+  const weak = () => (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) || (navigator.deviceMemory && navigator.deviceMemory <= 3);
+  BH.anim = {
+    get() { return store.get(ANIM_KEY) || 'auto'; },
+    lite() { const v = BH.anim.get(); return v === 'leve' || (v === 'auto' && (store.get(AUTO_KEY) === 'leve' || weak())); },
+    set(v) { store.set(ANIM_KEY, v); if (v !== 'auto') store.set(AUTO_KEY, null); BH.anim.apply(); },
+    apply() { document.documentElement.classList.toggle('bh-lite', BH.anim.lite()); },
+    // mede ~2,5 s de quadros; abaixo de 42 FPS (com a tela visível) liga o leve
+    guard() {
+      if (BH.anim.get() !== 'auto' || BH.anim.lite() || BH.anim._busy || document.hidden) return;
+      BH.anim._busy = true;
+      let n = 0, slow = 0, last = performance.now();
+      const t0 = last;
+      const tick = (t) => {
+        n++; if (t - last > 34) slow++; last = t;
+        if (t - t0 < 2500) return requestAnimationFrame(tick);
+        BH.anim._busy = false;
+        const fps = n * 1000 / (t - t0);
+        if (!document.hidden && (fps < 42 || slow > n * .25)) { store.set(AUTO_KEY, 'leve'); BH.anim.apply(); if (U.toast) U.toast('Modo leve ligado para o app ficar mais rápido. Dá para mudar em Perfil → Aparência.', 'info'); if (BH.app && BH.app.refresh) BH.app.refresh(); }
+      };
+      setTimeout(() => requestAnimationFrame(tick), 1200);
+    }
+  };
+  BH.anim.apply();
   if (media) {
     const follow = () => { if (BH.theme.get() === 'sistema') BH.theme.apply('sistema'); };
     if (media.addEventListener) media.addEventListener('change', follow); else if (media.addListener) media.addListener(follow);

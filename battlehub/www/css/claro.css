@@ -79,3 +79,7 @@
 :root[data-theme="light"] .hero-clock, :root[data-theme="light"] .t-hero .tile, :root[data-theme="light"] .t-count,
 :root[data-theme="light"] .room-money > div, :root[data-theme="light"] .room-hero .room-host, :root[data-theme="light"] .vault,
 :root[data-theme="light"] .ev-money div, :root[data-theme="light"] .at-actions { background: var(--surface-2); }
+.seg-pick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.seg-pick button { display: grid; gap: 4px; padding: 10px 8px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--text); font-weight: 700; font-size: 13.5px; text-align: center; }
+.seg-pick button.on { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(201, 162, 77, .18); }
+.seg-pick small { font-weight: 500; font-size: 11px; color: var(--muted); line-height: 1.25; }

@@ -7,7 +7,13 @@
   const SK = { l: ['#f6d2b4', '#dfae8a'], m: ['#d59b73', '#b0774f'], e: ['#9a6446', '#744630'], p: ['#eae6f0', '#c7c0d4'], g: ['#9be58a', '#5fae52'] };
   const O = (c, w) => ' stroke="' + c + '" stroke-width="' + (w || 1.2) + '" stroke-linejoin="round"';
   const bgd = (u, top, bot) => '<radialGradient id="' + u + 'bg" cx="50%" cy="32%" r="75%"><stop offset="0" stop-color="' + top + '"/><stop offset="1" stop-color="' + bot + '"/></radialGradient>';
-  const base = (u, P, inner, top) => '<defs>' + bgd(u, top || P.a, P.d) + lin(u + 'cl', [[0, P.b], [1, P.a]], 0, 1) + lin(u + 'dk', [[0, P.a], [1, P.d]], 0, 1) + '</defs><rect width="100" height="100" fill="url(#' + u + 'bg)"/>' + inner;
+  // luz de estúdio: auréola atrás da cabeça, sombra nas bordas (parece um disco) e um brilho em cima
+  const base = (u, P, inner, top) => '<defs>' + bgd(u, top || P.a, P.d) + lin(u + 'cl', [[0, P.b], [1, P.a]], 0, 1) + lin(u + 'dk', [[0, P.a], [1, P.d]], 0, 1) +
+    '<radialGradient id="' + u + 'hl" cx="50%" cy="40%" r="42%"><stop offset="0" stop-color="' + P.c + '" stop-opacity=".55"/><stop offset="1" stop-color="' + P.c + '" stop-opacity="0"/></radialGradient>' +
+    '<radialGradient id="' + u + 'ed" cx="50%" cy="46%" r="54%"><stop offset=".72" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient>' +
+    '<linearGradient id="' + u + 'gl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".45" stop-color="#fff" stop-opacity="0"/></linearGradient>' +
+    '</defs><rect width="100" height="100" fill="url(#' + u + 'bg)"/><circle cx="50" cy="40" r="42" fill="url(#' + u + 'hl)"/>' + inner +
+    '<rect width="100" height="100" fill="url(#' + u + 'ed)" pointer-events="none"/><ellipse cx="50" cy="18" rx="38" ry="20" fill="url(#' + u + 'gl)" pointer-events="none"/>';
   const breathe = (inner) => '<g class="ab-breathe" style="transform-origin:50px 100px">' + inner + '</g>';
   const body = (fill, line) => '<path d="M6 104C8 82 26 72 50 72C74 72 92 82 94 104Z" fill="' + fill + '"' + O(line || '#0006') + '/>';
   const neck = (s) => '<path d="M43 58H57V74C54 77 46 77 43 74Z" fill="' + s[1] + '"/>';

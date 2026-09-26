@@ -104,5 +104,35 @@ window.BH = window.BH || {};
     try { return fn(Object.assign({ P, d, u: uid(), still: false, seed: d.art }, opts || {})); } catch (e) { return ''; }
   }
 
-  BH.cosm = { PAL, RAR, pal, palOf, reg, register, has, draw, uid, R, pol, around, rng, lin, rad, svg };
+  /* ---------- desempenho: tira as partes que giram de dentro do SVG ----------
+     Um <g> girando dentro do SVG obriga o celular a redesenhar o SVG inteiro a cada quadro. Aqui cada grupo
+     "fr-spin" que gira em volta do centro vira um <svg> próprio, por cima, e quem gira é o <svg> (a placa de
+     vídeo move a camada pronta). Grupos com centro próprio (style="transform-origin...") ficam onde estão. */
+  function lift(svgStr) {
+    if (!svgStr || svgStr.indexOf('fr-spin') < 0) return svgStr;
+    const open = svgStr.match(/^<svg\b[^>]*>/);
+    if (!open) return svgStr;
+    const vb = (open[0].match(/viewBox="([^"]+)"/) || [])[1] || '0 0 200 200';
+    let body = svgStr.slice(open[0].length, svgStr.lastIndexOf('</svg>'));
+    const layers = [];
+    let i = 0;
+    while ((i = body.indexOf('<g class="fr-spin', i)) >= 0) {
+      const head = body.slice(i, body.indexOf('>', i) + 1);
+      if (/style=|transform=/.test(head)) { i += head.length; continue; }
+      // acha o </g> que fecha este grupo (contando os <g> de dentro)
+      let depth = 0, j = i, end = -1;
+      const re = /<g\b|<\/g>/g;
+      re.lastIndex = i;
+      let m;
+      while ((m = re.exec(body))) { if (m[0] === '</g>') { depth--; if (!depth) { end = m.index + 4; break; } } else depth++; }
+      if (end < 0) break;
+      const cls = (head.match(/class="([^"]+)"/) || [])[1] || 'fr-spin';
+      layers.push('<svg class="fr fr-lay ' + cls + '" viewBox="' + vb + '" aria-hidden="true" focusable="false">' + body.slice(i + head.length, end - 4) + '</svg>');
+      body = body.slice(0, i) + body.slice(end);
+      void j;
+    }
+    return layers.length ? open[0] + body + '</svg>' + layers.join('') : svgStr;
+  }
+
+  BH.cosm = { lift, PAL, RAR, pal, palOf, reg, register, has, draw, uid, R, pol, around, rng, lin, rad, svg };
 })();

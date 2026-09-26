@@ -325,7 +325,7 @@ async function conservation(label) {
   const sh = await must('loja nova', call(P[0], 'shop'));
   const items = sh ? sh.items : [];
   ok(items.filter((i) => i.kind === 'acessorio' && i.price_cents).length >= 10 && items.filter((i) => i.kind === 'fundo' && i.price_cents).length >= 8
-     && items.filter((i) => i.kind === 'banner' && i.data && i.data.anim).length >= 12, 'loja com acessórios, fundos e banners animados',
+     && items.filter((i) => i.kind === 'banner' && i.data && (i.data.anim || i.data.art)).length >= 12, 'loja com acessórios, fundos e banners animados',
      { a: items.filter((i) => i.kind === 'acessorio').length, f: items.filter((i) => i.kind === 'fundo').length });
   const bS = await bal(P[0]);
   await must('compra chapéu de palha', call(P[0], 'buy_item', { p_item: 'acc-palha' }));
@@ -336,7 +336,7 @@ async function conservation(label) {
   ok(meS && meS.equipped.accessory_key === 'palha' && meS.equipped.background_data.fx === 'sakura' && meS.equipped.banner_data.art === 'kitsune',
      'acessório, fundo e banner equipados', meS && meS.equipped);
   const pf = await must('perfil público', call(P[1], 'get_profile', { p_user: P[0] }));
-  ok(pf && pf.accessory === 'palha' && pf.background_data.fx === 'sakura' && pf.banner_data.anim === 'flames', 'outros veem o visual', pf && { a: pf.accessory, b: pf.banner_data });
+  ok(pf && pf.accessory === 'palha' && pf.background_data.fx === 'sakura' && pf.banner_data.art === 'kitsune', 'outros veem o visual', pf && { a: pf.accessory, b: pf.banner_data });
   await must('troca de acessório', call(P[0], 'buy_item', { p_item: 'acc-cartola' }));
   const pf2 = await call(P[1], 'get_profile', { p_user: P[0] });
   ok(pf2.accessory === 'cartola', 'um acessório por vez', pf2.accessory);

@@ -52,6 +52,8 @@ Conferência de 26/09/2026. **Já existia** = feito numa versão anterior (2.4.0
 | 20 | Estrutura para centenas de itens e eventos | **Feito agora** | Item novo = uma linha no banco. Eventos de temporada com datas (Primavera e Copa ativos agora; Halloween, Natal, Verão, Ano-Novo, Namorados, Inverno, Comunidade programados). |
 | 21 | Visual escuro premium | **Feito agora** | Cartões com brilho por raridade e borda animada no exclusivo. |
 | 22 | Variedade real | **Feito agora** | 505 itens novos (640 no total), cada desenho com forma e animação próprias. |
+| 23 | Personalização travando (FPS baixo) | **Feito (2.11.0)** | Miniaturas paradas (só o item escolhido anima); cenas em camadas que a placa de vídeo move sem redesenhar; brilhos sem filtro animado; **modo leve** automático quando o celular trava (Perfil → Aparência → Animações). Medido com a CPU 4x mais lenta: Fundos de 40 para 59 FPS, Banners de 49 para 60. |
+| 24 | Banners e avatares no nível do Discord | **Feito (2.11.0)** | 35 cenários ilustrados (dragão, fênix, samurai, kitsune, lobo, vulcão, realeza...), os 31 banners antigos de degradê viraram ilustração, vitrine no formato do cartão do Discord, 15 decorações de avatar com partes atrás e na frente da foto, 12 capas e 3 fundos novos. |
 
 ## O que ainda depende de você
 

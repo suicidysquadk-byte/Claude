@@ -275,7 +275,7 @@ window.BH = window.BH || {};
   actions.pzInfo = () => {
     const it = S.byId[S.sel]; if (!it) return;
     const parts = it.kind === 'bundle' ? (it.data.items || []).map((id) => S.byId[id]).filter(Boolean) : [];
-    U.sheet({ title: it.name, loading: false, body: '<div class="pz-detail"><div class="grid2">' + C().thumb(it, S.v, userCard(), S.byId) + '<div class="stack"><div>' + U.rarity(it.rarity) + '</div><p>' + esc(it.description) + '</p><small class="muted">' + esc(KIND_NAME[it.kind] || '') +
+    U.sheet({ title: it.name, loading: false, body: '<div class="pz-detail"><div class="grid2 sel">' + C().thumb(it, S.v, userCard(), S.byId) + '<div class="stack"><div>' + U.rarity(it.rarity) + '</div><p>' + esc(it.description) + '</p><small class="muted">' + esc(KIND_NAME[it.kind] || '') +
       (it.event_key ? ' · evento até ' + U.date(it.available_until).slice(0, 5) : '') + '</small></div></div>' +
       (it.owned || it.price_cents != null ? '' : '<p class="note-gold">' + I('info') + '<span>' + esc(howToGet(it)) + '</span></p>') +
       (parts.length ? '<h4 class="sub-h">No bundle (' + parts.length + ' peças)</h4><p class="muted small">Depois de obter, você pode equipar tudo ou só as partes que quiser.</p><div class="pz-parts">' +

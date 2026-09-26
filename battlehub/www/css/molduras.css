@@ -5,7 +5,7 @@
 .fr-spin.rev { animation-direction: reverse; }
 .fr-spin.slow { animation-duration: 24s; }
 .fr-spin.slower { animation-duration: 42s; }
-.fr-glow { filter: drop-shadow(0 0 4px var(--gc, #fff)); animation: fr-glow 2.4s ease-in-out infinite; }
+.fr-glow { animation: fr-glow 2.4s ease-in-out infinite; }
 .fr-blink { animation: fr-blink 1.6s ease-in-out var(--dl, 0s) infinite; }
 .fr-flick { transform-box: fill-box; transform-origin: 50% 100%; animation: fr-flick .9s ease-in-out var(--dl, 0s) infinite alternate; }
 .fr-zap { opacity: 0; animation: fr-zap 2.2s steps(1) var(--dl, 0s) infinite; }
@@ -15,7 +15,10 @@
 .fr-twinkle { transform-box: fill-box; transform-origin: center; animation: fr-twinkle 2.2s ease-in-out var(--dl, 0s) infinite; }
 .fr-ember { animation: fr-ember 2.8s ease-out var(--dl, 0s) infinite; }
 @keyframes fr-spin { to { transform: rotate(360deg); } }
-@keyframes fr-glow { 0%, 100% { filter: drop-shadow(0 0 2px var(--gc, #fff)); } 50% { filter: drop-shadow(0 0 7px var(--gc, #fff)); } }
+@keyframes fr-glow { 0%, 100% { opacity: .7; } 50% { opacity: 1; } }
+/* partes que giram tiradas do SVG (BH.cosm.lift): a camada inteira gira pela placa de vídeo */
+.av .fr.fr-lay { transform-origin: 50% 50%; will-change: transform; pointer-events: none; }
+.av .fr { contain: layout style; }
 @keyframes fr-blink { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
 @keyframes fr-flick { 0% { transform: scale(1, .82); opacity: .85; } 100% { transform: scale(.9, 1.12); opacity: 1; } }
 @keyframes fr-zap { 0%, 100% { opacity: 0; } 8% { opacity: 1; } 12% { opacity: .2; } 16% { opacity: 1; } 22% { opacity: 0; } }

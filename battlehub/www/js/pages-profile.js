@@ -323,10 +323,13 @@ window.BH = window.BH || {};
         const cur = BH.theme.get();
         const opt = (v, label, hint, sw) => '<button type="button" class="' + (cur === v ? 'on' : '') + '" data-act="themeSet" data-v="' + v + '" aria-pressed="' + (cur === v) + '"><span class="tp-sw ' + sw + '"><i></i><i></i><i></i></span>' + label + '<small>' + hint + '</small></button>';
         return '<div class="theme-pick">' + opt('sistema', 'Sistema', 'Igual ao celular', 'tp-sys') + opt('escuro', 'Preto', 'Sempre escuro', 'tp-dark') + opt('claro', 'Branco', 'Sempre claro', 'tp-light') + '</div>' +
-          '<p class="muted small">A coroa e o nome BattleHub ficam sempre em dourado.</p>';
+          '<p class="muted small">A coroa e o nome BattleHub ficam sempre em dourado.</p>' +
+          '<h4 class="sub-h">Animações</h4><div class="seg-pick">' + [['auto', 'Automático', 'Leve se o celular travar'], ['completa', 'Completas', 'Tudo se mexendo'], ['leve', 'Leves', 'Mais rápido, gasta menos bateria']].map((o) => '<button type="button" class="' + (BH.anim.get() === o[0] ? 'on' : '') + '" data-act="animSet" data-v="' + o[0] + '" aria-pressed="' + (BH.anim.get() === o[0]) + '">' + o[1] + '<small>' + o[2] + '</small></button>').join('') + '</div>' +
+          (BH.anim.get() === 'auto' && BH.anim.lite() ? '<p class="muted small">O modo leve está ligado neste celular.</p>' : '');
       }
     });
   };
+  actions.animSet = (el) => { BH.anim.set(el.dataset.v); const s = U.topSheet(); if (s) s.render('static'); app().refresh(); };
   // notificação no celular: liga, desliga ou explica como desbloquear nas configurações do Android
   actions.pushSheet = function () {
     U.sheet({

@@ -87,6 +87,9 @@ window.BH = window.BH || {};
   // classes e camadas de um banner: data = { bg, anim, art }
   function banner(d, cls, extraHtml, seed) {
     d = d || {};
+    // banners ilustrados novos (js/cosm/cenarios.js): mesmo contêiner, arte em camadas
+    const C = BH.cosm;
+    if (d.art && C && C.has && C.has('banner', d.art)) return '<div class="' + (cls || 'p-banner') + ' bn-sn">' + C.draw('banner', d, d.v || null, { seed }) + (extraHtml || '') + '</div>';
     const anim = d.anim && BANNER_FX[d.anim] ? d.anim : '';
     return '<div class="' + (cls || 'p-banner') + (anim ? ' bn bn-' + anim : '') + (d.art ? ' has-art' : '') + '" style="background:' + BH.ui.esc(d.bg || '') + '">' +
       (anim ? '<div class="bn-fx fx-' + (anim === 'lightning' ? 'storm' : anim) + '" aria-hidden="true">' + BANNER_FX[anim](seed || anim) + '</div>' : '') +

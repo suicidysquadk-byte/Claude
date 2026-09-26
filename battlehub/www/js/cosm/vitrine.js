@@ -52,19 +52,20 @@
     const kc = D('chaveiro', look.chaveiro, { still, user: u });
     const kcW = look.chaveiro && look.chaveiro.data && look.chaveiro.data.peso ? look.chaveiro.data.peso : 1;
     const bn = bannerHtml(look.banner, u.id, still);
-    return '<div class="cz-stage cz-' + (opts.size || 'lg') + (still ? ' still' : '') + (opts.play && !still ? ' cz-play' : '') + (themeP ? ' has-tema' : '') + (capa ? ' has-capa' : '') + '"' +
+    return '<div class="cz-stage cz-dc cz-' + (opts.size || 'lg') + (still ? ' still' : '') + (kc ? ' has-kc' : '') + (ok('pet', look.pet) ? ' has-pet' : '') + (bn ? '' : ' no-bn') + (opts.play && !still ? ' cz-play' : '') + (themeP ? ' has-tema' : '') + (capa ? ' has-capa' : '') + '"' +
       (themeP ? ' style="' + C.themeVars(themeP) + '"' : '') + (opts.id ? ' id="' + esc(opts.id) + '"' : '') + '>' +
       (ok('fundo', look.fundo) ? '<div class="cz-tema cz-fundo">' + D('fundo', look.fundo, { still, size: [400, 320] }) + '</div>'
         : look.fundo && look.fundo.data && look.fundo.data.fx && BH.cos && BH.cos.fx ? '<div class="cz-tema cz-fundo">' + BH.cos.fx(look.fundo.data.fx, u.id) + '</div>' : '') +
       (themeP ? '<div class="cz-tema">' + D('tema', tema, { still }) + '</div>' : '') +
       (ok('capa', capa) ? '<div class="cz-capa">' + C.draw('capa', capa.data, capa.v, { still }) + '</div>' : '') +
       (bn ? '<div class="cz-banner">' + bn + '</div>' : '') +
-      '<div class="cz-hero' + (ok('entrada', ent) ? ' ent-' + ent.data.art : '') + '">' +
-      '<div class="cz-fig">' + (ok('arma', look.arma) ? '<div class="cz-arma">' + D('arma', look.arma, { still }) + '</div>' : '') + avBox +
+      '<div class="cz-hero' + (ok('entrada', ent) ? ' ent-' + ent.data.art : '') + '"><div class="cz-row">' +
+      '<div class="cz-fig">' + (ok('arma', look.arma) ? '<div class="cz-arma">' + D('arma', look.arma, { still }) + '</div>' : '') + avBox + '</div>' +
+      '<div class="cz-who"><div class="cz-name">' + nick(u, look, still) + (u.verified && BH.ui.verified ? BH.ui.verified(u) : '') + '</div>' +
+      (cardU.title ? '<div class="cz-title">' + BH.ui.title(cardU) + '</div>' : '') + '</div></div>' + (opts.below || '') + '</div>' +
+      // chaveiro pendurado na borda do banner e pet sentado no canto do cartão (estilo vitrine do Discord)
       (kc ? '<div class="cz-kc" data-k="' + (32 / kcW).toFixed(1) + '" role="button" tabindex="-1" aria-label="Chaveiro">' + kc + '</div>' : '') +
-      (ok('pet', look.pet) ? '<div class="cz-pet">' + D('pet', look.pet, { still }) + '</div>' : '') + '</div>' +
-      '<div class="cz-name">' + nick(u, look, still) + (u.verified && BH.ui.verified ? BH.ui.verified(u) : '') + '</div>' +
-      (cardU.title ? '<div class="cz-title">' + BH.ui.title(cardU) + '</div>' : '') + '</div>' +
+      (ok('pet', look.pet) ? '<div class="cz-pet">' + D('pet', look.pet, { still }) + '</div>' : '') +
       (ok('entrada', ent) && !still && opts.play ? '<div class="cz-ent">' + C.draw('entrada', ent.data, ent.v, {}) + '</div>' : '') +
       (ok('efeito', ef) && !still ? '<div class="cz-ef">' + (opts.play ? C.draw('efeito', ef.data, ef.v, { seed: u.id }) : '') + '</div>' +
         '<button type="button" class="cz-replay" data-act="czReplay" aria-label="Ver o efeito de novo">✦</button>' : '') +
@@ -73,7 +74,15 @@
 
   /* ---------------- miniaturas (grade da loja e do inventário) ---------------- */
   const PH = (u) => BH.ui.av({ id: (u && u.id) || 'x', nick: (u && u.nick) || '?', avatar_url: u && u.avatar_url }, 'lg', 'still');
+  // miniatura já desenhada fica guardada: voltar para uma categoria não refaz dezenas de SVGs
+  const TH = new Map();
   function thumb(it, v, u, byId) {
+    const key = it.id + '|' + (v || '') + '|' + ((u && u.id) || '') + '|' + ((u && u.avatar_url) || '') + '|' + ((u && u.nick) || '') + '|' + (BH.anim && BH.anim.lite() ? 1 : 0);
+    let html = TH.get(key);
+    if (html == null) { html = thumb0(it, v, u, byId); if (TH.size > 600) TH.clear(); TH.set(key, html); }
+    return html;
+  }
+  function thumb0(it, v, u, byId) {
     const d = it.data || {}, e = { data: d, v: v || null };
     const o = { still: true, user: u, seed: it.id };
     switch (it.kind) {
@@ -97,7 +106,7 @@
       case 'titulo': return '<div class="th th-cor">' + BH.ui.title({ title: d.text, title_fx: d.fx }) + '</div>';
       case 'bundle': {
         const parts = (d.items || []).map((id) => byId && byId[id]).filter(Boolean).slice(0, 4);
-        return '<div class="th th-bundle">' + parts.map((p) => '<span class="th-b">' + thumb(p, d.variant, u, null) + '</span>').join('') + '</div>';
+        return '<div class="th th-bundle">' + parts.map((p) => '<span class="th-b">' + thumb0(p, d.variant, u, null) + '</span>').join('') + '</div>';
       }
       default: return '<div class="th th-prio">⚡</div>';
     }
@@ -150,6 +159,8 @@
       if (st.classList.contains('cz-play')) setTimeout(() => st.classList.add('cz-played'), C.EFFECT_MS || 2600);
     });
     prune();
+    // tela pesada: confere se o celular aguenta (no automático liga o modo leve se travar)
+    if (BH.anim && BH.anim.guard) BH.anim.guard();
   }
 
   // repete o efeito de abertura (botão ✦ na vitrine)
