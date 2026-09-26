@@ -15,8 +15,8 @@
 - **Para as versões 2.5.0 a 2.7.0 funcionarem no servidor**, falta publicar a atualização do banco (migrações 14 a
   22). Você já me mandou o Access Token, mas a rede deste ambiente bloqueia `api.supabase.com`. Escolha um caminho:
   0. **Pelo GitHub (dá para fazer do celular):** no repositório, *Settings → Secrets and variables → Actions →
-     New repository secret*, nome `SUPABASE_ACCESS_TOKEN`, valor = o token. Depois *Actions → BattleHub · publicar
-     servidor → Run workflow*. (Se tiver as chaves do Mercado Pago, crie também `MP_ACCESS_TOKEN` e `MP_WEBHOOK_SECRET`.)
+     New repository secret*, nome `SUPABASE_ACCESS_TOKEN`, valor = o token. Depois me avise que eu disparo a publicação
+     (ou, em *Actions → BattleHub · publicar servidor*, abra a última execução e toque em *Re-run all jobs*). (Se tiver as chaves do Mercado Pago, crie também `MP_ACCESS_TOKEN` e `MP_WEBHOOK_SECRET`.)
   1. **Liberar o acesso aqui:** no menu do ambiente (título da sessão → *Edit*), em *Network access*, adicione
      `api.supabase.com` aos domínios permitidos (ou escolha um nível de acesso mais amplo) e me avise. Eu publico na hora.
   2. **Rodar no seu computador**, na pasta `battlehub`:
