@@ -1,0 +1,148 @@
+{
+  "_sobre": "Perfil visual montado com a escolha do usuário na pesquisa 2026-09-26-decoracoes-02. Status muda para aprovado quando ele tocar em GERAR.",
+  "id": "deco-colecao-premium-01",
+  "status": "aguardando_confirmacao",
+  "formato": "decoracao",
+  "pesquisa": "2026-09-26-decoracoes-02",
+  "gostei": [
+    1,
+    3,
+    4,
+    5,
+    6,
+    7,
+    9,
+    10,
+    11,
+    12
+  ],
+  "nao_gostei": [
+    2,
+    8
+  ],
+  "referencia_principal": null,
+  "leitura": "gostou de estilos muito diferentes: a base é uma coleção com acabamento comum, não um estilo só",
+  "regras": {
+    "composicao": {
+      "de": [
+        1,
+        4,
+        5
+      ],
+      "regra": "centro livre (raio 0,38), aro legível, peso concentrado em 1 a 3 pontos, assimetria controlada"
+    },
+    "iluminacao": {
+      "de": [
+        3,
+        10
+      ],
+      "regra": "luz de cima, reflexo especular no material, brilho só nos acentos"
+    },
+    "profundidade": {
+      "de": [
+        1,
+        6
+      ],
+      "regra": "um elemento passa por cima e por trás do aro (2 camadas no app)"
+    },
+    "efeitos": {
+      "de": [
+        5,
+        10
+      ],
+      "regra": "poucos e pontuais (faíscas, pétalas, estrelas)"
+    },
+    "paleta": {
+      "de": "a referência de cada peça",
+      "regra": "3 a 5 cores e um destaque"
+    },
+    "acabamento": {
+      "regra": "ilustração pintada premium, materiais definidos, recorte limpo em fundo claro e escuro"
+    }
+  },
+  "evitar": [
+    "glow forte e massa pesada em volta do aro todo (ref. 2)",
+    "traço cartoon com contorno grosso (ref. 8)",
+    "objeto que substitui o aro e rouba o foco do avatar (ref. 8)"
+  ],
+  "intensidade": "equilibrado",
+  "pecas": [
+    {
+      "nome": "Dragão das Neves",
+      "de": 1,
+      "template": "DECO_CRIATURA_05",
+      "estilo": "ICE"
+    },
+    {
+      "nome": "Coroa de Ouro e Rubi",
+      "de": 3,
+      "template": "DECO_COROA_04",
+      "estilo": "ROYAL"
+    },
+    {
+      "nome": "Lago da Lua",
+      "de": 4,
+      "template": "DECO_CENA_07",
+      "estilo": "FANTASY"
+    },
+    {
+      "nome": "Lírio-Aranha Rubi",
+      "de": 5,
+      "template": "DECO_ACENTO_08",
+      "estilo": "ANIME_PREMIUM"
+    },
+    {
+      "nome": "Rosas Negras",
+      "de": 6,
+      "template": "DECO_ARO_ELEMENTAL_02",
+      "estilo": "DARK_PREMIUM"
+    },
+    {
+      "nome": "Dragãozinho Sonolento",
+      "de": 7,
+      "template": "DECO_CRIATURA_05",
+      "estilo": "ANIME_PREMIUM"
+    },
+    {
+      "nome": "Fone Gamer Neon",
+      "de": 9,
+      "template": "DECO_ORELHAS_CAUDA_01",
+      "estilo": "NEON"
+    },
+    {
+      "nome": "Aro Imperial",
+      "de": 10,
+      "template": "DECO_ACENTO_08",
+      "estilo": "BLACK_GOLD"
+    },
+    {
+      "nome": "Asas de Cristal",
+      "de": 11,
+      "template": "DECO_ASAS_03",
+      "estilo": "HOLOGRAPHIC"
+    },
+    {
+      "nome": "Guardião da Floresta",
+      "de": 12,
+      "template": "DECO_ARO_ELEMENTAL_02",
+      "estilo": "FANTASY"
+    }
+  ],
+  "lotes": [
+    [
+      "Dragão das Neves",
+      "Lírio-Aranha Rubi",
+      "Fone Gamer Neon"
+    ],
+    [
+      "Coroa de Ouro e Rubi",
+      "Lago da Lua",
+      "Rosas Negras",
+      "Dragãozinho Sonolento",
+      "Aro Imperial",
+      "Asas de Cristal",
+      "Guardião da Floresta"
+    ]
+  ],
+  "no_app": "arte em WebP transparente com brilho e partículas animados por cima (só transform e opacity)"
+}

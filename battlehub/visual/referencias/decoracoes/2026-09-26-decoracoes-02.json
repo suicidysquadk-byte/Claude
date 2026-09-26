@@ -56,7 +56,7 @@
    "aprendizados": [
     "a criatura vira o próprio aro: o corpo substitui a borda e a cabeça é o foco, sem cobrir o rosto."
    ],
-   "status": "candidata",
+   "status": "aprovada",
    "motivo_rejeicao": null
   },
   {
@@ -111,8 +111,8 @@
    "aprendizados": [
     "um destaque azul em poucos pontos equilibra o aro todo magenta. O glow está no limite do excesso."
    ],
-   "status": "candidata",
-   "motivo_rejeicao": null
+   "status": "rejeitada",
+   "motivo_rejeicao": "glow forte e massa pesada em volta do aro todo, sem área calma (leitura minha; pode ser só incompatibilidade de estilo)"
   },
   {
    "id": "deco-02-03",
@@ -166,7 +166,7 @@
    "aprendizados": [
     "o dourado só parece premium com reflexo e sombra no metal. A faixa da base dá peso e fecha a leitura."
    ],
-   "status": "candidata",
+   "status": "aprovada",
    "motivo_rejeicao": null
   },
   {
@@ -221,7 +221,7 @@
    "aprendizados": [
     "um mini cenário no aro conta uma história. O peso fica em pontos opostos (lua e pagode) e o meio fica calmo."
    ],
-   "status": "candidata",
+   "status": "aprovada",
    "motivo_rejeicao": null
   },
   {
@@ -276,7 +276,7 @@
    "aprendizados": [
     "um acento forte e muito espaço vazio deixam o rosto livre e a peça elegante."
    ],
-   "status": "candidata",
+   "status": "aprovada",
    "motivo_rejeicao": null
   },
   {
@@ -331,7 +331,7 @@
    "aprendizados": [
     "uma silhueta forte funciona sem glow. Agrupar as rosas em 3 pontos cria ritmo."
    ],
-   "status": "candidata",
+   "status": "aprovada",
    "motivo_rejeicao": null
   },
   {
@@ -386,7 +386,7 @@
    "aprendizados": [
     "personagem pequeno com carinha expressiva vira o foco. Boa base para uma coleção fofa."
    ],
-   "status": "candidata",
+   "status": "aprovada",
    "motivo_rejeicao": null
   },
   {
@@ -441,8 +441,8 @@
    "aprendizados": [
     "a criatura mexe no aro (sobe, morde, enrola). É isso que dá vida e ideia de animação."
    ],
-   "status": "candidata",
-   "motivo_rejeicao": null
+   "status": "rejeitada",
+   "motivo_rejeicao": "traço cartoon com contorno grosso e objeto que rouba o foco do avatar (leitura minha; pode ser só incompatibilidade de estilo)"
   },
   {
    "id": "deco-02-09",
@@ -496,7 +496,7 @@
    "aprendizados": [
     "fone gamer com orelha junta o nosso público com o estilo do Discord. 3D limpo e leve."
    ],
-   "status": "candidata",
+   "status": "aprovada",
    "motivo_rejeicao": null
   },
   {
@@ -551,7 +551,7 @@
    "aprendizados": [
     "o material faz o trabalho e quase não há efeito. A imagem tem marca de ferramenta de IA, então só o princípio serve."
    ],
-   "status": "candidata",
+   "status": "aprovada",
    "motivo_rejeicao": null
   },
   {
@@ -606,7 +606,7 @@
    "aprendizados": [
     "asas atrás do avatar aumentam a peça sem cobrir o rosto. O efeito fica concentrado na base."
    ],
-   "status": "candidata",
+   "status": "aprovada",
    "motivo_rejeicao": null
   },
   {
@@ -661,7 +661,7 @@
    "aprendizados": [
     "o elemento natural sobe como chama e dá movimento mesmo parado. É o estilo das molduras de ranking dos jogos."
    ],
-   "status": "candidata",
+   "status": "aprovada",
    "motivo_rejeicao": null
   }
  ]
