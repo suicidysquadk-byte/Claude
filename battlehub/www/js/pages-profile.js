@@ -161,7 +161,7 @@ window.BH = window.BH || {};
       title: 'Carteira', size: 'lg',
       body: async () => {
         const w = await api.rpc('my_wallet');
-        const pend = w.deposits.filter((d) => d.status === 'pendente').concat(w.withdrawals.filter((x) => x.status === 'pendente'));
+        const pend = w.deposits.filter((d) => d.status === 'pendente').concat(w.withdrawals.filter((x) => x.status === 'pendente' || x.status === 'processando'));
         return '<div class="pix-amount"><small>Saldo disponível</small><b>' + U.cents(w.balance_cents) + '</b>' + (w.held_cents ? '<span class="muted small">' + U.cents(w.held_cents) + ' em saque</span>' : '') + '</div>' +
           '<div class="btn-row two"><button type="button" class="btn primary" data-act="deposit">' + I('plus') + 'Depositar</button><button type="button" class="btn dark" data-act="withdraw">' + I('arrowOut') + 'Sacar</button></div>' +
           (pend.length ? '<h4 class="sub-h">Em análise</h4><ul class="tx-list full">' + pend.map((d) => '<li class="tx-row"><span class="tx-ic tone-gold">' + I('clock') + '</span><div class="tx-main"><b>' + (d.pix_key ? 'Saque para ' + esc(d.pix_key) : 'Depósito via Pix') + '</b><small>' + U.date(d.created_at) + '</small></div><div class="tx-side"><b>' + U.cents(d.amount_cents) + '</b><span class="chip tone-gold">Em análise</span></div></li>').join('') + '</ul>' : '') +
@@ -214,7 +214,21 @@ window.BH = window.BH || {};
   actions.depAmount = (el) => { const s = U.topSheet(); s.data.cents = Number(el.dataset.v); const i = s.body.querySelector('#dep-v'); if (i) i.dataset.fresh = '1'; s.render('static'); };
   actions.depGo = async function (el) {
     const s = U.topSheet(), cents = U.toCents(s.body.querySelector('#dep-v').value);
-    const dep = await U.run(el, async () => (await api.pixCreate(cents)) || api.rpc('request_manual_deposit', { p_cents: cents }));
+    let dep;
+    try {
+      dep = await U.busy(el, async () => (await api.pixCreate(cents, s.data.cpf)) || api.rpc('request_manual_deposit', { p_cents: cents }));
+    } catch (e) {
+      // o Asaas cobra no CPF de quem paga: pede uma vez e guarda na conta
+      if (/cpf_necessario/.test(e.message || '')) {
+        const cpf = await U.confirm({ title: 'Seu CPF', icon: 'shieldCheck', ok: 'Continuar',
+          body: 'O Pix é gerado no seu CPF (exigência do banco). Ele fica guardado só no servidor, aparece mascarado para você e é o mesmo CPF da chave para o saque automático. Não dá para usar o mesmo CPF em duas contas.',
+          input: { label: 'CPF', placeholder: '000.000.000-00', inputmode: 'numeric', required: true, error: 'Digite seu CPF.' } });
+        if (!cpf) return;
+        s.data.cpf = String(cpf);
+        return actions.depGo(el);
+      }
+      return U.err(e);
+    }
     if (!dep) return;
     s.data.dep = dep; s.data.cents = cents; s.data.step = 2; s.render();
   };
@@ -240,7 +254,9 @@ window.BH = window.BH || {};
   };
   actions.wdAll = () => { const i = document.getElementById('wd-v'); i.value = U.centsInput(api.me.balance_cents); };
   forms.withdraw = async function (f) {
-    const ok = await U.run(f.querySelector('button.primary'), () => api.rpc('request_withdrawal', { p_cents: U.toCents(f.amount.value), p_key_type: f.keyType.value, p_key: f.key.value }), 'Saque pedido. Prazo de até 24 horas.');
+    const ok = await U.run(f.querySelector('button.primary'), () => api.rpc('request_withdrawal', { p_cents: U.toCents(f.amount.value), p_key_type: f.keyType.value, p_key: f.key.value }));
+    if (ok && ok.auto) { U.toast('Saque a caminho da sua chave Pix.', 'good'); api.sendWithdrawal(ok.id).catch(() => { /* a equipe vê na fila e reenvia */ }); }
+    else if (ok) U.toast('Saque pedido. Prazo de até 24 horas.', 'good');
     if (ok) { U.closeAll(); await api.refreshMe(); app().refresh(); }
   };
 

@@ -1,6 +1,7 @@
 # Publica a atualização do servidor (banco e funções) no Supabase. Só roda quando alguém aperta
 # "Run workflow" na aba Actions. As chaves ficam nos Secrets do repositório, nunca no código.
-# Secrets usados: SUPABASE_ACCESS_TOKEN (obrigatório) e, se tiver, MP_ACCESS_TOKEN e MP_WEBHOOK_SECRET (Mercado Pago).
+# Secrets usados: SUPABASE_ACCESS_TOKEN (obrigatório) e, se tiver, MP_ACCESS_TOKEN e MP_WEBHOOK_SECRET (Mercado Pago),
+# ASAAS_API_KEY, ASAAS_ENV (sandbox ou producao) e ASAAS_WEBHOOK_TOKEN (Asaas).
 name: BattleHub · publicar servidor
 
 on:
@@ -48,6 +49,9 @@ jobs:
           SUPABASE_PROJECT_REF: ${{ inputs.project_ref || 'tjaqjirsayclexzaycti' }}
           MP_ACCESS_TOKEN: ${{ secrets.MP_ACCESS_TOKEN }}
           MP_WEBHOOK_SECRET: ${{ secrets.MP_WEBHOOK_SECRET }}
+          ASAAS_API_KEY: ${{ secrets.ASAAS_API_KEY }}
+          ASAAS_ENV: ${{ secrets.ASAAS_ENV }}
+          ASAAS_WEBHOOK_TOKEN: ${{ secrets.ASAAS_WEBHOOK_TOKEN }}
         run: |
           umask 077
           {
@@ -55,6 +59,9 @@ jobs:
             echo "SUPABASE_PROJECT_REF=$SUPABASE_PROJECT_REF"
             [ -n "$MP_ACCESS_TOKEN" ] && echo "MP_ACCESS_TOKEN=$MP_ACCESS_TOKEN"
             [ -n "$MP_WEBHOOK_SECRET" ] && echo "MP_WEBHOOK_SECRET=$MP_WEBHOOK_SECRET"
+            [ -n "$ASAAS_API_KEY" ] && echo "ASAAS_API_KEY=$ASAAS_API_KEY"
+            [ -n "$ASAAS_ENV" ] && echo "ASAAS_ENV=$ASAAS_ENV"
+            [ -n "$ASAAS_WEBHOOK_TOKEN" ] && echo "ASAAS_WEBHOOK_TOKEN=$ASAAS_WEBHOOK_TOKEN"
             true
           } > "$RUNNER_TEMP/conexao.env"
           bash scripts/configurar.sh "$RUNNER_TEMP/conexao.env"

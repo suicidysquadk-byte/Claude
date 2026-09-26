@@ -20,7 +20,7 @@ Conferência de 26/09/2026. **Já existia** = feito numa versão anterior (2.4.0
 | 14 | Procurar lines recrutando, sem código, com 2 critérios do líder | **Feito agora** | **Guildas → Lines recrutando**: filtro por tamanho, critérios em verde ou vermelho e botão "Pedir para entrar". |
 | 15 | Sinergia: line que joga muito junta ganha recompensa (banner, avatar, título) | **Feito agora** | 5 níveis de sinergia: título, banner, moldura, título e moldura lendária para todos da line. |
 | 16 | Mais títulos (Sniper, O Bravo, Exterminador...) | **Feito agora** | 35+ títulos à venda e 7 de conquista (chegam sozinhos ao bater a meta). |
-| 17 | Gateway que recebe, segura e paga sozinho | **Pesquisado** | Recomendação: **Asaas**. Comparação e custos em `PAGAMENTO-AUTOMATICO.md`. Para ligar, preciso da sua conta (passo 3.2 de `O-QUE-VOCE-PRECISA-FAZER.md`). |
+| 17 | Gateway que recebe, segura e paga sozinho | **Feito** (2.8.0) | **Asaas** integrado: Pix de depósito no CPF do jogador, saque automático com limites, validação de cada transferência pelo servidor e botão **Pagar pelo Asaas** no painel. Falta só criar a conta e os secrets (passo 3.2 de `O-QUE-VOCE-PRECISA-FAZER.md`). |
 | 18 | Letrinhas miúdas: organizadores podem verificar o aparelho (APK modificado) | **Feito agora** | No aviso do suspeito, com aceite obrigatório para mandar o vídeo, na mensagem que ele recebe e nos termos de uso. |
 | 19 | Recusou a verificação = ban permanente, sem criar outra conta, só a administração libera | **Feito agora** | Botão **"Recusou a verificação do aparelho"** no caso (admin ou dono). |
 | 20 | Aba de banidos: deixar criar outra conta, voltar para esta conta, reativar | **Feito agora** | **Painel → Banidos**, com os três botões e o histórico de liberações. |
@@ -55,8 +55,8 @@ Conferência de 26/09/2026. **Já existia** = feito numa versão anterior (2.4.0
 
 ## O que ainda depende de você
 
-1. **Liberar `api.supabase.com` na rede do ambiente** (o token já chegou), para eu publicar a atualização do
-   servidor. Sem isso, as versões 2.5.0 a 2.7.0 não funcionam por completo. Veja o topo de `O-QUE-VOCE-PRECISA-FAZER.md`.
+1. ~~Publicar a atualização do servidor~~ **feito** pelo GitHub (secret `SUPABASE_ACCESS_TOKEN`). Cada envio novo
+   do banco é publicado sozinho.
 2. **Firebase** (passo 3.1), para a notificação no celular.
-3. **Asaas** (passo 3.2), se quiser o saque automático.
+3. **Asaas** (passo 3.2): conta no sandbox e os três secrets no GitHub. A integração já está pronta.
 4. **Advogado e contador** antes de lançar com dinheiro real (item 7 de `O-QUE-VOCE-PRECISA-FAZER.md`).

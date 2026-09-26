@@ -19,3 +19,16 @@ export function mpDate(ms: number) {
   const d = new Date(ms - 3 * 3600e3);
   return d.toISOString().replace('Z', '-03:00');
 }
+
+// dependências do módulo do Asaas com o cliente de serviço do Supabase
+// deno-lint-ignore no-explicit-any
+export function serviceDeps(admin: any) {
+  return {
+    env: (n: string) => Deno.env.get(n),
+    rpc: async (fn: string, args: Record<string, unknown>) => {
+      const { data, error } = await admin.rpc(fn, args);
+      if (error) throw new Error(error.message);
+      return data;
+    },
+  };
+}

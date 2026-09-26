@@ -227,7 +227,7 @@ async function conservation(label) {
 
   // ---------------- saques
   await must('P2 saca', call(P[2], 'request_withdrawal', { p_cents: 2000, p_key_type: 'E-mail', p_key: 'p3@bh.gg' }));
-  await refuse('segundo saque em análise', call(P[2], 'request_withdrawal', { p_cents: 1000, p_key_type: 'E-mail', p_key: 'p3@bh.gg' }), /em análise/);
+  await refuse('segundo saque em análise', call(P[2], 'request_withdrawal', { p_cents: 1000, p_key_type: 'E-mail', p_key: 'p3@bh.gg' }), /em andamento/);
   await must('P3 saca', call(P[3], 'request_withdrawal', { p_cents: 1500, p_key_type: 'CPF', p_key: '12345678900' }));
   const fin = await must('financeiro', call(owner, 'admin_finance'));
   const [wA, wB] = fin.pending_withdrawals;

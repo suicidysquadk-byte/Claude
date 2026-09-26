@@ -1,15 +1,34 @@
-// Gera um Pix no Mercado Pago para o jogador logado adicionar saldo.
-// O saldo só entra quando o pix-webhook confirmar o pagamento.
+// Gera um Pix para o jogador logado adicionar saldo, pelo gateway escolhido no painel (Mercado Pago ou Asaas).
+// O saldo só entra quando o aviso do gateway (pix-webhook ou asaas-webhook) confirmar o pagamento.
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { cors, env, json, mpDate } from '../_shared/util.ts';
+import { cors, env, json, mpDate, serviceDeps } from '../_shared/util.ts';
+import { AsaasError, createDeposit } from '../_shared/asaas.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   try {
+    const url = env('SUPABASE_URL');
+    const body = await req.json().catch(() => ({}));
+    const hdr = { global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } } };
+    const info = await createClient(url, env('SUPABASE_ANON_KEY'), hdr).rpc('my_payment_info');
+    if (info.data?.deposit_provider === 'asaas' && Deno.env.get('ASAAS_API_KEY')) {
+      const { data: auth } = await createClient(url, env('SUPABASE_ANON_KEY'), hdr).auth.getUser();
+      if (!auth?.user) return json({ error: 'Entre na sua conta para continuar.' }, 401);
+      const cents = Math.round(Number(body.amount_cents));
+      const lim = info.data;
+      if (!Number.isFinite(cents) || cents < lim.min_deposit_cents || cents > lim.max_deposit_cents) {
+        return json({ error: `O depósito vai de R$ ${(lim.min_deposit_cents / 100).toFixed(2).replace('.', ',')} a R$ ${(lim.max_deposit_cents / 100).toFixed(2).replace('.', ',')}.` }, 400);
+      }
+      try {
+        return json(await createDeposit(serviceDeps(createClient(url, env('SUPABASE_SERVICE_ROLE_KEY'))), auth.user.id, cents, body.cpf || undefined));
+      } catch (e) {
+        return json({ error: e instanceof Error ? e.message : String(e) }, e instanceof AsaasError ? e.status : 400);
+      }
+    }
+
     const token = Deno.env.get('MP_ACCESS_TOKEN');
     if (!token) return json({ error: 'mp_nao_configurado' }, 501);
 
-    const url = env('SUPABASE_URL');
     const userClient = createClient(url, env('SUPABASE_ANON_KEY'), {
       global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } },
     });
@@ -21,7 +40,6 @@ Deno.serve(async (req) => {
     if (meError || !me) return json({ error: 'Perfil não encontrado.' }, 400);
     if (me.banned) return json({ error: 'Conta suspensa.' }, 403);
 
-    const body = await req.json().catch(() => ({}));
     const cents = Math.round(Number(body.amount_cents));
     const s = me.settings;
     if (!Number.isFinite(cents) || cents < s.min_deposit_cents || cents > s.max_deposit_cents) {

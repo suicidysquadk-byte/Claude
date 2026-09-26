@@ -173,14 +173,23 @@ window.BH = window.BH || {};
   };
 
   /* ---------- Pix pelo Mercado Pago (null = modo manual) ---------- */
-  api.pixCreate = async function (cents) {
-    const { data, error } = await sb.functions.invoke('pix-criar', { body: { amount_cents: cents } });
+  api.pixCreate = async function (cents, cpf) {
+    const { data, error } = await sb.functions.invoke('pix-criar', { body: { amount_cents: cents, cpf: cpf || undefined } });
     if (!error) return data;
     let body = null;
     try { body = error.context && typeof error.context.json === 'function' ? await error.context.json() : null; } catch (e) { body = null; }
     const status = error.context && error.context.status;
     if (status === 501 || status === 404 || (body && body.error === 'mp_nao_configurado')) return null;
     throw fail(body && body.error ? body.error : error);
+  };
+
+  // envia pelo Asaas um saque que está "processando" (saque automático ou botão do painel)
+  api.sendWithdrawal = async function (id) {
+    const { data, error } = await sb.functions.invoke('asaas-saque', { body: { id } });
+    if (!error) return data;
+    let body = null;
+    try { body = error.context && typeof error.context.json === 'function' ? await error.context.json() : null; } catch (e) { body = null; }
+    throw fail(body && body.error ? (body.error === 'asaas_nao_configurado' ? 'O Asaas ainda não foi ligado no servidor.' : body.error) : error);
   };
 
   // identificador do aparelho (bloqueio de quem foi banido por trapaça). No navegador, um código salvo no aparelho.

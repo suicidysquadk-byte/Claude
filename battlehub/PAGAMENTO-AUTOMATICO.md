@@ -72,14 +72,10 @@ A opção **"Receber prêmio direto no Pix"** no perfil faria o saque automátic
 
 ## O que você precisa fazer
 
-1. Abrir uma conta **PJ no Asaas** (asaas.com) e pedir acesso à API.
-2. Criar uma chave de API no **ambiente de testes (sandbox)** primeiro.
-3. **Me mandar** a chave do sandbox. Eu ligo:
-   - o depósito pelo Asaas;
-   - o saque automático com os limites acima;
-   - o webhook de validação;
-   - a opção "receber prêmio direto no Pix".
-4. Depois dos testes, você cria a chave de produção e a gente troca.
+A integração com o Asaas já está pronta (versão 2.8.0): depósito, saque automático com os limites acima, validação de
+cada transferência pelo nosso servidor e o botão **Pagar pelo Asaas** no painel. O passo a passo para ligar está em
+[`O-QUE-VOCE-PRECISA-FAZER.md`](O-QUE-VOCE-PRECISA-FAZER.md), item **3.2**. A opção "receber prêmio direto no Pix"
+fica para depois dos testes no sandbox.
 
 ## Fontes
 

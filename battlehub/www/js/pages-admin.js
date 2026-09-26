@@ -227,7 +227,9 @@ window.BH = window.BH || {};
     } else if (sa.finTab === 'saques') {
       content = f.pending_withdrawals.length ? '<p class="muted small">Faça o Pix pelo app do banco e depois marque como pago. Recusar devolve o valor para a carteira do jogador.</p><div class="stack stagger">' + f.pending_withdrawals.map((w) => '<article class="pend">' + ucell(w.user, esc(w.pix_key_type) + ': <b>' + esc(w.pix_key) + '</b> · ' + U.ago(w.created_at)) +
         '<b class="pend-amt neg">' + U.cents(w.amount_cents) + '</b>' + (w.verified ? '' : '<p class="note-red small">' + I('alert') + '<span>ID do Free Fire não verificado.</span></p>') +
-        '<div class="btn-row"><button type="button" class="btn ghost sm" data-act="copy" data-v="' + esc(w.pix_key) + '">' + I('copy') + 'Copiar chave</button><button type="button" class="btn green sm" data-act="aWd" data-ok="1" data-id="' + w.id + '">' + I('check') + 'Marcar como pago</button><button type="button" class="btn danger-ghost sm" data-act="aWd" data-ok="0" data-id="' + w.id + '">' + I('x') + 'Recusar</button></div></article>').join('') + '</div>'
+        (w.status === 'processando' ? '<p class="note-gold small">' + I('clock') + '<span>' + (w.sent ? 'Enviado pelo Asaas. Esperando o banco confirmar.' : 'Saque automático ainda não enviado.') + '</span></p>' : '') +
+        (w.note ? '<p class="muted small">' + esc(w.note) + '</p>' : '') + (w.pix_key_type === 'CPF' ? '<p class="small ' + (w.cpf_ok ? 'tone-cyan-t' : 'muted') + '">' + (w.cpf_ok ? '✓ Chave é o CPF do próprio jogador' : 'CPF da chave diferente do CPF do depósito (ou sem CPF cadastrado)') + '</p>' : '') +
+        (w.sent ? '' : '<div class="btn-row"><button type="button" class="btn ghost sm" data-act="copy" data-v="' + esc(w.pix_key) + '">' + I('copy') + 'Copiar chave</button><button type="button" class="btn primary sm" data-act="aWdAsaas" data-id="' + w.id + '">' + I('send') + 'Pagar pelo Asaas</button><button type="button" class="btn green sm" data-act="aWd" data-ok="1" data-id="' + w.id + '">' + I('check') + 'Já paguei</button><button type="button" class="btn danger-ghost sm" data-act="aWd" data-ok="0" data-id="' + w.id + '">' + I('x') + 'Recusar</button></div>') + '</article>').join('') + '</div>'
         : '<div class="all-clear">' + I('checkCircle') + '<b>Tudo em dia!</b><small>Nenhum saque pendente</small></div>';
     } else if (sa.finTab === 'historico') {
       content = '<ul class="tx-list full stagger">' + (f.history.length ? f.history.map((h) => '<li class="tx-row"><span class="tx-ic ' + (h.type === 'deposito' ? 'tone-green' : 'tone-red') + '">' + I(h.type === 'deposito' ? 'arrowIn' : 'arrowOut') + '</span><div class="tx-main"><b>' + esc(h.user.nick) + '</b><small>' + (h.type === 'deposito' ? 'Depósito' : 'Saque') + ' · ' + U.date(h.at) + (h.note ? ' · ' + esc(h.note) : '') + '</small></div><div class="tx-side"><b class="' + (h.status === 'recusado' || h.status === 'expirado' ? 'strike' : h.type === 'deposito' ? 'pos' : 'neg') + '">' + U.cents(h.amount_cents) + '</b><span class="chip tone-' + (h.status === 'aprovado' || h.status === 'pago' ? 'green' : 'red') + '">' + esc(h.status) + '</span></div></li>').join('') : '<li class="muted center pad">Nada ainda.</li>') + '</ul>';
@@ -254,6 +256,14 @@ window.BH = window.BH || {};
     if (ok && !(await U.confirm({ title: 'Marcar como pago?', body: 'Confirme que você já fez o Pix para a chave do jogador.', ok: 'Já paguei', icon: 'checkCircle' }))) return;
     if (!ok) { note = await U.confirm({ title: 'Recusar saque?', body: 'O valor volta para a carteira do jogador.', ok: 'Recusar', danger: true, input: { label: 'Motivo', placeholder: 'Ex.: chave em nome de outra pessoa', required: true } }); if (!note) return; }
     if (await U.run(el, () => api.rpc('admin_withdrawal', { p_id: el.dataset.id, p_paid: ok, p_note: note }), ok ? 'Saque pago.' : 'Saque recusado e estornado.')) refresh();
+  };
+
+  // manda o saque pelo Asaas (o servidor confere tudo de novo e o Asaas ainda pergunta ao servidor antes de pagar)
+  actions.aWdAsaas = async function (el) {
+    if (!(await U.confirm({ title: 'Pagar pelo Asaas?', body: 'O Pix sai da conta do BattleHub no Asaas para a chave do jogador. Se o Asaas recusar, o saque volta para esta fila com o motivo.', ok: 'Pagar', icon: 'send' }))) return;
+    const r = await U.run(el, async () => { await api.rpc('admin_withdrawal_send', { p_id: el.dataset.id }); return api.sendWithdrawal(el.dataset.id); });
+    if (r) U.toast(r.ok ? 'Enviado ao Asaas. Quando o banco confirmar, o saque fica como pago.' : 'Não foi: ' + (r.message || r.reason), r.ok ? 'good' : 'bad');
+    refresh();
   };
 
   /* ---------- salas ---------- */
@@ -504,6 +514,12 @@ window.BH = window.BH || {};
         '<section class="card"><h3 class="card-h">' + I('qr') + 'Pix da plataforma</h3><p class="muted small">Usado nos depósitos manuais (QR Pix gerado no app). Com o Mercado Pago configurado, os depósitos confirmam sozinhos.</p>' +
         '<label class="field"><span>Chave Pix</span><input id="st-pix" name="pix_key" maxlength="80" value="' + esc(s.pix_key) + '" placeholder="CNPJ, e-mail, telefone ou chave aleatória"></label>' +
         '<div class="grid2"><label class="field"><span>Nome do recebedor</span><input id="st-pixname" name="pix_name" maxlength="25" value="' + esc(s.pix_name) + '"></label><label class="field"><span>Cidade</span><input id="st-pixcity" name="pix_city" maxlength="15" value="' + esc(s.pix_city) + '"></label></div></section>' +
+        '<section class="card"><h3 class="card-h">' + I('vault') + 'Gateway de pagamento</h3>' +
+        '<p class="muted small">O gateway gera o Pix do depósito e confirma sozinho. O Asaas também paga os saques automaticamente, dentro das regras abaixo; o que passar das regras fica na fila de Saques para a equipe.</p>' +
+        '<label class="field"><span>Pix de depósito pelo</span><select id="st-gw" name="deposit_provider">' + [['mercadopago', 'Mercado Pago'], ['asaas', 'Asaas']].map((o) => '<option value="' + o[0] + '"' + (s.deposit_provider === o[0] ? ' selected' : '') + '>' + o[1] + '</option>').join('') + '</select></label>' +
+        '<label class="switch"><input id="st-aw" type="checkbox" name="auto_withdraw"' + (s.auto_withdraw ? ' checked' : '') + '><span class="sw" aria-hidden="true"></span><span>Saque automático pelo Asaas <small>Só para chave Pix no CPF do próprio jogador (o mesmo CPF do depósito), ID do Free Fire verificado e sem análise de trapaça aberta</small></span></label>' +
+        '<div class="grid2">' + money('auto_max', 'Até por saque', s.auto_withdraw_max_cents) + money('auto_daily', 'Até por dia (por jogador)', s.auto_withdraw_daily_cents) + '</div>' +
+        '<label class="field"><span>Conta com pelo menos (dias)</span><input id="st-aw-days" name="auto_withdraw_min_days" type="number" inputmode="numeric" min="0" max="365" value="' + (s.auto_withdraw_min_days != null ? s.auto_withdraw_min_days : 3) + '"></label></section>' +
         '<section class="card"><h3 class="card-h">' + I('percent') + 'Taxas e limites</h3>' +
         '<label class="field"><span>Parte da plataforma na arrecadação das salas dos organizadores: <b id="st-fee-v">' + s.platform_fee_pct + '%</b></span><input id="st-fee" name="platform_fee_pct" type="range" min="0" max="50" step="1" value="' + s.platform_fee_pct + '"></label>' +
         '<p class="muted small">Ex.: sala de 48 × R$ 5 = R$ 240. Com ' + s.platform_fee_pct + '%, a plataforma recebe ' + U.cents(Math.floor(24000 * s.platform_fee_pct / 100)) + ' quando a sala acaba. Nunca passa da sobra, então o prêmio dos jogadores vem sempre primeiro. Dá para combinar uma taxa diferente com cada organizador em Usuários.</p>' +
@@ -539,6 +555,8 @@ window.BH = window.BH || {};
       daily_themes: readThemes(f), daily_base: readBase(f),
       min_deposit_cents: U.toCents(g('min_deposit').value), max_deposit_cents: U.toCents(g('max_deposit').value),
       min_withdraw_cents: U.toCents(g('min_withdraw').value), max_withdraw_cents: U.toCents(g('max_withdraw').value), max_entry_cents: U.toCents(g('max_entry').value),
+      deposit_provider: g('deposit_provider').value, auto_withdraw: g('auto_withdraw').checked,
+      auto_withdraw_max_cents: U.toCents(g('auto_max').value), auto_withdraw_daily_cents: U.toCents(g('auto_daily').value), auto_withdraw_min_days: Number(g('auto_withdraw_min_days').value) || 0,
       require_verified_withdraw: g('require_verified_withdraw').checked, require_verified_paid: g('require_verified_paid').checked, maintenance: g('maintenance').checked,
       xp: Object.fromEntries(['participar', 'abate', 'top3', 'vitoria', 'first_blood', 'rei', 'premio'].map((k) => [k, Number(g('xp_' + k).value) || 0]))
     };

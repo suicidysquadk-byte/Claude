@@ -29,6 +29,9 @@ $SB functions deploy pix-criar --project-ref "$REF" --use-api
 $SB functions deploy pix-webhook --project-ref "$REF" --no-verify-jwt --use-api
 $SB functions deploy convite --project-ref "$REF" --use-api
 $SB functions deploy push-enviar --project-ref "$REF" --no-verify-jwt --use-api
+$SB functions deploy asaas-saque --project-ref "$REF" --use-api
+$SB functions deploy asaas-webhook --project-ref "$REF" --no-verify-jwt --use-api
+$SB functions deploy asaas-validar --project-ref "$REF" --no-verify-jwt --use-api
 
 echo "4/7 Guardando as chaves do Mercado Pago"
 if [ -n "${MP_ACCESS_TOKEN:-}" ]; then
@@ -36,6 +39,18 @@ if [ -n "${MP_ACCESS_TOKEN:-}" ]; then
   echo "   Cadastre no Mercado Pago (Webhooks, evento Pagamentos): $URL/functions/v1/pix-webhook"
 else
   echo "   Sem MP_ACCESS_TOKEN: o Pix fica manual (a equipe confirma no painel)."
+fi
+
+echo "4b/7 Guardando as chaves do Asaas"
+if [ -n "${ASAAS_API_KEY:-}" ]; then
+  [ -n "${ASAAS_WEBHOOK_TOKEN:-}" ] || { echo "   Falta ASAAS_WEBHOOK_TOKEN (uma senha longa que você também cadastra no Asaas)."; exit 1; }
+  $SB secrets set --project-ref "$REF" "ASAAS_API_KEY=$ASAAS_API_KEY" "ASAAS_ENV=${ASAAS_ENV:-sandbox}" "ASAAS_WEBHOOK_TOKEN=$ASAAS_WEBHOOK_TOKEN" > /dev/null
+  echo "   Ambiente: ${ASAAS_ENV:-sandbox}. No Asaas cadastre:"
+  echo "   - Webhook (cobranças e transferências): $URL/functions/v1/asaas-webhook"
+  echo "   - Validação de saque (Mecanismo de segurança): $URL/functions/v1/asaas-validar"
+  echo "   Nos dois, o token de autenticação é o mesmo ASAAS_WEBHOOK_TOKEN."
+else
+  echo "   Sem ASAAS_API_KEY: depósito e saque seguem pelo Mercado Pago e pela fila manual."
 fi
 
 echo "5/7 Ligando a notificação no celular (Firebase)"

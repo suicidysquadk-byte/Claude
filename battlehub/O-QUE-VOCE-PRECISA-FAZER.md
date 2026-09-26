@@ -12,18 +12,9 @@
 - A versão **2.7.0** traz a aba **Personalização** completa: avatares vivos, pets, chaveiros que balançam com a
   rolagem, armas, chapéus, molduras, capas, banners, temas, cores de nick, efeitos ao abrir o perfil, bundles,
   coleções com recompensa exclusiva, combinações salvas e eventos de temporada (mais de 500 itens novos).
-- **Para as versões 2.5.0 a 2.7.0 funcionarem no servidor**, falta publicar a atualização do banco (migrações 14 a
-  22). Você já me mandou o Access Token, mas a rede deste ambiente bloqueia `api.supabase.com`. Escolha um caminho:
-  0. **Pelo GitHub (dá para fazer do celular):** no repositório, *Settings → Secrets and variables → Actions →
-     New repository secret*, nome `SUPABASE_ACCESS_TOKEN`, valor = o token. Depois me avise que eu disparo a publicação
-     (ou, em *Actions → BattleHub · publicar servidor*, abra a última execução e toque em *Re-run all jobs*). (Se tiver as chaves do Mercado Pago, crie também `MP_ACCESS_TOKEN` e `MP_WEBHOOK_SECRET`.)
-  1. **Liberar o acesso aqui:** no menu do ambiente (título da sessão → *Edit*), em *Network access*, adicione
-     `api.supabase.com` aos domínios permitidos (ou escolha um nível de acesso mais amplo) e me avise. Eu publico na hora.
-  2. **Rodar no seu computador**, na pasta `battlehub`:
-     `SUPABASE_ACCESS_TOKEN=seu_token SUPABASE_PROJECT_REF=tjaqjirsayclexzaycti node scripts/aplicar-migracoes.js`
-  - Depois de publicar, **apague o token** em *supabase.com/dashboard/account/tokens* (ele foi colado no chat) e gere
-    outro quando precisar.
-  - Até lá, instale o APK 2.4.0. As versões novas precisam do servidor atualizado: sem isso, o chat e a loja dão erro.
+- **Servidor atualizado** (banco e funções) pelo GitHub, com o secret `SUPABASE_ACCESS_TOKEN`. Toda atualização
+  nova do banco é publicada sozinha quando eu envio. Pode instalar o APK mais novo.
+- A versão **2.8.0** liga o **Asaas** (depósito e saque automático). Falta criar a conta e os secrets: passo **3.2**.
 
 O que falta são contas nos serviços, que só você pode criar (ficam no seu nome e no seu CPF/CNPJ). Faça **na
 ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu conecto.
@@ -35,7 +26,7 @@ ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu c
 
 ## Mandar para alguém testar
 
-1. Mande o arquivo **BattleHub-2.7.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
+1. Mande o arquivo **BattleHub-2.8.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
 2. Ela instala, digita o e-mail no app e entra com o **código de 6 dígitos** que chega do battlehubofc@gmail.com.
 
 Se o e-mail dela demorar ou cair no spam, use o **convite**:
@@ -127,16 +118,39 @@ Depois disso:
 - Em **Perfil → Notificações no celular** dá para ligar ou desligar.
 - Nas configurações do Android o jogador pode silenciar cada grupo: **Salas e resultados**, **Conversas** e **Avisos**.
 
-## 3.2 Saque automático (opcional, depois): Asaas
+## 3.2 Asaas: recebe, guarda e paga sozinho · 30 min (a integração já está pronta)
 
-Hoje o depósito é pelo Mercado Pago e o saque é manual (você paga pelo app do banco e marca "pago"). Para o saque e o
-prêmio saírem sozinhos, a recomendação é o **Asaas**: recebe o Pix, guarda o dinheiro na conta do BattleHub e paga por
-API, com conferência do nosso servidor antes de cada transferência. A comparação completa, custos e cuidados jurídicos
-estão em [`PAGAMENTO-AUTOMATICO.md`](PAGAMENTO-AUTOMATICO.md).
+Com o Asaas, o Pix de depósito é gerado no CPF do jogador e confirma sozinho, e o **saque sai sozinho** para a chave
+Pix do jogador, dentro das regras que você define no painel. Antes de cada Pix sair, o Asaas pergunta ao nosso
+servidor se aquele saque é legítimo (mesmo valor, mesma chave, saque pedido no app). O que foge da regra fica na fila
+de **Saques** do painel, com o botão **Pagar pelo Asaas**. Detalhes e custos em [`PAGAMENTO-AUTOMATICO.md`](PAGAMENTO-AUTOMATICO.md).
 
-1. Abra uma conta **PJ no Asaas** e peça acesso à API.
-2. Crie uma chave de API no **sandbox** (ambiente de testes).
-3. **Me mande** a chave do sandbox. Eu integro com limites de segurança e testamos juntos antes de usar a chave real.
+**Comece pelo sandbox (teste, dinheiro de mentira):**
+1. Crie uma conta em **sandbox.asaas.com** (é separada da conta real e não pede documentos).
+2. No sandbox, vá em **Integrações → Chaves de API → Gerar chave** e copie a chave (começa com `$aact_`).
+3. Invente uma **senha longa** (32 letras e números ou mais). Ela é o token dos avisos: o Asaas manda essa senha
+   e o nosso servidor só aceita aviso com ela.
+4. No GitHub (**Settings → Secrets and variables → Actions → New repository secret**), crie três secrets:
+   - `ASAAS_API_KEY` = a chave do passo 2
+   - `ASAAS_ENV` = `sandbox`
+   - `ASAAS_WEBHOOK_TOKEN` = a senha do passo 3
+5. **Me avise.** Eu publico e confiro.
+6. No Asaas, em **Integrações → Webhooks → Adicionar**:
+   - URL: `https://tjaqjirsayclexzaycti.supabase.co/functions/v1/asaas-webhook`
+   - Token de autenticação: a senha do passo 3
+   - Eventos: **Cobranças** (recebida, confirmada, vencida, estornada) e **Transferências** (todas)
+   - Deixe a fila de sincronização ligada.
+7. No Asaas, em **Integrações → Mecanismos de segurança → Validação de saque via webhook**:
+   - URL: `https://tjaqjirsayclexzaycti.supabase.co/functions/v1/asaas-validar`
+   - Token: a mesma senha do passo 3
+8. No app: **Painel → Configurações → Gateway de pagamento**: escolha **Asaas** e, se quiser, ligue o
+   **Saque automático** (padrão: até R$ 200 por saque, R$ 500 por dia por jogador, conta com 3 dias ou mais).
+9. Teste: gere um depósito no app e, no sandbox do Asaas, confirme o pagamento da cobrança. O saldo tem que cair
+   sozinho. Depois peça um saque para o seu CPF.
+
+**Depois dos testes (dinheiro de verdade):** abra a conta **PJ em asaas.com**, envie os documentos, gere a chave de
+produção e troque no GitHub: `ASAAS_API_KEY` = chave de produção e `ASAAS_ENV` = `producao`. Refaça os passos 6 e 7
+na conta de produção e me avise.
 
 ## 4. Pagamento automático (Pix): Mercado Pago · 20 min (comece por aqui)
 
@@ -172,7 +186,7 @@ mandam Pix pela API. Me avise que eu integro.
 
 ## 5. Configurar a plataforma no app · 5 min
 
-1. Instale o **BattleHub-2.7.0.apk** no seu celular (por cima do anterior, sem desinstalar).
+1. Instale o **BattleHub-2.8.0.apk** no seu celular (por cima do anterior, sem desinstalar).
 2. Painel admin → *Configurações*:
    - Coloque a **chave Pix da plataforma**, o nome e a cidade (usados no Pix manual).
    - Confira a **parte da plataforma**: padrão 10% da arrecadação das salas dos organizadores.
@@ -240,7 +254,7 @@ Vídeos pelo app vão até **50 MB** (limite do plano grátis do Supabase). No p
    - Idioma: português (Brasil).
    - Tipo: jogo.
    - Grátis.
-4. Envie o arquivo **`BattleHub-2.7.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
+4. Envie o arquivo **`BattleHub-2.8.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
 5. Preencha a ficha com os textos de `loja/descricao.md` e as imagens da pasta `loja/` (ícone, destaque e as 8
    telas novas em preto e dourado).
 6. Preencha os formulários:
@@ -284,4 +298,4 @@ Vídeos pelo app vão até **50 MB** (limite do plano grátis do Supabase). No p
 | 3 | (opcional) ID do cliente e chave secreta do Google |
 | 2.6.0 / 2.7.0 | **Access Token do Supabase** (recebido; falta liberar `api.supabase.com` na rede do ambiente) |
 | 3.1 | `google-services.json` e a chave da conta de serviço do Firebase |
-| 3.2 | (depois) chave de API do Asaas no sandbox |
+| 3.2 | Secrets `ASAAS_API_KEY`, `ASAAS_ENV` e `ASAAS_WEBHOOK_TOKEN` no GitHub (não mande aqui) |
