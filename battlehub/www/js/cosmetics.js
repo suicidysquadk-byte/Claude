@@ -94,5 +94,6 @@ window.BH = window.BH || {};
       (cls && cls.indexOf('banner-sw') >= 0 ? '' : '<span class="p-pattern"></span>') + (extraHtml || '') + '</div>';
   }
 
-  BH.cos = { acc, fx, banner, ACC_KEYS: Object.keys(ACC), FX_KEYS: Object.keys(FX) };
+  // ART, FX e BANNER_FX ficam abertos para js/visuais.js acrescentar cenas e efeitos novos
+  BH.cos = Object.assign(BH.cos || {}, { acc, fx, banner, ART, FX, BANNER_FX, ACC_KEYS: Object.keys(ACC), FX_KEYS: Object.keys(FX) });
 })();

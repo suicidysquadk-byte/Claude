@@ -58,10 +58,12 @@ window.BH = window.BH || {};
     const s = size || 'md';
     if (!u) return '<span class="av av-' + s + ' av-anon' + (extra ? ' ' + extra : '') + '">' + I('user') + '</span>';
     const frame = u.frame || null;
-    let ring = '', style = '';
-    if (frame && frame.ring) { ring = frame.ring === 'conic' ? ' ring-conic' : ' ring-color'; style = frame.ring === 'conic' ? '' : '--ring:' + frame.ring + ';'; if (frame.glow) ring += ' ring-glow'; }
-    const acc = u.accessory && BH.cos ? BH.cos.acc(u.accessory) : '';
-    const cls = 'av av-' + s + ring + (acc ? ' has-acc' : '') + (extra ? ' ' + extra : '');
+    let ring = '', style = '', fr = '';
+    // moldura desenhada (SVG) a partir do tamanho médio; em listas pequenas fica só o aro colorido, mais leve
+    if (frame && frame.fr && BH.cos && BH.cos.frame && !(s === 'xs' || s === 'sm')) fr = BH.cos.frame(frame.fr, /(^| )still( |$)/.test(extra || ''));
+    else if (frame && frame.ring) { ring = frame.ring === 'conic' ? ' ring-conic' : ' ring-color'; style = frame.ring === 'conic' ? '' : '--ring:' + frame.ring + ';'; if (frame.glow) ring += ' ring-glow'; }
+    const acc = (u.accessory && BH.cos ? BH.cos.acc(u.accessory) : '') + fr;
+    const cls = 'av av-' + s + ring + (acc ? ' has-acc' : '') + (fr ? ' has-fr' : '') + (extra ? ' ' + extra : '');
     if (!u.id && u.anonymous) return '<span class="' + cls + ' av-anon" role="img" aria-label="Jogador anônimo">' + I('user') + '</span>';
     // a foto fica dentro de um círculo próprio que corta o que sobra (foto vertical, foto grande)
     if (u.avatar_url) return '<span class="' + cls + '" style="' + style + '"><span class="av-photo"><img src="' + U.esc(u.avatar_url) + '" alt="" loading="lazy" referrerpolicy="no-referrer"></span>' + acc + '</span>';
@@ -101,7 +103,10 @@ window.BH = window.BH || {};
       (opts.level && u.level ? '<span class="lvl">' + u.level + '</span>' : '') +
       (opts.tag && u.guild_tag ? '<span class="gtag">' + U.esc(u.guild_tag) + '</span>' : '');
   };
-  U.title = (u) => (u && u.title ? '<span class="ptitle">' + U.esc(u.title) + '</span>' : '');
+  U.title = (u) => (u && u.title ? '<span class="ptitle' + (u.title_fx ? ' t-' + U.esc(u.title_fx) : '') + '">' + U.esc(u.title) + '</span>' : '');
+  // raridade no padrão do Free Fire
+  U.RARITY = { simples: 'Simples', comum: 'Comum', raro: 'Raro', epico: 'Épico', mitico: 'Mítico', lendario: 'Lendário' };
+  U.rarity = (r) => (r && U.RARITY[r] ? '<span class="rar rar-' + r + '">' + U.RARITY[r] + '</span>' : '');
   U.role = function (role) {
     if (!role || role === 'jogador') return '';
     const name = { moderador: 'Moderador', admin: 'Admin', dono: 'Dono' }[role] || role;
