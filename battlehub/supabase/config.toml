@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.pix-webhook]
 verify_jwt = false
+
+[functions.push-enviar]
+verify_jwt = false

@@ -115,6 +115,8 @@ window.BH = window.BH || {};
     return false;
   };
   api.signOut = async function () {
+    // o aparelho para de receber os avisos desta conta (precisa da sessão, então vem antes)
+    if (BH.push) { try { await BH.push.stop(); } catch (e) { /* segue saindo */ } }
     api.me = null;
     try { await sb.auth.signOut(); } catch (e) { /* sai mesmo sem rede */ }
   };

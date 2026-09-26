@@ -3,4 +3,6 @@
     <color name="colorPrimary">#070605</color>
     <color name="colorPrimaryDark">#070605</color>
     <color name="colorAccent">#D9A93F</color>
+    <!-- cor das notificações (dourado do app) -->
+    <color name="bh_ouro">#C9A24D</color>
 </resources>

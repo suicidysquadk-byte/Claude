@@ -1561,3 +1561,10 @@ dl, dd { margin: 0; }
 .fee-form { margin-top: 8px; }
 @media (prefers-reduced-motion: reduce) { .theme-glow, .champ-crown .ic, .split-bar i { animation: none; } }
 .menu-row.danger { color: var(--red); border-color: rgba(251, 113, 133, .25); }
+
+/* notificações no celular (perfil) */
+.push-kinds { display: grid; gap: 8px; margin: 14px 0 10px; padding: 0; list-style: none; }
+.push-kinds li { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border-radius: var(--r-sm); background: var(--surface); border: 1px solid var(--line); }
+.push-kinds li > svg { flex: none; width: 20px; height: 20px; margin-top: 1px; color: var(--gold); }
+.push-kinds span { font-size: 13px; line-height: 1.4; color: var(--muted); }
+.push-kinds b { display: block; font-size: 14px; color: var(--text); }

@@ -3,3 +3,6 @@ scripts/conexao.env
 *.jks
 *.keystore
 supabase/.temp/
+# chave da conta de serviço do Firebase (secreta)
+scripts/*.json
+*firebase-adminsdk*.json

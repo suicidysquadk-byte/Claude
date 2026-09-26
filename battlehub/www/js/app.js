@@ -181,21 +181,25 @@ window.BH = window.BH || {};
     });
     if (cur.page === 'chat') refreshSoon();
   }
+  // abre a tela de um aviso (balão no topo ou toque na notificação do celular)
+  function openNotice(kind, d) {
+    U.closeAll();
+    if (kind === 'mensagem' || kind === 'mensagem_sala') { if (d.thread_id) push('thread', { id: d.thread_id }); else { BH.state.chatTab = kind === 'mensagem_sala' ? 'salas' : 'conversas'; go('chat'); } }
+    else if (kind === 'analise' && d.case_id) { if (d.staff) push('caseAdmin', { id: d.case_id }); else if (d.link) api.openExternal(d.link).catch(U.err); else BH.actions.myCase(); }
+    else if (d.room_id) push('room', { id: d.room_id });
+    else if (d.event_id) push('event', { id: d.event_id });
+    else if (d.guild_id) push('guild', { id: d.guild_id });
+    else if (kind === 'amizade') { BH.state.chatTab = 'amigos'; go('chat'); }
+    else BH.actions.notifications();
+  }
+  BH.flows.openNotice = openNotice;
   const NICON = { sala: 'trophy', resultado: 'trophy', deposito: 'wallet', saque: 'wallet', amizade: 'userPlus', nivel: 'sparkles', guilda: 'shield', admin: 'shieldCheck', aviso: 'megaphone', ban: 'ban', conta: 'badgeCheck', analise: 'shieldAlert' };
   async function onNotification(n) {
     try { await api.refreshMe(); header(); } catch (e) { /* ignora */ }
     const d = n.data || {};
     U.headsUp({
       icon: NICON[n.kind] || 'bell', title: n.title, body: n.body, tone: n.kind === 'ban' ? 'bad' : n.kind === 'resultado' || n.kind === 'deposito' ? 'good' : '',
-      open: () => {
-        U.closeAll();
-        if (n.kind === 'analise' && d.case_id) { if (d.staff) push('caseAdmin', { id: d.case_id }); else if (d.link) api.openExternal(d.link).catch(U.err); else BH.actions.myCase(); }
-        else if (d.room_id) push('room', { id: d.room_id });
-        else if (d.event_id) push('event', { id: d.event_id });
-        else if (d.guild_id) push('guild', { id: d.guild_id });
-        else if (n.kind === 'amizade') { BH.state.chatTab = 'amigos'; go('chat'); }
-        else BH.actions.notifications();
-      }
+      open: () => openNotice(n.kind, d)
     });
     if (n.kind === 'nivel' || n.kind === 'resultado') U.confetti();
     if (n.kind === 'ban' || n.kind === 'conta' || (n.kind === 'analise' && !d.staff)) render('static');
@@ -209,7 +213,7 @@ window.BH = window.BH || {};
     if (api.configured) {
       sessionCache = await api.session();
       if (sessionCache) {
-        try { await api.refreshMe(); startLive(); BH.flows.sendDevice(); }
+        try { await api.refreshMe(); startLive(); BH.flows.sendDevice(); if (BH.push) BH.push.start().catch(() => {}); }
         catch (e) {
           if (/sessão expirou/i.test(e.message)) { await api.signOut(); sessionCache = null; }
           else { api.me = null; nav.set('home', false); view.innerHTML = '<section class="page">' + U.empty('wifiOff', 'Sem conexão com o servidor', e.message, '<button type="button" class="btn primary" data-act="retry">' + I('refresh') + 'Tentar de novo</button>') + '</section>'; document.body.classList.add('no-nav'); header(); return; }

@@ -76,6 +76,17 @@ O passo a passo do que **você** precisa fazer (contas, chaves, loja) está em
   **balão no topo** (estilo WhatsApp) com resposta rápida.
 - Ranking de abates, salas jogadas, sobrevivência, ganhos, vitórias e XP (semana, mês, geral).
 
+**Notificação no celular**
+- Com o app fechado, o jogador recebe no celular: sala começando (ID e senha), vaga liberada, prêmio, depósito, saque,
+  mensagens e avisos da equipe. Tocar na notificação abre a tela certa (sala, conversa, evento, guilda).
+- Na primeira entrada o app explica antes de o Android pedir a permissão. **Perfil → Notificações no celular** liga e
+  desliga. Três canais no Android (Salas e resultados, Conversas, Avisos), que o jogador pode silenciar um a um.
+- Como funciona: o app guarda o token do aparelho (`set_push_token`); cada aviso ou mensagem novo chama a função
+  `push-enviar` pelo `pg_net` (um lote por comando, então um aviso para todos sai de uma vez), e ela manda pelo
+  Firebase Cloud Messaging. Aparelho que desinstalou o app sai da lista sozinho. Sair da conta desliga o aparelho.
+- Só liga com o Firebase configurado (`android/app/google-services.json` + chave da conta de serviço no servidor).
+  Sem isso o app funciona igual, com os avisos só dentro dele.
+
 **Moderação e anti-trapaça**
 - Palavras proibidas (editáveis no painel) bloqueiam nick, bio e nome de guilda; no chat viram asteriscos. O filtro
   pega acento, letra repetida e troca por número (p0rr4). Bio sem link e sem telefone.
@@ -107,6 +118,7 @@ www/                  o app (index.html, css/, js/, fonts/, vendor/)
   js/cosmetics.js     arte da loja: acessórios, fundos e banners animados
   js/pages-mod.js     moderação: fotos, análise de partida, aviso do suspeito
   js/killfeed.js      leitura do killfeed no vídeo (Tesseract.js baixado do jsDelivr só quando usado)
+  js/push.js          notificação no celular: permissão, cadastro do aparelho e toque no aviso
   css/ouro.css        visual preto e dourado (sóbrio) e a loja
   css/entrada.css     abertura (coroa desenhada, zoom), boas-vindas com mural e login
   css/claro.css       tema Branco
@@ -115,9 +127,11 @@ www/                  o app (index.html, css/, js/, fonts/, vendor/)
   img/mural/          telas do app usadas no mural das boas-vindas
 supabase/
   migrations/         banco: tabelas, regras de dinheiro, API, admin, fotos, competitivo, eventos, conta
-  functions/          pix-criar e pix-webhook (Mercado Pago), convite (link de entrada para testador)
-  tests/              testes das regras de dinheiro e servidor de teste para rodar o app sem internet
+  functions/          pix-criar e pix-webhook (Mercado Pago), convite (link de entrada para testador),
+                      push-enviar (notificação no celular pelo Firebase)
+  tests/              testes das regras de dinheiro e da notificação, e servidor de teste para rodar o app sem internet
 scripts/configurar.sh conecta tudo ao seu Supabase (lê scripts/conexao.env)
+scripts/ligar-push.js instala o google-services.json do Firebase e liga a notificação no app
 android/              projeto Android gerado pelo Capacitor
 loja/                 textos, imagens e política de privacidade para a Play Store
 ```
@@ -129,9 +143,21 @@ cp scripts/conexao.exemplo.env scripts/conexao.env   # preencha as chaves
 bash scripts/configurar.sh
 ```
 
-O script liga ao projeto, aplica as migrações, publica as funções do Pix, guarda as chaves do Mercado Pago,
+O script liga ao projeto, aplica as migrações, publica as funções do Pix e da notificação, guarda a chave do
+Firebase, guarda as chaves do Mercado Pago,
 liga o login com Google e o código por e-mail e grava `www/js/config.js`. **A primeira conta que entrar vira
 a dona do app.**
+
+## Notificação no celular (Firebase)
+
+```bash
+node scripts/ligar-push.js ~/Downloads/google-services.json   # liga no app (o arquivo vai para o GitHub)
+# e no scripts/conexao.env: FCM_SERVICE_ACCOUNT_FILE=scripts/battlehub-firebase-adminsdk.json (secreto, ignorado pelo git)
+bash scripts/configurar.sh
+```
+
+Sem o `google-services.json` o app não chama o Firebase (`BH_CONFIG.push` fica `false`), porque o Android fecharia o
+app ao tentar cadastrar o aparelho.
 
 ## Gerar o app
 
@@ -162,7 +188,9 @@ Precisa de um Postgres local vazio (não usa o Supabase):
 PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh ./supabase/tests/reset.sh
 PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh node supabase/tests/money.test.js        # cerca de 208 verificações
 PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh ./supabase/tests/reset.sh
-PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh node supabase/tests/competitivo.test.js  # 267 verificações
+PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh node supabase/tests/competitivo.test.js  # 400 verificações
+PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh ./supabase/tests/reset.sh
+PGHOST=/var/run/postgresql PGPORT=5433 PGDATABASE=bh node supabase/tests/push.test.js         # 39 verificações
 ```
 
 Para abrir o app no navegador sem internet: `node supabase/tests/fake-supabase.js 8790` e acesse

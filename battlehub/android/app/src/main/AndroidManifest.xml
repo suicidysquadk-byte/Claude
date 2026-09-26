@@ -27,6 +27,11 @@
             </intent-filter>
         </activity>
 
+        <!-- notificação no celular (Firebase): ícone, cor e canal padrão. Os canais são criados pelo app (js/push.js) -->
+        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_notificacao" />
+        <meta-data android:name="com.google.firebase.messaging.default_notification_color" android:resource="@color/bh_ouro" />
+        <meta-data android:name="com.google.firebase.messaging.default_notification_channel_id" android:value="bh_avisos" />
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -40,6 +45,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Android 13+: o app pergunta antes de mandar notificação -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- escolher fotos do perfil do Free Fire e do chat usa o seletor do sistema, sem permissão de armazenamento -->
     <queries>
         <intent>

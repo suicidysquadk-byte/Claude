@@ -74,6 +74,7 @@ window.BH = window.BH || {};
         '<nav class="menu stagger">' +
         '<button type="button" class="menu-row ripple" data-act="editProfile">' + I('settings') + '<span>Editar perfil</span>' + I('right', 'chev') + '</button>' +
         '<button type="button" class="menu-row ripple" data-act="themeSheet">' + I('palette') + '<span>Aparência</span><small class="muted">' + ({ sistema: 'Sistema', escuro: 'Preto', claro: 'Branco' }[BH.theme.get()] || 'Preto') + '</small>' + I('right', 'chev') + '</button>' +
+        (BH.push && BH.push.available ? '<button type="button" class="menu-row ripple" data-act="pushSheet">' + I('bell') + '<span>Notificações no celular</span><small class="muted">' + (BH.push.state === 'granted' ? 'Ligadas' : BH.push.state === 'denied' ? 'Bloqueadas' : 'Desligadas') + '</small>' + I('right', 'chev') + '</button>' : '') +
         (me.role_level >= 1 ? '<button type="button" class="menu-row admin ripple" data-act="admin" data-v="overview">' + I('crown') + '<span>Painel administrativo</span>' + (pendN ? '<b class="dot-count">' + pendN + '</b>' : '') + I('right', 'chev') + '</button>' : '') +
         '<button type="button" class="menu-row ripple" data-act="logout">' + I('logout') + '<span>Sair</span></button>' +
         '<button type="button" class="menu-row danger ripple" data-act="deleteAccount">' + I('userX') + '<span>Excluir minha conta</span></button></nav></section>'
@@ -320,6 +321,36 @@ window.BH = window.BH || {};
           '<p class="muted small">A coroa e o nome BattleHub ficam sempre em dourado.</p>';
       }
     });
+  };
+  // notificação no celular: liga, desliga ou explica como desbloquear nas configurações do Android
+  actions.pushSheet = function () {
+    U.sheet({
+      title: 'Notificações no celular',
+      body: async () => {
+        const st = await BH.push.refreshState();
+        const on = st === 'granted';
+        return '<p class="muted">' + (on ? 'Ligadas. Você recebe os avisos mesmo com o app fechado.'
+            : st === 'denied' ? 'O Android está bloqueando as notificações do BattleHub. Para liberar: <b>Configurações do celular → Apps → BattleHub → Notificações</b>.'
+              : 'Desligadas. Ligue para saber na hora quando a sala começa, quando cai prêmio e quando alguém te chama.') + '</p>' +
+          '<ul class="push-kinds"><li>' + I('trophy') + '<span><b>Salas e resultados</b>ID e senha da sala, vaga liberada, prêmios</span></li>' +
+          '<li>' + I('message') + '<span><b>Conversas</b>Mensagens de jogadores e organizadores</span></li>' +
+          '<li>' + I('megaphone') + '<span><b>Avisos</b>Depósitos, saques, amizades, eventos e avisos da equipe</span></li></ul>' +
+          '<p class="muted small">Dá para silenciar cada grupo nas configurações de notificação do Android.</p>' +
+          (on ? '<button type="button" class="btn outline block" data-act="pushOff">' + I('bell') + 'Desligar neste celular</button>'
+            : st === 'denied' ? '' : '<button type="button" class="btn primary block" data-act="pushOn">' + I('bell') + 'Ligar notificações</button>');
+      }
+    });
+  };
+  actions.pushOn = async function (el) {
+    const ok = await U.run(el, () => BH.push.enable());
+    if (ok === false) U.toast('O Android não liberou. Veja em Configurações → Apps → BattleHub → Notificações.', 'info');
+    else if (ok) U.toast('Notificações ligadas.', 'good');
+    const s = U.topSheet(); if (s) s.render('static'); app().refresh();
+  };
+  actions.pushOff = async function (el) {
+    await U.run(el, () => BH.push.disable());
+    U.toast('Notificações desligadas neste celular.', 'info');
+    const s = U.topSheet(); if (s) s.render('static'); app().refresh();
   };
   actions.themeSet = (el) => { BH.theme.set(el.dataset.v); const s = U.topSheet(); if (s) s.render('static'); app().refresh(); };
   actions.lookSheet = function () {

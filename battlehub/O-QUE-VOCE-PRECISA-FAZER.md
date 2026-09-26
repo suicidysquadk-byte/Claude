@@ -4,6 +4,8 @@
 - O servidor (Supabase) está no ar, com todas as regras de dinheiro, eventos, loja e painel.
 - A sua conta já é a **dona**.
 - O app da versão **2.4.0** aponta para ele.
+- A versão **2.5.0** traz a **notificação no celular** (sala começando, prêmio, mensagem, mesmo com o app fechado).
+  O código está pronto; para ela funcionar faltam o passo **3.1** (Firebase) e eu publicar a atualização do servidor.
 
 O que falta são contas nos serviços, que só você pode criar (ficam no seu nome e no seu CPF/CNPJ). Faça **na
 ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu conecto.
@@ -15,7 +17,7 @@ ordem**. Onde está escrito **"me mande"**, cole a informação no chat que eu c
 
 ## Mandar para alguém testar
 
-1. Mande o arquivo **BattleHub-2.4.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
+1. Mande o arquivo **BattleHub-2.5.0.apk** e o **GUIA-DO-TESTADOR.md** para a pessoa.
 2. Ela instala, digita o e-mail no app e entra com o **código de 6 dígitos** que chega do battlehubofc@gmail.com.
 
 Se o e-mail dela demorar ou cair no spam, use o **convite**:
@@ -79,6 +81,34 @@ site e para o e-mail de suporte que a Play Store pede.
 
 O botão "Continuar com Google" aparece sozinho no app quando isso estiver ligado.
 
+## 3.1 Notificação no celular: Firebase · 15 min (recomendado)
+
+Sem isso, os avisos só aparecem com o app aberto. Com isso, o jogador recebe no celular, mesmo com o app fechado:
+a sala começando com **ID e senha**, vaga liberada, prêmio, depósito, saque, mensagem e avisos da equipe. O Firebase
+é do Google e é **grátis** para notificações.
+
+1. Entre em **console.firebase.google.com** com a conta Google do BattleHub e toque em **Criar projeto**.
+   - Nome: `BattleHub`.
+   - O Google Analytics pode ficar desligado.
+2. No projeto, toque no ícone do **Android** para adicionar um app:
+   - Nome do pacote: **`gg.battlehub.app`** (exatamente assim).
+   - Apelido: `BattleHub`. O SHA-1 pode ficar em branco.
+   - Baixe o arquivo **`google-services.json`**. Ele não é segredo: vai junto com o app.
+   - Pule os outros passos da tela (o app já está pronto).
+3. Na engrenagem → **Configurações do projeto → Contas de serviço**, toque em **Gerar nova chave privada**.
+   - Baixa um arquivo `.json` com `firebase-adminsdk` no nome. **Esse é secreto**: dá acesso para mandar
+     notificação em nome do app.
+4. **Me mande** os dois arquivos aqui no chat (anexe como arquivo) e o **Access Token do Supabase**
+   (*supabase.com/dashboard/account/tokens*), para eu publicar a atualização do servidor.
+   - Eu ligo o `google-services.json` no app (`scripts/ligar-push.js`) e guardo a chave secreta só no servidor
+     (`scripts/configurar.sh`). Ela não fica no app nem no GitHub.
+   - Depois de ligado, dá para apagar a chave no Firebase e gerar outra quando quiser. Se apagar, me mande a nova.
+
+Depois disso:
+- Na primeira vez que o jogador entra, o app explica e pergunta se ele quer receber os avisos.
+- Em **Perfil → Notificações no celular** dá para ligar ou desligar.
+- Nas configurações do Android o jogador pode silenciar cada grupo: **Salas e resultados**, **Conversas** e **Avisos**.
+
 ## 4. Pagamento automático (Pix): Mercado Pago · 20 min (comece por aqui)
 
 O app já está pronto para o Mercado Pago:
@@ -113,7 +143,7 @@ mandam Pix pela API. Me avise que eu integro.
 
 ## 5. Configurar a plataforma no app · 5 min
 
-1. Instale o **BattleHub-2.4.0.apk** no seu celular (por cima do anterior, sem desinstalar).
+1. Instale o **BattleHub-2.5.0.apk** no seu celular (por cima do anterior, sem desinstalar).
 2. Painel admin → *Configurações*:
    - Coloque a **chave Pix da plataforma**, o nome e a cidade (usados no Pix manual).
    - Confira a **parte da plataforma**: padrão 10% da arrecadação das salas dos organizadores.
@@ -181,7 +211,7 @@ Vídeos pelo app vão até **50 MB** (limite do plano grátis do Supabase). No p
    - Idioma: português (Brasil).
    - Tipo: jogo.
    - Grátis.
-4. Envie o arquivo **`BattleHub-2.4.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
+4. Envie o arquivo **`BattleHub-2.5.0.aab`** em *Testes → Teste interno* primeiro. Depois vá para *Produção*.
 5. Preencha a ficha com os textos de `loja/descricao.md` e as imagens da pasta `loja/` (ícone, destaque e as 8
    telas novas em preto e dourado).
 6. Preencha os formulários:
@@ -223,3 +253,4 @@ Vídeos pelo app vão até **50 MB** (limite do plano grátis do Supabase). No p
 |---|---|
 | 4 | Access Token e assinatura secreta do Mercado Pago |
 | 3 | (opcional) ID do cliente e chave secreta do Google |
+| 3.1 | `google-services.json`, a chave da conta de serviço do Firebase e o Access Token do Supabase |

@@ -41,7 +41,7 @@ jobs:
             echo "Sem BATTLEHUB_SUPABASE_URL/ANON_KEY: o app abre na tela de configuração."
           fi
 
-      - name: Testar as regras de dinheiro num Postgres
+      - name: Testar as regras de dinheiro e a notificação num Postgres
         run: |
           sudo systemctl start postgresql.service
           sudo -u postgres psql -c "alter user postgres password 'postgres'"
@@ -49,6 +49,8 @@ jobs:
           PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres PGDATABASE=bh node supabase/tests/money.test.js
           PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres PGDATABASE=bh ./supabase/tests/reset.sh
           PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres PGDATABASE=bh node supabase/tests/competitivo.test.js
+          PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres PGDATABASE=bh ./supabase/tests/reset.sh
+          PGHOST=localhost PGPORT=5432 PGUSER=postgres PGPASSWORD=postgres PGDATABASE=bh node supabase/tests/push.test.js
 
       - name: Copiar o app para o projeto Android
         run: npx cap sync android

@@ -5,7 +5,7 @@ em teste: use valores pequenos e conte tudo o que achar estranho.
 
 ## 1. Instalar (Android)
 
-1. Abra o arquivo **BattleHub-2.4.0.apk** que você recebeu.
+1. Abra o arquivo **BattleHub-2.5.0.apk** que você recebeu.
 2. Se o celular avisar sobre "fontes desconhecidas", toque em **Configurações** e ligue **Permitir desta fonte**.
 3. Toque em **Instalar**.
    - O app ainda não está na Play Store, por isso aparece esse aviso.
@@ -29,6 +29,8 @@ Observações:
 1. Escolha seu **nick** do BattleHub.
 2. Informe seu **nick** e **ID do Free Fire**.
 3. Mande um **print do seu perfil** no Free Fire, onde aparecem o nick e o ID. A equipe confere e aprova.
+4. Quando o app perguntar **"Receber avisos no celular?"**, toque em **Ativar** e depois em **Permitir**. Assim você fica
+   sabendo na hora quando a sala começa, mesmo com o app fechado.
 
 ## 4. O que testar
 
@@ -60,6 +62,9 @@ Marque o que conseguiu fazer e anote o que deu errado:
   - Criar ou entrar numa guilda.
 - [ ] **Chat**
   - Mandar mensagem para um amigo.
+- [ ] **Notificações**
+  - Com o app fechado, peça para um amigo te mandar mensagem: a notificação chega e, ao tocar, abre a conversa.
+  - Em **Perfil → Notificações no celular**, desligar e ligar de novo.
 - [ ] **Jogo limpo**
   - Trocar a foto: aparece "Foto nova em análise" até a equipe aprovar.
   - Tentar pôr palavrão, link ou telefone na bio: o app recusa.
